@@ -26,9 +26,12 @@ app.CanvasRenderer = class {
      * @param {!app.Layout} layout
      */
     render(layout) {
+        this._context.save();
+        this._context.translate(this._width / 2, this._height / 2);
         this._renderScaffolding(this._context, layout);
         for (var person of layout.people())
             this._renderPerson(this._context, layout, person);
+        this._context.restore();
     }
 
     /**
@@ -55,7 +58,7 @@ app.CanvasRenderer = class {
             }
         }
         ctx.lineWidth = 1;
-        ctx.strokeStyle = 'lightgray';
+        ctx.strokeStyle = 'darkgray';
         ctx.stroke();
     }
 
@@ -78,12 +81,14 @@ app.CanvasRenderer = class {
             ctx.fillStyle = color;
             ctx.fill();
         } else {
+            ctx.fillStyle = "white";
+            ctx.fill();
             ctx.lineWidth = 3;
             ctx.strokeStyle = color;
             ctx.stroke();
         }
 
-        var rotation = layout.personRotation(person);
+        var rotation = position.angleTo(new g.Vec(10, 0));
         if (rotation < 0)
             rotation += Math.PI * 2;
         var textOnLeft = false;
@@ -94,7 +99,8 @@ app.CanvasRenderer = class {
         ctx.save();
         ctx.translate(position.x, position.y);
         ctx.rotate(rotation);
-        ctx.font = '16px serif';
+        ctx.font = '16px arial';
+        ctx.fillStyle = color;
         ctx.textBaseline = 'bottom';
         if (textOnLeft) {
             var textWidth = ctx.measureText(person.fullName()).width;

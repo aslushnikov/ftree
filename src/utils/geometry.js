@@ -26,6 +26,18 @@ g.Vec = class {
         return new g.Vec(this.x * k, this.y * k);
     }
 
+    len() {
+        return Math.sqrt(this.x * this.x + this.y * this.y);
+    }
+
+    /**
+     * @param {!g.Vec} other
+     * @return {number}
+     */
+    angleTo(other) {
+        return Math.atan2(this.y - other.y, this.x - other.x);
+    }
+
     /**
      * @param {number} r
      * @param {number} angle
@@ -35,6 +47,8 @@ g.Vec = class {
         return new g.Vec(r * Math.cos(angle), r * Math.sin(angle));
     }
 }
+
+g.zeroVec = new g.Vec(0, 0);
 
 g.Line = class {
     /**

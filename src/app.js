@@ -11,5 +11,9 @@ function startApplication() {
         var renderer = new app.CanvasRenderer(canvasElement);
         var sunLayout = new app.SunLayout(tree, renderer.width(), renderer.height());
         renderer.render(sunLayout);
+
+        // For debug.
+        window.t = tree;
+        window.l = sunLayout;
     }
 }
