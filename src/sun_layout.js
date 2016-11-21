@@ -1,3 +1,16 @@
+app.Layout = class {
+    /**
+     * @return {!Array<!Object>}
+     */
+    scaffolding() { }
+
+    /**
+     * @override
+     * @return {!Map<!app.Person, !g.Vec>}
+     */
+    personPositions() { }
+}
+
 app.SunLayout = class extends app.Layout {
     constructor(familyTree, width, height) {
         super();
