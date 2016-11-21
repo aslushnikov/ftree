@@ -40,9 +40,13 @@ app.SunLayout = class extends app.Layout {
             if (!children.length)
                 return;
             var r = (node[app.SunLayout._depth] + 1) * this._depthRadiusStep;
-            children.forEach(child => child[app.SunLayout._weight] = Math.max(...child[app.SunLayout._depthChildCount]));
-            children.sort((a,b) => a[app.SunLayout._weight] - b[app.SunLayout._weight]);
+            //var segmentSpacingArc = g.segmentLengthToRad(r, 6 * this._nodeRadius);
+            //arcFrom += segmentSpacingArc;
+            //arcTo -= segmentSpacingArc;
+
+            children.sort((a,b) => a[app.SunLayout._minArc] - b[app.SunLayout._minArc]);
             var sum = children.reduce((a,b) => a + b[app.SunLayout._weight], 0);
+
             var arcQuant = (arcTo - arcFrom) / sum;
             var last = arcFrom;
             var childAngles = [];
@@ -52,8 +56,8 @@ app.SunLayout = class extends app.Layout {
                 var childArcFrom = last;
                 var childArcTo = last + weight * arcQuant;
                 var minimumArc = this._minimumArc(child);
-                //if (childArcTo - childArcFrom < minimumArc || !child.children.size)
-                //    childArcTo = childArcFrom + minimumArc;
+                if (childArcTo - childArcFrom < minimumArc || !child.children.size)
+                    childArcTo = childArcFrom + minimumArc;
                 last = childArcTo;
 
                 var positionAngle = (childArcFrom + childArcTo) / 2;
@@ -67,22 +71,25 @@ app.SunLayout = class extends app.Layout {
             var joinEnd = joinStart;
             // corner case in case of very first node.
             if (joinStart.x === 0 && joinStart.y === 0)
-                var joinEnd = g.Vec.fromRadial(r, -Math.PI / 5);
+                var joinEnd = g.Vec.fromRadial(r, Math.PI / 2 + Math.PI / 5);
             else
                 var joinEnd = joinStart.scale(r / joinStart.len());
             this._scaffolding.push(new g.Line(joinStart, joinEnd));
         }
     }
 
-    _minimumArc(node) {
-        var childCount = node[app.SunLayout._depthChildCount];
+    /**
+     * @param {!Array<number>} depthChildCount
+     * @return {number}
+     */
+    _minimumArc(depthChildCount) {
         var minArcSizes = [];
-        for (var i = 0; i < childCount.length; ++i) {
-            var count = childCount[i];
+        for (var i = 1; i < depthChildCount.length; ++i) {
+            var count = depthChildCount[i];
             var r = i * this._depthRadiusStep;
-            var perimeter = 2 * Math.PI * r;
-            var minSize = (2 * this._nodeRadius * count / perimeter) * 2 * Math.PI;
-            minArcSizes.push(minSize);
+            var segment = count * (2 * this._nodeRadius + 7); // Add padding between nodes.
+            var arc = g.segmentLengthToRad(r, segment);
+            minArcSizes.push(arc);
         }
         return Math.max(...minArcSizes);
     }
@@ -114,6 +121,7 @@ app.SunLayout = class extends app.Layout {
 
             node[app.SunLayout._depth] = depth;
             node[app.SunLayout._depthChildCount] = depthCount;
+            node[app.SunLayout._minArc] = this._minimumArc(depthCount);
         }
     }
 
@@ -142,5 +150,5 @@ app.SunLayout = class extends app.Layout {
 }
 
 app.SunLayout._depth = Symbol('depth');
-app.SunLayout._weight = Symbol('weight');
+app.SunLayout._minArc = Symbol('minArc');
 app.SunLayout._depthChildCount = Symbol('depthChildCount');
