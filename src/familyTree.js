@@ -11,7 +11,6 @@ app.Person = class {
      * @param {!app.Gender} gender
      * @param {number} birthYear
      * @param {number} deathYear
-     * @param {!Set<!app.Person>} partners
      */
     constructor(firstName, lastName, gender, birthYear, deathYear) {
         this.firstName = firstName;
@@ -54,6 +53,7 @@ app.FamilyTree = class {
      */
     constructor(root) {
         this._root = root;
+        this._layers = [];
     }
 
     /**
