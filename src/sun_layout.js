@@ -5,22 +5,40 @@ app.Layout = class {
     scaffolding() { }
 
     /**
-     * @override
-     * @return {!Map<!app.Person, !g.Vec>}
+     * @return {!Array<!app.Person>}
      */
-    personPositions() { }
+    people() { }
+
+    /**
+     * @param {!app.Person} person
+     * @return {!g.Vec}
+     */
+    personPosition(person) { }
+
+    /**
+     * @param {!app.Person} person
+     * @return {number}
+     */
+    personRotation(person) { }
 }
 
 app.SunLayout = class extends app.Layout {
     constructor(familyTree, width, height) {
         super();
-        this._familyTree = familyTree;
-        this._width = width;
-        this._height = height;
+        var size = new g.Vec(width, height);
+
+        this._people = [familyTree.root()];
 
         this._scaffolding = [];
-
-        this._levels = new Multimap();
+        var center = size.scale(0.5);
+        var maxR = Math.min(width, height) / 2;
+        var N = 100;
+        for (var i = 0; i < N; ++i) {
+            var r = (maxR / N) * (i + 1);
+            var fromA = Math.PI / N * i;
+            var toA = fromA + Math.PI * 3 / 2;
+            this._scaffolding.push(new g.Arc(center, r, fromA, toA));
+        }
     }
 
     /**
@@ -28,19 +46,29 @@ app.SunLayout = class extends app.Layout {
      * @return {!Array<!Object>}
      */
     scaffolding() {
-        return [
-            new g.Line(new g.Vec(10, 10), new g.Vec(50, 50)),
-            new g.Arc(new g.Vec(180, 80), 50, 0, Math.PI),
-            new g.Bezier(new g.Vec(80, 100), new g.Vec(130, 150), new g.Vec(80, 150))
-        ];
         return this._scaffolding;
     }
 
     /**
-     * @override
-     * @return {!Map<!app.Person, !g.Vec>}
+     * @return {!Array<!app.Person>}
      */
-    personPositions() {
-        return new Map();
+    people() {
+        return this._people;
+    }
+
+    /**
+     * @param {!app.Person} person
+     * @return {?g.Vec}
+     */
+    personPosition(person) {
+        return new g.Vec(200, 200);
+    }
+
+    /**
+     * @param {!app.Person} person
+     * @return {number}
+     */
+    personRotation(person) {
+        return Math.PI / 3 + Math.PI;
     }
 }

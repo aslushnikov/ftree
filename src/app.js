@@ -7,7 +7,9 @@ function startApplication() {
 
     function onTreeLoaded(tree) {
         console.log(tree);
-        var renderer = new app.CanvasRenderer(document.querySelector('canvas'));
-        renderer.render(new app.SunLayout(tree));
+        var canvasElement = document.querySelector('canvas');
+        var renderer = new app.CanvasRenderer(canvasElement);
+        var sunLayout = new app.SunLayout(tree, renderer.width(), renderer.height());
+        renderer.render(sunLayout);
     }
 }

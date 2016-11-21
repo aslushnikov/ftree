@@ -3,10 +3,39 @@ app.CanvasRenderer = class {
         this._width = canvasElement.width;
         this._height = canvasElement.height;
         this._context = canvasElement.getContext('2d');
+
+        // Properties.
+        this._personRadius = 25;
     }
 
+    /**
+     * @return {number}
+     */
+    width() {
+        return this._width;
+    }
+
+    /**
+     * @return {number}
+     */
+    height() {
+        return this._width;
+    }
+
+    /**
+     * @param {!app.Layout} layout
+     */
     render(layout) {
-        var ctx = this._context;
+        this._renderScaffolding(this._context, layout);
+        for (var person of layout.people())
+            this._renderPerson(this._context, layout, person);
+    }
+
+    /**
+     * @param {!CanvasRenderingContext2D} ctx
+     * @param {!app.Layout} layout
+     */
+    _renderScaffolding(ctx, layout) {
         ctx.clearRect(0, 0, this._width, this._height);
         var shapes = layout.scaffolding();
         ctx.beginPath();
@@ -25,6 +54,59 @@ app.CanvasRenderer = class {
                 ctx.quadraticCurveTo(bezier.cp.x, bezier.cp.y, bezier.to.x, bezier.to.y);
             }
         }
+        ctx.lineWidth = 1;
+        ctx.strokeStyle = 'lightgray';
         ctx.stroke();
+    }
+
+    /**
+     * @param {!CanvasRenderingContext2D} ctx
+     * @param {!app.Layout} layout
+     * @param {!app.Person} person
+     */
+    _renderPerson(ctx, layout, person) {
+        ctx.beginPath();
+        var position = layout.personPosition(person);
+        ctx.moveTo(position.x + this._personRadius, position.y);
+        ctx.arc(position.x, position.y, this._personRadius, 0, 2*Math.PI);
+        var color = 'gray';
+        if (person.gender === app.Gender.Male)
+            color = '#8eb2bd';
+        else if (person.gender === app.Gender.Female)
+            color = '#e89096';
+        if (person.children.size) {
+            ctx.fillStyle = color;
+            ctx.fill();
+        } else {
+            ctx.lineWidth = 3;
+            ctx.strokeStyle = color;
+            ctx.stroke();
+        }
+
+        var rotation = layout.personRotation(person);
+        if (rotation < 0)
+            rotation += Math.PI * 2;
+        var textOnLeft = false;
+        if (rotation > Math.PI / 2 && rotation < 3 * Math.PI / 2) {
+            rotation -= Math.PI;
+            textOnLeft = true;
+        }
+        ctx.save();
+        ctx.translate(position.x, position.y);
+        ctx.rotate(rotation);
+        ctx.font = '16px serif';
+        ctx.textBaseline = 'bottom';
+        if (textOnLeft) {
+            var textWidth = ctx.measureText(person.fullName()).width;
+            ctx.fillText(person.fullName(), -this._personRadius - 3 - textWidth, 0);
+            ctx.textBaseline = 'top';
+            textWidth = ctx.measureText(person.dates()).width;
+            ctx.fillText(person.dates(), -this._personRadius - 3 - textWidth, 0);
+        } else {
+            ctx.fillText(person.fullName(), this._personRadius + 3, 0);
+            ctx.textBaseline = 'top';
+            ctx.fillText(person.dates(), this._personRadius + 3, 0);
+        }
+        ctx.restore();
     }
 }
