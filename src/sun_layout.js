@@ -14,18 +14,28 @@ app.Layout = class {
      * @return {!g.Vec}
      */
     personPosition(person) { }
+
+    /**
+     * @param {!app.Person} person
+     * @return {number}
+     */
+    personRadius(person) { }
 }
 
 app.SunLayout = class extends app.Layout {
     /**
      * @param {!app.FamilyTree} familyTree
+     * @param {number} nodeRadius
+     * @param {number} depthStep
      */
-    constructor(familyTree) {
+    constructor(familyTree, nodeRadius, depthStep) {
         super();
-        this._depthRadiusStep = 200;
-        this._nodeRadius = 25;
+        this._depthRadiusStep = depthStep;
+        this._nodeRadius = nodeRadius;
         this._positions = new Map();
         this._scaffolding = [];
+
+        this._angles = new Map();
 
         this._computeSubtreeSizesAndDepth(familyTree);
         this._computeRadialPositions(familyTree);
@@ -45,7 +55,7 @@ app.SunLayout = class extends app.Layout {
             var min = Infinity;
             var max = -Infinity;
             for (var child of children) {
-                var angle = child[app.SunLayout._angle];
+                var angle = this._angles.get(child);
                 this._positions.set(child, g.Vec.fromRadial(r, angle));
                 min = Math.min(min, angle);
                 max = Math.max(max, angle);
@@ -54,26 +64,29 @@ app.SunLayout = class extends app.Layout {
             this._scaffolding.push(new g.Arc(g.zeroVec, r, min, max));
             // Level join.
             var joinStart = this._positions.get(node);
-            var joinEnd = g.Vec.fromRadial(1, node[app.SunLayout._angle]).scale(r);
+            var joinEnd = g.Vec.fromRadial(1, this._angles.get(node)).scale(r);
             this._scaffolding.push(new g.Line(joinStart, joinEnd));
         }
     }
 
     _computeSubtreeSizesAndDepth(familyTree) {
-        dfs.call(this, familyTree.root(), 0);
+        this._maxDepth = dfs.call(this, familyTree.root(), 0);
 
         /**
          * @param {!app.Person} node
          * @param {number} depth
+         * @return {number}
          */
         function dfs(node, depth) {
             var subtreeSize = 1;
+            var maxDepth = 1;
             for (var child of node.children) {
-                dfs.call(this, child, depth + 1);
+                maxDepth = Math.max(maxDepth, 1 + dfs.call(this, child, depth + 1));
                 subtreeSize += child[app.SunLayout._subtreeSize];
             }
             node[app.SunLayout._depth] = depth;
             node[app.SunLayout._subtreeSize] = subtreeSize;
+            return maxDepth;
         }
     }
 
@@ -85,28 +98,42 @@ app.SunLayout = class extends app.Layout {
         populateLeafNodes(familyTree.root(), leafs);
 
         // assign initial positions to leafs.
-        var angleQuant = 2 * Math.PI / leafs.length;
-        for (var i = 0; i < leafs.length; ++i) {
+        var minAngleForDepth = new Array(this._maxDepth);
+        for (var i = 0; i < minAngleForDepth.length; ++i)
+            minAngleForDepth[i] = g.segmentLengthToRad(i * this._depthRadiusStep, this._nodeRadius * 3);
+        var required = 0;
+        for (var i = 1; i < leafs.length; ++i)
+            required += minAngleForDepth[leafs[i][app.SunLayout._depth]];
+        var total = 2 * Math.PI;
+        var free = total - required;
+        var freeQuant = free / leafs.length;
+
+        this._angles.set(leafs[0], 0);
+        var last = 0;
+        for (var i = 1; i < leafs.length; ++i) {
+            var prevLeaf = leafs[i - 1];
             var leaf = leafs[i];
-            leaf[app.SunLayout._angle] = angleQuant * i;
+            var value = last + minAngleForDepth[prevLeaf[app.SunLayout._depth]] + freeQuant;
+            this._angles.set(leaf, value);
+            last = value;
         }
-        layoutTree(familyTree.root());
+        layoutTree.call(this, familyTree.root());
 
         /**
          * @param {!app.Person] node
          */
         function layoutTree(node) {
-            if (typeof node[app.SunLayout._angle] === 'number')
+            if (this._angles.has(node))
                 return;
             var children = Array.from(node.children);
             var min = Infinity;
             var max = -Infinity;
             for (var child of children) {
-                layoutTree(child);
-                min = Math.min(min, child[app.SunLayout._angle]);
-                max = Math.max(max, child[app.SunLayout._angle]);
+                layoutTree.call(this, child);
+                min = Math.min(min, this._angles.get(child));
+                max = Math.max(max, this._angles.get(child));
             }
-            node[app.SunLayout._angle] = (min + max) / 2;
+            this._angles.set(node, (min + max) / 2);
         }
 
         /**
@@ -156,8 +183,15 @@ app.SunLayout = class extends app.Layout {
     personPosition(person) {
         return this._positions.get(person) || null;
     }
+
+    /**
+     * @param {!app.Person} person
+     * @return {number}
+     */
+    personRadius(person) {
+        return this._nodeRadius;
+    }
 }
 
 app.SunLayout._depth = Symbol('depth');
 app.SunLayout._subtreeSize = Symbol('subtreeSize');
-app.SunLayout._angle = Symbol('angle');

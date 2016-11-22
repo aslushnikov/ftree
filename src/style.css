@@ -1,0 +1,16 @@
+.controls {
+    position: fixed;
+    left: 0;
+    top: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.control {
+    display: flex;
+}
+
+.control * {
+    flex-shrink: 0;
+}
+

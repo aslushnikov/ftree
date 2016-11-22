@@ -3,9 +3,6 @@ app.CanvasRenderer = class {
         this._width = canvasElement.width;
         this._height = canvasElement.height;
         this._context = canvasElement.getContext('2d');
-
-        // Properties.
-        this._personRadius = 5;
     }
 
     /**
@@ -26,6 +23,7 @@ app.CanvasRenderer = class {
      * @param {!app.Layout} layout
      */
     render(layout) {
+        this._context.clearRect(0, 0, this._width, this._height);
         this._context.save();
         this._context.translate(this._width / 2, this._height / 2);
         this._renderScaffolding(this._context, layout);
@@ -39,7 +37,6 @@ app.CanvasRenderer = class {
      * @param {!app.Layout} layout
      */
     _renderScaffolding(ctx, layout) {
-        ctx.clearRect(0, 0, this._width, this._height);
         var shapes = layout.scaffolding();
         ctx.beginPath();
         for (var shape of shapes) {
@@ -68,10 +65,12 @@ app.CanvasRenderer = class {
      * @param {!app.Person} person
      */
     _renderPerson(ctx, layout, person) {
-        ctx.beginPath();
         var position = layout.personPosition(person);
-        ctx.moveTo(position.x + this._personRadius, position.y);
-        ctx.arc(position.x, position.y, this._personRadius, 0, 2*Math.PI);
+        var personRadius = layout.personRadius(person);
+
+        ctx.beginPath();
+        ctx.moveTo(position.x + personRadius, position.y);
+        ctx.arc(position.x, position.y, personRadius, 0, 2*Math.PI);
         var color = 'gray';
         if (person.gender === app.Gender.Male)
             color = '#8eb2bd';
@@ -104,14 +103,14 @@ app.CanvasRenderer = class {
         ctx.textBaseline = 'bottom';
         if (textOnLeft) {
             var textWidth = ctx.measureText(person.fullName()).width;
-            ctx.fillText(person.fullName(), -this._personRadius - 3 - textWidth, 0);
+            ctx.fillText(person.fullName(), -personRadius - 3 - textWidth, 0);
             ctx.textBaseline = 'top';
             textWidth = ctx.measureText(person.dates()).width;
-            ctx.fillText(person.dates(), -this._personRadius - 3 - textWidth, 0);
+            ctx.fillText(person.dates(), -personRadius - 3 - textWidth, 0);
         } else {
-            ctx.fillText(person.fullName(), this._personRadius + 3, 0);
+            ctx.fillText(person.fullName(), personRadius + 3, 0);
             ctx.textBaseline = 'top';
-            ctx.fillText(person.dates(), this._personRadius + 3, 0);
+            ctx.fillText(person.dates(), personRadius + 3, 0);
         }
         ctx.restore();
     }

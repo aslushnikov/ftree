@@ -1,10 +1,19 @@
-<script src="./third_party/papaparse.min.js"></script>
-<script src="./app.js"></script>
-<script src="./utils/utilities.js"></script>
-<script src="./utils/geometry.js"></script>
-<script src="./family_tree.js"></script>
-<script src="./sun_layout.js"></script>
-<script src="./canvas_renderer.js"></script>
-<script src="./data_loader.js"></script>
+<script src='./third_party/papaparse.min.js'></script>
+<script src='./app.js'></script>
+<script src='./utils/utilities.js'></script>
+<script src='./utils/geometry.js'></script>
+<script src='./family_tree.js'></script>
+<script src='./sun_layout.js'></script>
+<script src='./canvas_renderer.js'></script>
+<script src='./data_loader.js'></script>
+
+<link rel='stylesheet' href='style.css'>
 
 <canvas width=5000 height=5000></canvas>
+<fieldset class='controls'>
+    <legend>Controls</legend>
+    <div class='control'>
+        <div class='label'>Person radius: </div>
+        <input class='radius-control' type='range' min='5' max='50' value='25'></input>
+    </div>
+</fieldset>
