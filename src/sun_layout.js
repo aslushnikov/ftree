@@ -22,11 +22,11 @@ app.SunLayout = class extends app.Layout {
      */
     constructor(familyTree) {
         super();
-        this._depthRadiusStep = 150;
+        this._depthRadiusStep = 200;
         this._nodeRadius = 25;
         this._positions = new Map();
         this._scaffolding = [];
-        this._computeDepths(familyTree);
+        this._precompute(familyTree);
         this._doLayout(familyTree);
     }
 
@@ -40,24 +40,15 @@ app.SunLayout = class extends app.Layout {
             if (!children.length)
                 return;
             var r = (node[app.SunLayout._depth] + 1) * this._depthRadiusStep;
-            //var segmentSpacingArc = g.segmentLengthToRad(r, 6 * this._nodeRadius);
-            //arcFrom += segmentSpacingArc;
-            //arcTo -= segmentSpacingArc;
-
-            children.sort((a,b) => a[app.SunLayout._minArc] - b[app.SunLayout._minArc]);
-            var sum = children.reduce((a,b) => a + b[app.SunLayout._weight], 0);
-
-            var arcQuant = (arcTo - arcFrom) / sum;
+            var offset = g.segmentLengthToRad(r, this._nodeRadius);
+            arcTo -= offset;
+            children.sort(nodeComparator);
             var last = arcFrom;
             var childAngles = [];
             for (var i = 0; i < children.length; ++i) {
                 var child = children[i];
-                var weight = child[app.SunLayout._weight];
                 var childArcFrom = last;
-                var childArcTo = last + weight * arcQuant;
-                var minimumArc = this._minimumArc(child);
-                if (childArcTo - childArcFrom < minimumArc || !child.children.size)
-                    childArcTo = childArcFrom + minimumArc;
+                var childArcTo = last + child[app.SunLayout._minArc];
                 last = childArcTo;
 
                 var positionAngle = (childArcFrom + childArcTo) / 2;
@@ -76,6 +67,18 @@ app.SunLayout = class extends app.Layout {
                 var joinEnd = joinStart.scale(r / joinStart.len());
             this._scaffolding.push(new g.Line(joinStart, joinEnd));
         }
+
+        /**
+         * @param {!app.Person} a
+         * @param {!app.Person} b
+         * @return {number}
+         */
+        function nodeComparator(a, b) {
+            var minArcDiff = a[app.SunLayout._minArc] - b[app.SunLayout._minArc];
+            if (Math.abs(minArcDiff) < 1e-7)
+                return a[app.SunLayout._subtreeSize] - b[app.SunLayout._subtreeSize];
+            return minArcDiff;
+        }
     }
 
     /**
@@ -87,7 +90,7 @@ app.SunLayout = class extends app.Layout {
         for (var i = 1; i < depthChildCount.length; ++i) {
             var count = depthChildCount[i];
             var r = i * this._depthRadiusStep;
-            var segment = count * (2 * this._nodeRadius + 7); // Add padding between nodes.
+            var segment = 3 * count * this._nodeRadius; // Add padding between nodes.
             var arc = g.segmentLengthToRad(r, segment);
             minArcSizes.push(arc);
         }
@@ -97,11 +100,11 @@ app.SunLayout = class extends app.Layout {
     /**
      * @param {!app.FamilyTree} familyTree
      */
-    _computeDepths(familyTree) {
+    _precompute(familyTree) {
         var root = familyTree.root();
         // It's hard to imagine familyTree could be more then 30 levels deep.
         var maxDepth = 30;
-        dfs(root, 0);
+        dfs.call(this, root, 0);
 
         /**
          * @param {!app.Person} node
@@ -110,16 +113,19 @@ app.SunLayout = class extends app.Layout {
         function dfs(node, depth) {
             // It's hard to imagine there's more then 100 levels.
             var depthCount = new Array(maxDepth).fill(0);
-            // From |node| point of view, at it's depth there's only one node.
             depthCount[depth] = 1;
+            var subtreeSize = 1;
             for (var child of node.children) {
-                dfs(child, depth + 1);
+                dfs.call(this, child, depth + 1);
                 var childDepthCounts = child[app.SunLayout._depthChildCount];
-                for (var i = 0; i < maxDepth; ++i)
+                for (var i = 0; i < maxDepth; ++i) {
                     depthCount[i] += childDepthCounts[i];
+                    subtreeSize += childDepthCounts[i];
+                }
             }
 
             node[app.SunLayout._depth] = depth;
+            node[app.SunLayout._subtreeSize] = subtreeSize;
             node[app.SunLayout._depthChildCount] = depthCount;
             node[app.SunLayout._minArc] = this._minimumArc(depthCount);
         }
@@ -150,5 +156,6 @@ app.SunLayout = class extends app.Layout {
 }
 
 app.SunLayout._depth = Symbol('depth');
+app.SunLayout._subtreeSize = Symbol('subtreeSize');
 app.SunLayout._minArc = Symbol('minArc');
 app.SunLayout._depthChildCount = Symbol('depthChildCount');

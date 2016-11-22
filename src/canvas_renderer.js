@@ -5,7 +5,7 @@ app.CanvasRenderer = class {
         this._context = canvasElement.getContext('2d');
 
         // Properties.
-        this._personRadius = 25;
+        this._personRadius = 5;
     }
 
     /**
@@ -83,7 +83,7 @@ app.CanvasRenderer = class {
         } else {
             ctx.fillStyle = "white";
             ctx.fill();
-            ctx.lineWidth = 3;
+            ctx.lineWidth = 2;
             ctx.strokeStyle = color;
             ctx.stroke();
         }
