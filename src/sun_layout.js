@@ -26,9 +26,10 @@ app.SunLayout = class extends app.Layout {
     /**
      * @param {!app.FamilyTree} familyTree
      * @param {number} nodeRadius
+     * @param {number} overlap
      * @param {number} depthStep
      */
-    constructor(familyTree, nodeRadius, depthStep) {
+    constructor(familyTree, nodeRadius, overlap, depthStep) {
         super();
         this._depthRadiusStep = depthStep;
         this._nodeRadius = nodeRadius;
@@ -38,7 +39,7 @@ app.SunLayout = class extends app.Layout {
         this._angles = new Map();
 
         this._computeSubtreeSizesAndDepth(familyTree);
-        this._computeRadialPositions(familyTree);
+        this._computeRadialPositions(familyTree, overlap);
         this._doLayout(familyTree);
     }
 
@@ -92,8 +93,9 @@ app.SunLayout = class extends app.Layout {
 
     /**
      * @param {!app.FamilyTree} familyTree
+     * @param {number} overlap
      */
-    _computeRadialPositions(familyTree) {
+    _computeRadialPositions(familyTree, overlap) {
         var leafs = [];
         populateLeafNodes(familyTree.root(), leafs);
 
@@ -104,7 +106,7 @@ app.SunLayout = class extends app.Layout {
         var required = 0;
         for (var i = 1; i < leafs.length; ++i)
             required += minAngleForDepth[leafs[i][app.SunLayout._depth]];
-        var total = 2 * Math.PI;
+        var total = 2 * Math.PI + overlap;
         var free = total - required;
         var freeQuant = free / leafs.length;
 
