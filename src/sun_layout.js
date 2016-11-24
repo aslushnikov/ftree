@@ -1,141 +1,180 @@
 app.Layout = class {
     /**
-     * @return {!Array<!Object>}
+     * @param {!Map<!app.Person, !g.Vec} positions
+     * @param {!Map<!app.Person, number} rotations
+     * @param {!Array<!Object>} scaffolding
      */
-    scaffolding() { }
-
-    /**
-     * @return {!Array<!app.Person>}
-     */
-    people() { }
-
-    /**
-     * @param {!app.Person} person
-     * @return {!g.Vec}
-     */
-    personPosition(person) { }
-
-    /**
-     * @param {!app.Person} person
-     * @return {number}
-     */
-    personRadius(person) { }
+    constructor(positions, rotations, scaffolding, personRadius) {
+        this.positions = positions;
+        this.rotations = rotations;
+        this.scaffolding = scaffolding;
+        this.personRadius = personRadius;
+    }
 }
 
-app.SunLayout = class extends app.Layout {
+app.LayoutEngine = class {
+    /**
+     * @return {!app.Layout}
+     */
+    layout() { }
+}
+
+app.SunLayout = class extends app.LayoutEngine {
     /**
      * @param {!app.FamilyTree} familyTree
      * @param {number} nodeRadius
      * @param {number} overlap
      * @param {number} depthStep
      */
-    constructor(familyTree, nodeRadius, overlap, depthStep) {
+    constructor(familyTree) {
         super();
-        this._depthRadiusStep = depthStep;
-        this._nodeRadius = nodeRadius;
-        this._positions = new Map();
-        this._scaffolding = [];
+        this._familyTree = familyTree;
+        this._size = 3600;
+        this._nodeRadius = 25;
+        this._overlap = 0;
+        /** @type {!Map<!app.Person, number>} */
+        this._subtreeSize = new Map();
+        /** @type {!Map<!app.Person, number>} */
+        this._subtreeDepth = new Map();
+        /** @type {!Map<!app.Person, number>} */
+        this._nodeDepth = new Map();
+        this._initializeSubtreeSizesAndDepths();
 
-        this._angles = new Map();
+        this._familyTreeDepth = this._subtreeDepth.get(this._familyTree.root());
 
-        this._computeSubtreeSizesAndDepth(familyTree);
-        this._computeRadialPositions(familyTree, overlap);
-        this._doLayout(familyTree);
+        this._isDirty = true;
+        /** @type {?app.Layout} */
+        this._lastLayout = null;
     }
 
-    _doLayout(familyTree) {
-        var root = familyTree.root();
-        this._positions.set(root, new g.Vec(0, 0));
-        position.call(this, root, 0, Math.PI * 2);
+    /**
+     * @return {boolean}
+     */
+    isDirty() {
+        return this._isDirty;
+    }
+
+    /**
+     * @param {number} radius
+     */
+    setPersonRadius(radius) {
+        if (Math.abs(radius - this._nodeRadius) < app.SunLayout.EPS)
+            return;
+        this._nodeRadius = radius;
+        this._isDirty = true;
+    }
+
+    /**
+     * @param {number} size
+     */
+    setSize(size) {
+        if (Math.abs(size - this._size) < app.SunLayout.EPS)
+            return;
+        this._size = size;
+        this._isDirty = true;
+    }
+
+    /**
+     * @param {number} overlap
+     */
+    setOverlap(overlap) {
+        if (Math.abs(overlap - this._overlap) < app.SunLayout.EPS)
+            return;
+        this._overlap = overlap;
+        this._isDirty = true;
+    }
+
+    /**
+     * @return {number}
+     */
+    _depthRadiusStep() {
+        return (this._size - this._nodeRadius) / 2 / this._familyTreeDepth;
+    }
+
+    /**
+     * @return {!app.Layout}
+     */
+    layout() {
+        if (!this._isDirty)
+            return /** @type {!app.Layout} */(this._lastLayout);
+        this._isDirty = false;
+        var rotations = this._computeRotations();
+        var positions = new Map();
+        var scaffolding = [];
+        positions.set(this._familyTree.root(), new g.Vec(0, 0));
+        position.call(this, this._familyTree.root(), 0, Math.PI * 2);
+        this._lastLayout = new app.Layout(positions, rotations, scaffolding, this._nodeRadius);
+        return this._lastLayout;
 
         function position(node) {
             var children = node.children;
             if (!children.size)
                 return;
-            var r = (node[app.SunLayout._depth] + 1) * this._depthRadiusStep;
+            var r = (this._nodeDepth.get(node) + 1) * this._depthRadiusStep();
             var min = Infinity;
             var max = -Infinity;
             for (var child of children) {
-                var angle = this._angles.get(child);
-                this._positions.set(child, g.Vec.fromRadial(r, angle));
+                var angle = rotations.get(child);
+                positions.set(child, g.Vec.fromRadial(r, angle));
                 min = Math.min(min, angle);
                 max = Math.max(max, angle);
                 position.call(this, child);
             }
-            this._scaffolding.push(new g.Arc(g.zeroVec, r, min, max));
+            scaffolding.push(new g.Arc(g.zeroVec, r, min, max));
             // Level join.
-            var joinStart = this._positions.get(node);
-            var joinEnd = g.Vec.fromRadial(1, this._angles.get(node)).scale(r);
-            this._scaffolding.push(new g.Line(joinStart, joinEnd));
-        }
-    }
-
-    _computeSubtreeSizesAndDepth(familyTree) {
-        this._maxDepth = dfs.call(this, familyTree.root(), 0);
-
-        /**
-         * @param {!app.Person} node
-         * @param {number} depth
-         * @return {number}
-         */
-        function dfs(node, depth) {
-            var subtreeSize = 1;
-            var maxDepth = 1;
-            for (var child of node.children) {
-                maxDepth = Math.max(maxDepth, 1 + dfs.call(this, child, depth + 1));
-                subtreeSize += child[app.SunLayout._subtreeSize];
-            }
-            node[app.SunLayout._depth] = depth;
-            node[app.SunLayout._subtreeSize] = subtreeSize;
-            return maxDepth;
+            var joinStart = positions.get(node);
+            var joinEnd = g.Vec.fromRadial(1, rotations.get(node)).scale(r);
+            scaffolding.push(new g.Line(joinStart, joinEnd));
         }
     }
 
     /**
-     * @param {!app.FamilyTree} familyTree
-     * @param {number} overlap
+     * @return {!Map<!app.Person, number>}
      */
-    _computeRadialPositions(familyTree, overlap) {
+    _computeRotations() {
+        /** @type {!Map<!app.Person, number>} */
+        var rotations = new Map();
         var leafs = [];
-        populateLeafNodes(familyTree.root(), leafs);
+        populateLeafNodes.call(this, this._familyTree.root(), leafs);
 
         // assign initial positions to leafs.
-        var minAngleForDepth = new Array(this._maxDepth);
+        var minAngleForDepth = new Array(this._familyTreeDepth);
         for (var i = 0; i < minAngleForDepth.length; ++i)
-            minAngleForDepth[i] = g.segmentLengthToRad(i * this._depthRadiusStep, this._nodeRadius * 3);
+            minAngleForDepth[i] = g.segmentLengthToRad(i * this._depthRadiusStep(), this._nodeRadius * 3);
         var required = 0;
         for (var i = 1; i < leafs.length; ++i)
-            required += minAngleForDepth[leafs[i][app.SunLayout._depth]];
-        var total = 2 * Math.PI + overlap;
+            required += minAngleForDepth[this._nodeDepth.get(leafs[i])];
+        var total = 2 * Math.PI + this._overlap;
         var free = total - required;
         var freeQuant = free / leafs.length;
 
-        this._angles.set(leafs[0], 0);
+        rotations.set(leafs[0], 0);
         var last = 0;
         for (var i = 1; i < leafs.length; ++i) {
             var prevLeaf = leafs[i - 1];
             var leaf = leafs[i];
-            var value = last + minAngleForDepth[prevLeaf[app.SunLayout._depth]] + freeQuant;
-            this._angles.set(leaf, value);
+            var value = last + minAngleForDepth[this._nodeDepth.get(prevLeaf)] + freeQuant;
+            rotations.set(leaf, value);
             last = value;
         }
-        layoutTree.call(this, familyTree.root());
+        layoutTree.call(this, this._familyTree.root());
+        return rotations;
 
         /**
          * @param {!app.Person] node
          */
         function layoutTree(node) {
-            if (this._angles.has(node))
+            if (rotations.has(node))
                 return;
             var children = Array.from(node.children);
             var min = Infinity;
             var max = -Infinity;
             for (var child of children) {
                 layoutTree.call(this, child);
-                min = Math.min(min, this._angles.get(child));
-                max = Math.max(max, this._angles.get(child));
+                min = Math.min(min, rotations.get(child));
+                max = Math.max(max, rotations.get(child));
             }
-            this._angles.set(node, (min + max) / 2);
+            rotations.set(node, (min + max) / 2);
         }
 
         /**
@@ -148,9 +187,9 @@ app.SunLayout = class extends app.Layout {
                 leafs.push(node);
                 return;
             }
-            children.sort(childComparator);
+            children.sort(childComparator.bind(this));
             for (var child of children)
-                populateLeafNodes(child, leafs);
+                populateLeafNodes.call(this, child, leafs);
         }
 
         /**
@@ -159,41 +198,33 @@ app.SunLayout = class extends app.Layout {
          * @return {number}
          */
         function childComparator(a, b) {
-            return a[app.SunLayout._subtreeSize] - b[app.SunLayout._subtreeSize];
+            return this._subtreeSize.get(a) - this._subtreeSize.get(b);
         }
     }
 
     /**
-     * @override
-     * @return {!Array<!Object>}
+     * @param {!app.FamilyTree} FamilyTree
      */
-    scaffolding() {
-        return this._scaffolding;
-    }
+    _initializeSubtreeSizesAndDepths() {
+        dfs.call(this, this._familyTree.root(), 0);
 
-    /**
-     * @return {!Set<!app.Person>}
-     */
-    people() {
-        return new Set(this._positions.keys());
-    }
-
-    /**
-     * @param {!app.Person} person
-     * @return {?g.Vec}
-     */
-    personPosition(person) {
-        return this._positions.get(person) || null;
-    }
-
-    /**
-     * @param {!app.Person} person
-     * @return {number}
-     */
-    personRadius(person) {
-        return this._nodeRadius;
+        /**
+         * @param {!app.Person} node
+         * @param {number} depth
+         */
+        function dfs(node, depth) {
+            var subtreeSize = 1;
+            var subtreeDepth = 1;
+            for (var child of node.children) {
+                dfs.call(this, child, depth + 1);
+                subtreeDepth = Math.max(subtreeDepth, 1 + this._subtreeDepth.get(child));
+                subtreeSize += this._subtreeSize.get(child);
+            }
+            this._subtreeDepth.set(node, subtreeDepth);
+            this._subtreeSize.set(node, subtreeSize);
+            this._nodeDepth.set(node, depth);
+        }
     }
 }
 
-app.SunLayout._depth = Symbol('depth');
-app.SunLayout._subtreeSize = Symbol('subtreeSize');
+app.SunLayout.EPS = 1e-7;

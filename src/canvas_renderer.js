@@ -1,33 +1,20 @@
 app.CanvasRenderer = class {
     constructor(canvasElement) {
-        this._width = canvasElement.width;
-        this._height = canvasElement.height;
+        this._canvas = canvasElement;
         this._context = canvasElement.getContext('2d');
-    }
-
-    /**
-     * @return {number}
-     */
-    width() {
-        return this._width;
-    }
-
-    /**
-     * @return {number}
-     */
-    height() {
-        return this._width;
     }
 
     /**
      * @param {!app.Layout} layout
      */
     render(layout) {
-        this._context.clearRect(0, 0, this._width, this._height);
+        var width = this._canvas.width;
+        var height = this._canvas.height;
+        this._context.clearRect(0, 0, width, height);
         this._context.save();
-        this._context.translate(this._width / 2, this._height / 2);
-        this._renderScaffolding(this._context, layout);
-        for (var person of layout.people())
+        this._context.translate(width / 2, height / 2);
+        this._renderScaffolding(this._context, layout.scaffolding);
+        for (var person of layout.positions.keys())
             this._renderPerson(this._context, layout, person);
         this._context.restore();
     }
@@ -36,10 +23,9 @@ app.CanvasRenderer = class {
      * @param {!CanvasRenderingContext2D} ctx
      * @param {!app.Layout} layout
      */
-    _renderScaffolding(ctx, layout) {
-        var shapes = layout.scaffolding();
+    _renderScaffolding(ctx, scaffolding) {
         ctx.beginPath();
-        for (var shape of shapes) {
+        for (var shape of scaffolding) {
             if (shape instanceof g.Line) {
                 var line = /** @type {!g.Line} */(shape);
                 ctx.moveTo(line.from.x, line.from.y);
@@ -65,8 +51,8 @@ app.CanvasRenderer = class {
      * @param {!app.Person} person
      */
     _renderPerson(ctx, layout, person) {
-        var position = layout.personPosition(person);
-        var personRadius = layout.personRadius(person);
+        var position = layout.positions.get(person);
+        var personRadius = layout.personRadius;
 
         ctx.beginPath();
         ctx.moveTo(position.x + personRadius, position.y);
@@ -87,7 +73,7 @@ app.CanvasRenderer = class {
             ctx.stroke();
         }
 
-        var rotation = position.angleTo(new g.Vec(10, 0));
+        var rotation = layout.rotations.get(person);
         if (rotation < 0)
             rotation += Math.PI * 2;
         var textOnLeft = false;

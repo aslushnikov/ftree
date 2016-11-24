@@ -1,4 +1,4 @@
-app.DataLoader = class {
+app.TreeLoader = class {
     /**
      * @param {string} url
      * @return {!Promise<?app.FamilyTree>}
@@ -123,6 +123,5 @@ app.DataLoader = class {
             console.assert(person, "ERROR: CSV doesn't define person for ID=" + id);
             return person;
         }
-
     }
 }
