@@ -3,6 +3,7 @@ app.Layout = class {
      * @param {!Map<!app.Person, !g.Vec} positions
      * @param {!Map<!app.Person, number} rotations
      * @param {!Array<!Object>} scaffolding
+     * @param {number} personRadius
      */
     constructor(positions, rotations, scaffolding, personRadius) {
         this.positions = positions;
@@ -10,9 +11,21 @@ app.Layout = class {
         this.scaffolding = scaffolding;
         this.personRadius = personRadius;
     }
+
+    /**
+     * @return {!app.Layout}
+     */
+    static empty() {
+        return new app.Layout(new Map(), new Map(), [], 0);
+    }
 }
 
 app.LayoutEngine = class {
+    /**
+     * @return {boolean}
+     */
+    isDirty() { }
+
     /**
      * @return {!app.Layout}
      */
@@ -20,16 +33,10 @@ app.LayoutEngine = class {
 }
 
 app.SunLayout = class extends app.LayoutEngine {
-    /**
-     * @param {!app.FamilyTree} familyTree
-     * @param {number} nodeRadius
-     * @param {number} overlap
-     * @param {number} depthStep
-     */
-    constructor(familyTree) {
+    constructor() {
         super();
-        this._familyTree = familyTree;
-        this._size = 3600;
+        this._familyTree = null;
+        this._size = 600;
         this._nodeRadius = 25;
         this._overlap = 0;
         /** @type {!Map<!app.Person, number>} */
@@ -38,13 +45,10 @@ app.SunLayout = class extends app.LayoutEngine {
         this._subtreeDepth = new Map();
         /** @type {!Map<!app.Person, number>} */
         this._nodeDepth = new Map();
-        this._initializeSubtreeSizesAndDepths();
 
-        this._familyTreeDepth = this._subtreeDepth.get(this._familyTree.root());
-
-        this._isDirty = true;
-        /** @type {?app.Layout} */
-        this._lastLayout = null;
+        this._isDirty = false;
+        /** @type {!app.Layout} */
+        this._lastLayout = app.Layout.empty();
     }
 
     /**
@@ -52,6 +56,15 @@ app.SunLayout = class extends app.LayoutEngine {
      */
     isDirty() {
         return this._isDirty;
+    }
+
+    /**
+     * @param {!app.FamilyTree} familyTree
+     */
+    setFamilyTree(familyTree) {
+        this._isDirty = true;
+        this._familyTree = familyTree;
+        this._initializeSubtreeSizesAndDepths();
     }
 
     /**
@@ -96,7 +109,7 @@ app.SunLayout = class extends app.LayoutEngine {
      */
     layout() {
         if (!this._isDirty)
-            return /** @type {!app.Layout} */(this._lastLayout);
+            return this._lastLayout;
         this._isDirty = false;
         var rotations = this._computeRotations();
         var positions = new Map();
@@ -206,7 +219,11 @@ app.SunLayout = class extends app.LayoutEngine {
      * @param {!app.FamilyTree} FamilyTree
      */
     _initializeSubtreeSizesAndDepths() {
+        this._nodeDepth.clear();
+        this._subtreeSize.clear();
+        this._subtreeDepth.clear();
         dfs.call(this, this._familyTree.root(), 0);
+        this._familyTreeDepth = this._subtreeDepth.get(this._familyTree.root());
 
         /**
          * @param {!app.Person} node

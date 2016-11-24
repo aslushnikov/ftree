@@ -4,7 +4,6 @@
     top: 0;
     display: flex;
     flex-direction: column;
-    font-size: 84px;
 }
 
 .control {
@@ -17,28 +16,5 @@
 
 .control input {
     margin: 0 1em 0 1em;
-}
-
-input[type=range]{
-    -webkit-appearance: none;
-    width: 600px;
-}
-
-input[type=range]::-webkit-slider-runnable-track {
-    width: 300px;
-    height: 30px;
-    background: #ddd;
-    border: none;
-    border-radius: 3px;
-}
-
-input[type=range]::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    border: none;
-    height: 36px;
-    width: 36px;
-    border-radius: 50%;
-    background: goldenrod;
-    margin-top: -4px;
 }
 

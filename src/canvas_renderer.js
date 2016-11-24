@@ -81,6 +81,7 @@ app.CanvasRenderer = class {
             rotation -= Math.PI;
             textOnLeft = true;
         }
+
         ctx.save();
         ctx.translate(position.x, position.y);
         ctx.rotate(rotation);
@@ -99,5 +100,33 @@ app.CanvasRenderer = class {
             ctx.fillText(person.dates(), personRadius + 3, 0);
         }
         ctx.restore();
+    }
+}
+
+app.RenderLoop = class {
+    /**
+     * @param {!app.Renderer} renderer
+     * @param {!app.LayoutEngine} layoutEngine
+     */
+    constructor(renderer, layoutEngine) {
+        this._layoutEngine = layoutEngine;
+        this._renderer = renderer;
+        this._renderLoopBound = this._renderLoop.bind(this);
+
+        // First render must be forced.
+        this._invalidated = true;
+        requestAnimationFrame(this._renderLoopBound);
+    }
+
+    _renderLoop() {
+        if (this._invalidated || this._layoutEngine.isDirty()) {
+            this._renderer.render(this._layoutEngine.layout());
+            this._invalidated = false;
+        }
+        requestAnimationFrame(this._renderLoopBound);
+    }
+
+    invalidate() {
+        this._invalidated = true;
     }
 }
