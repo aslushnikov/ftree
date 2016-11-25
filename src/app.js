@@ -18,15 +18,15 @@ function startApplication() {
     // setting up layout controls
     var layoutControls = document.querySelector('.layout-controls');
     var layoutSliders = [
+        new app.Slider('size', size => layout.setSize(size))
+            .setValues(100, 5000, layout.size())
+            .setSuffix('px'),
         new app.Slider('radius', radius => layout.setPersonRadius(radius))
             .setValues(5, 50, layout.personRadius())
             .setSuffix('px'),
         new app.Slider('overlap', overlap => layout.setOverlap(overlap))
             .setValues(0, 360, layout.overlap())
             .setSuffix('deg'),
-        new app.Slider('size', size => layout.setSize(size))
-            .setValues(100, 5000, layout.size())
-            .setSuffix('px'),
     ];
     layoutSliders.forEach(slider => layoutControls.appendChild(slider.element()));
 
@@ -34,7 +34,7 @@ function startApplication() {
     var rendererControls = document.querySelector('.renderer-controls');
     var rendererSliders = [
         new app.Slider('zoom', zoom => {renderer.setScale(zoom); renderLoop.invalidate(); })
-            .setValues(0.1, 5, renderer.scale(), 0.1)
+            .setValues(0.25, 2, renderer.scale(), 0.01)
             .setClass('zoom-slider'),
         new app.Slider('font size', fontSize => {renderer.setFontSize(fontSize); renderLoop.invalidate(); })
             .setValues(7, 24, renderer.fontSize()),
@@ -109,10 +109,10 @@ app.Slider = class {
      */
     setValues(min, max, value, step) {
         console.assert(min <= value && value <= max);
+        this._slider.step = step || 1;;
         this._slider.min = min;
         this._slider.max = max;
         this._slider.value = value;
-        this._slider.step = step || 1;;
         this._updateValue();
         return this;
     }
