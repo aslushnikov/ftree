@@ -1,5 +1,9 @@
 var g = {};
 
+g.degToRad = function(deg) {
+    return deg / 360 * 2 * Math.PI;
+}
+
 g.Vec = class {
     /**
      * @param {number} x

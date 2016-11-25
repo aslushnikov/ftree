@@ -24,8 +24,8 @@ function startApplication() {
         new app.Slider('radius', radius => layout.setPersonRadius(radius))
             .setValues(5, 50, layout.personRadius())
             .setSuffix('px'),
-        new app.Slider('overlap', overlap => layout.setOverlap(overlap))
-            .setValues(0, 360, layout.overlap())
+        new app.Slider('overlap', overlap => layout.setOverlap(g.degToRad(overlap)))
+            .setValues(0, 360, g.degToRad(layout.overlap()))
             .setSuffix('deg'),
     ];
     layoutSliders.forEach(slider => layoutControls.appendChild(slider.element()));
