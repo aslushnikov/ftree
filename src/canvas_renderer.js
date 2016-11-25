@@ -174,14 +174,11 @@ app.CanvasRenderer = class {
             ctx.stroke();
         }
 
-        var rotation = layout.rotations.get(person);
-        if (rotation < 0)
-            rotation += Math.PI * 2;
-        var textOnLeft = false;
-        if (rotation > Math.PI / 2 && rotation < 3 * Math.PI / 2) {
+        var rotation = g.normalizeRad(layout.rotations.get(person));
+        var cumulativeRotation = g.normalizeRad(rotation + this._rotation);
+        var textOnLeft = cumulativeRotation > Math.PI / 2 && cumulativeRotation < 3 * Math.PI / 2;
+        if (textOnLeft)
             rotation -= Math.PI;
-            textOnLeft = true;
-        }
 
         ctx.save();
         ctx.translate(position.x, position.y);

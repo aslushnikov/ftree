@@ -8,6 +8,11 @@ g.radToDeg = function(rad) {
     return rad / 2 / Math.PI * 360;
 }
 
+g.normalizeRad = function(rad) {
+    var div = Math.floor(rad / Math.PI / 2);
+    return rad - 2 * Math.PI * div;
+}
+
 g.Vec = class {
     /**
      * @param {number} x
