@@ -9,23 +9,29 @@ function startApplication() {
     var renderer = new app.CanvasRenderer(canvasElement);
     var renderLoop = new app.RenderLoop(renderer, layoutEngine);
 
-    // setting up controls
-    var radiusValue = document.querySelector('.radius-value');
-    var radiusSlider = document.querySelector('.radius-control');
-    radiusSlider.addEventListener('input', () => {
-        var radius = parseFloat(radiusSlider.value);
-        layoutEngine.setPersonRadius(radius);
-        radiusValue.textContent  = radiusSlider.value + 'px';
-    });
+    // setting up layout controls
+    var layoutControls = document.querySelector('.layout-controls');
+    var layoutSliders = [
+        new app.Slider('radius', radius => layoutEngine.setPersonRadius(radius))
+            .setValues(5, 50, 25)
+            .setSuffix('px'),
+        new app.Slider('overlap', overlap => layoutEngine.setOverlap(overlap))
+            .setValues(0, 360, 0)
+            .setSuffix('deg'),
+        new app.Slider('size', size => layoutEngine.setSize(size))
+            .setValues(100, 5000, 1000)
+            .setSuffix('px'),
+    ];
+    layoutSliders.forEach(slider => layoutControls.appendChild(slider.element()));
 
-    var overlapValue = document.querySelector('.overlap-value');
-    var overlapSlider = document.querySelector('.overlap-control');
-    overlapSlider.addEventListener('input', () => {
-        overlapValue.textContent = overlapSlider.value + 'deg';
-        var overlap = parseFloat(overlapSlider.value);
-        overlap = overlap / 360 * 2 * Math.PI;
-        layoutEngine.setOverlap(overlap);
-    });
+    // setting up layout controls
+    var rendererControls = document.querySelector('.renderer-controls');
+    var rendererSliders = [
+        new app.Slider('zoom', zoom => {renderer.setScale(zoom); renderLoop.invalidate(); })
+            .setValues(0.1, 5, 1, 0.1)
+            .setClass('zoom-slider')
+    ];
+    rendererSliders.forEach(slider => rendererControls.appendChild(slider.element()));
 
     // Load tree
     app.TreeLoader.loadCSV('assets/kalashyan_en.csv').then(onTreeLoaded);
@@ -42,6 +48,76 @@ function startApplication() {
         canvasElement.width = document.body.clientWidth;
         canvasElement.height = document.body.clientHeight;
         renderLoop.invalidate();
+    }
+}
+
+app.Slider = class {
+    /**
+     * @param {string} name
+     * @param {function(number)} valueChangedCallback
+     */
+    constructor(name, valueChangedCallback) {
+        this._element = document.createElement('div');
+        this._element.classList.add('slider');
+
+        var label = this._element.createChild('div');
+        label.textContent = name;
+
+        this._slider = this._element.createChild('input');
+        this._slider.type = 'range';
+        this._slider.min = 1;
+        this._slider.max = 10;
+        this._slider.value = 5;
+
+        this._valueElement = this._element.createChild('div');
+        this._valueElement.classList.add('value');
+        this.setSuffix('');
+
+        this._slider.addEventListener('input', () => {
+            var value = parseFloat(this._slider.value);
+            this._valueElement.textContent = value + this._suffix;
+            valueChangedCallback(value);
+        });
+    }
+
+    /**
+     * @return {!Element}
+     */
+    element() {
+        return this._element;
+    }
+
+    /**
+     * @param {string} className
+     */
+    setClass(className) {
+        this._element.classList.add(className);
+        return this;
+    }
+
+    /**
+     * @param {number} min
+     * @param {number} max
+     * @param {number} value
+     * @param {number} step
+     * @return {!app.Slider}
+     */
+    setValues(min, max, value, step) {
+        this._slider.min = min;
+        this._slider.max = max;
+        this._slider.value = value;
+        this._slider.step = step || 1;;
+        return this;
+    }
+
+    /**
+     * @param {string} suffix
+     * @return {!app.Slider}
+     */
+    setSuffix(suffix) {
+        this._suffix = suffix;
+        this._valueElement.textContent = this._slider.value + suffix;
+        return this;
     }
 }
 

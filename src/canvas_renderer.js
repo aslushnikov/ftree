@@ -1,7 +1,11 @@
 app.CanvasRenderer = class {
+    /**
+     * @param {!Element} canvasElement
+     */
     constructor(canvasElement) {
         this._canvas = canvasElement;
         this._context = canvasElement.getContext('2d');
+        this._scale = 1;
     }
 
     /**
@@ -10,13 +14,21 @@ app.CanvasRenderer = class {
     render(layout) {
         var width = this._canvas.width;
         var height = this._canvas.height;
-        this._context.clearRect(0, 0, width, height);
         this._context.save();
+        this._context.clearRect(0, 0, width, height);
         this._context.translate(width / 2, height / 2);
+        this._context.scale(this._scale, this._scale);
         this._renderScaffolding(this._context, layout.scaffolding);
         for (var person of layout.positions.keys())
             this._renderPerson(this._context, layout, person);
         this._context.restore();
+    }
+
+    /**
+     * @param {number} scale
+     */
+    setScale(scale) {
+        this._scale = scale;
     }
 
     /**

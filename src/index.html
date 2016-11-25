@@ -1,6 +1,6 @@
 <script src='./third_party/papaparse.min.js'></script>
 <script src='./app.js'></script>
-<script src='./utils/utilities.js'></script>
+<script src='./utils/platform.js'></script>
 <script src='./utils/geometry.js'></script>
 <script src='./family_tree.js'></script>
 <script src='./sun_layout.js'></script>
@@ -10,16 +10,11 @@
 <link rel='stylesheet' href='style.css'>
 
 <canvas width=5000 height=5000></canvas>
-<fieldset class='controls'>
-    <legend>Layout Controls</legend>
-    <div class='control'>
-        <div class='label'>Person radius: </div>
-        <input class='radius-control' type='range' min='5' max='50' value='25'></input>
-        <div class='radius-value'></div>
-    </div>
-    <div class='control'>
-        <div class='label'>Overlap: </div>
-        <input class='overlap-control' type='range' min='0' max='360' value='0.5'></input>
-        <div class='overlap-value'></div>
-    </div>
-</fieldset>
+<div class='controls'>
+    <fieldset class='layout-controls'>
+        <legend>Layout Controls</legend>
+    </fieldset>
+    <fieldset class='renderer-controls'>
+        <legend>Renderer Controls</legend>
+    </fieldset>
+</div>

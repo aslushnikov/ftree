@@ -40,3 +40,16 @@ Promise.prototype.catchError = function(defaultValue) {
         return defaultValue;
     });
 }
+
+/**
+ * @param {string} nodeName
+ * @param {string} className
+ * @return {!Element}
+ */
+Element.prototype.createChild = function(nodeName, className) {
+    var elem = document.createElement(nodeName);
+    elem.className = className || '';
+    this.appendChild(elem);
+    return elem;
+}
+
