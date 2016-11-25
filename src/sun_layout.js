@@ -78,6 +78,13 @@ app.SunLayout = class extends app.LayoutEngine {
     }
 
     /**
+     * @return {number}
+     */
+    personRadius() {
+        return this._nodeRadius;
+    }
+
+    /**
      * @param {number} size
      */
     setSize(size) {
@@ -88,6 +95,13 @@ app.SunLayout = class extends app.LayoutEngine {
     }
 
     /**
+     * @return {number}
+     */
+    size() {
+        return this._size;
+    }
+
+    /**
      * @param {number} overlap
      */
     setOverlap(overlap) {
@@ -95,6 +109,13 @@ app.SunLayout = class extends app.LayoutEngine {
             return;
         this._overlap = overlap;
         this._isDirty = true;
+    }
+
+    /**
+     * @return {number}
+     */
+    overlap() {
+        return this._overlap;
     }
 
     /**
@@ -111,6 +132,10 @@ app.SunLayout = class extends app.LayoutEngine {
         if (!this._isDirty)
             return this._lastLayout;
         this._isDirty = false;
+        if (!this._familyTree) {
+            this._lastLayout = app.Layout.empty();
+            return this._lastLayout;
+        }
         var rotations = this._computeRotations();
         var positions = new Map();
         var scaffolding = [];

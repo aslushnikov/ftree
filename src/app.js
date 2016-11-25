@@ -4,23 +4,28 @@ document.addEventListener('DOMContentLoaded', startApplication);
 
 function startApplication() {
     // setting up renderer and layout.
-    var layoutEngine = new app.SunLayout();
+    var layout = new app.SunLayout();
     var renderer = new app.CanvasRenderer(document.body.clientWidth, document.body.clientHeight);
-    var renderLoop = new app.RenderLoop(renderer, layoutEngine);
+    var renderLoop = new app.RenderLoop(renderer, layout);
+
+    // setting defaults
+    layout.setPersonRadius(25);
+    layout.setSize(2620);
+    renderer.setScale(0.6);
 
     document.body.appendChild(renderer.canvasElement());
 
     // setting up layout controls
     var layoutControls = document.querySelector('.layout-controls');
     var layoutSliders = [
-        new app.Slider('radius', radius => layoutEngine.setPersonRadius(radius))
-            .setValues(5, 50, 25)
+        new app.Slider('radius', radius => layout.setPersonRadius(radius))
+            .setValues(5, 50, layout.personRadius())
             .setSuffix('px'),
-        new app.Slider('overlap', overlap => layoutEngine.setOverlap(overlap))
-            .setValues(0, 360, 0)
+        new app.Slider('overlap', overlap => layout.setOverlap(overlap))
+            .setValues(0, 360, layout.overlap())
             .setSuffix('deg'),
-        new app.Slider('size', size => layoutEngine.setSize(size))
-            .setValues(100, 5000, 1000)
+        new app.Slider('size', size => layout.setSize(size))
+            .setValues(100, 5000, layout.size())
             .setSuffix('px'),
     ];
     layoutSliders.forEach(slider => layoutControls.appendChild(slider.element()));
@@ -29,8 +34,10 @@ function startApplication() {
     var rendererControls = document.querySelector('.renderer-controls');
     var rendererSliders = [
         new app.Slider('zoom', zoom => {renderer.setScale(zoom); renderLoop.invalidate(); })
-            .setValues(0.1, 5, 1, 0.1)
-            .setClass('zoom-slider')
+            .setValues(0.1, 5, renderer.scale(), 0.1)
+            .setClass('zoom-slider'),
+        new app.Slider('font size', fontSize => {renderer.setFontSize(fontSize); renderLoop.invalidate(); })
+            .setValues(7, 24, renderer.fontSize()),
     ];
     rendererSliders.forEach(slider => rendererControls.appendChild(slider.element()));
 
@@ -41,7 +48,7 @@ function startApplication() {
 
     function onTreeLoaded(tree) {
         console.log(tree);
-        layoutEngine.setFamilyTree(tree);
+        layout.setFamilyTree(tree);
     }
 
     function onResize() {
@@ -73,9 +80,8 @@ app.Slider = class {
         this.setSuffix('');
 
         this._slider.addEventListener('input', () => {
-            var value = parseFloat(this._slider.value);
-            this._valueElement.textContent = value + this._suffix;
-            valueChangedCallback(value);
+            this._updateValue();
+            valueChangedCallback(parseFloat(this._slider.value));
         });
     }
 
@@ -102,11 +108,17 @@ app.Slider = class {
      * @return {!app.Slider}
      */
     setValues(min, max, value, step) {
+        console.assert(min <= value && value <= max);
         this._slider.min = min;
         this._slider.max = max;
         this._slider.value = value;
         this._slider.step = step || 1;;
+        this._updateValue();
         return this;
+    }
+
+    _updateValue() {
+        this._valueElement.textContent = this._slider.value + this._suffix;
     }
 
     /**
@@ -115,7 +127,7 @@ app.Slider = class {
      */
     setSuffix(suffix) {
         this._suffix = suffix;
-        this._valueElement.textContent = this._slider.value + suffix;
+        this._updateValue();
         return this;
     }
 }

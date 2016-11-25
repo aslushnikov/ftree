@@ -7,6 +7,7 @@ app.CanvasRenderer = class {
         this._createHiDPICanvas();
         this.setSize(width, height);
         this._scale = 1
+        this._fontSize = 16;
     }
 
     _createHiDPICanvas() {
@@ -43,6 +44,34 @@ app.CanvasRenderer = class {
     }
 
     /**
+     * @param {number} scale
+     */
+    setScale(scale) {
+        this._scale = scale;
+    }
+
+    /**
+     * @return {number}
+     */
+    scale() {
+        return this._scale;
+    }
+
+    /**
+     * @param {number} fontSize
+     */
+    setFontSize(fontSize) {
+        this._fontSize = fontSize;
+    }
+
+    /**
+     * @return {number}
+     */
+    fontSize() {
+        return this._fontSize;
+    }
+
+    /**
      * @param {!app.Layout} layout
      */
     render(layout) {
@@ -56,11 +85,8 @@ app.CanvasRenderer = class {
         this._context.restore();
     }
 
-    /**
-     * @param {number} scale
-     */
-    setScale(scale) {
-        this._scale = scale;
+    _font() {
+        return this._fontSize + 'px Arial';
     }
 
     /**
@@ -129,7 +155,7 @@ app.CanvasRenderer = class {
         ctx.save();
         ctx.translate(position.x, position.y);
         ctx.rotate(rotation);
-        ctx.font = '16px arial';
+        ctx.font = this._font();
         ctx.fillStyle = color;
         ctx.textBaseline = 'bottom';
         if (textOnLeft) {
