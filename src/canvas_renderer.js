@@ -8,6 +8,8 @@ app.CanvasRenderer = class {
         this.setSize(width, height);
         this._scale = 1
         this._fontSize = 16;
+        this._rotation = 0;
+        this._center = new g.Vec(0, 0);
     }
 
     _createHiDPICanvas() {
@@ -58,6 +60,34 @@ app.CanvasRenderer = class {
     }
 
     /**
+     * @param {number} rotation
+     */
+    setRotation(rotation) {
+        this._rotation = rotation;
+    }
+
+    /**
+     * @return {number}
+     */
+    rotation() {
+        return this._rotation;
+    }
+
+    /**
+     * @param {!g.Vec} center
+     */
+    setCenter(center) {
+        this._center = center;
+    }
+
+    /**
+     * @return {!g.Vec}
+     */
+    center() {
+        return this._center;
+    }
+
+    /**
      * @param {number} fontSize
      */
     setFontSize(fontSize) {
@@ -78,6 +108,7 @@ app.CanvasRenderer = class {
         this._context.save();
         this._context.clearRect(0, 0, this._width, this._height);
         this._context.translate(this._width / 2, this._height / 2);
+        this._context.rotate(this._rotation);
         this._context.scale(this._scale, this._scale);
         this._renderScaffolding(this._context, layout.scaffolding);
         for (var person of layout.positions.keys())

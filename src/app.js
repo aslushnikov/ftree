@@ -9,9 +9,10 @@ function startApplication() {
     var renderLoop = new app.RenderLoop(renderer, layout);
 
     // setting defaults
-    layout.setPersonRadius(25);
-    layout.setSize(2620);
-    renderer.setScale(0.6);
+    layout.setPersonRadius(20);
+    layout.setSize(3000);
+    renderer.setScale(0.49);
+    renderer.setRotation(g.degToRad(16));
 
     document.body.appendChild(renderer.canvasElement());
 
@@ -25,7 +26,7 @@ function startApplication() {
             .setValues(5, 50, layout.personRadius())
             .setSuffix('px'),
         new app.Slider('overlap', overlap => layout.setOverlap(g.degToRad(overlap)))
-            .setValues(0, 360, g.degToRad(layout.overlap()))
+            .setValues(0, 360, g.radToDeg(layout.overlap()))
             .setSuffix('deg'),
     ];
     layoutSliders.forEach(slider => layoutControls.appendChild(slider.element()));
@@ -36,8 +37,12 @@ function startApplication() {
         new app.Slider('zoom', zoom => {renderer.setScale(zoom); renderLoop.invalidate(); })
             .setValues(0.25, 2, renderer.scale(), 0.01)
             .setClass('zoom-slider'),
+        new app.Slider('rotation', rotation => {renderer.setRotation(g.degToRad(rotation)); renderLoop.invalidate(); })
+            .setValues(0, 360, g.radToDeg(renderer.rotation()))
+            .setSuffix('deg'),
         new app.Slider('font size', fontSize => {renderer.setFontSize(fontSize); renderLoop.invalidate(); })
-            .setValues(7, 24, renderer.fontSize()),
+            .setValues(7, 24, renderer.fontSize())
+            .setSuffix('px'),
     ];
     rendererSliders.forEach(slider => rendererControls.appendChild(slider.element()));
 

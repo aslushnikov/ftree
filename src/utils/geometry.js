@@ -4,6 +4,10 @@ g.degToRad = function(deg) {
     return deg / 360 * 2 * Math.PI;
 }
 
+g.radToDeg = function(rad) {
+    return rad / 2 / Math.PI * 360;
+}
+
 g.Vec = class {
     /**
      * @param {number} x
