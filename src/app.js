@@ -4,10 +4,11 @@ document.addEventListener('DOMContentLoaded', startApplication);
 
 function startApplication() {
     // setting up renderer and layout.
-    var canvasElement = document.querySelector('canvas');
     var layoutEngine = new app.SunLayout();
-    var renderer = new app.CanvasRenderer(canvasElement);
+    var renderer = new app.CanvasRenderer(document.body.clientWidth, document.body.clientHeight);
     var renderLoop = new app.RenderLoop(renderer, layoutEngine);
+
+    document.body.appendChild(renderer.canvasElement());
 
     // setting up layout controls
     var layoutControls = document.querySelector('.layout-controls');
@@ -36,17 +37,15 @@ function startApplication() {
     // Load tree
     app.TreeLoader.loadCSV('assets/kalashyan_en.csv').then(onTreeLoaded);
 
-    resizeCanvas();
-    window.addEventListener('resize', resizeCanvas);
+    window.addEventListener('resize', onResize);
 
     function onTreeLoaded(tree) {
         console.log(tree);
         layoutEngine.setFamilyTree(tree);
     }
 
-    function resizeCanvas() {
-        canvasElement.width = document.body.clientWidth;
-        canvasElement.height = document.body.clientHeight;
+    function onResize() {
+        renderer.setSize(document.body.clientWidth, document.body.clientHeight);
         renderLoop.invalidate();
     }
 }

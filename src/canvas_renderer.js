@@ -1,22 +1,54 @@
 app.CanvasRenderer = class {
     /**
-     * @param {!Element} canvasElement
+     * @param {number} width
+     * @param {number} height
      */
-    constructor(canvasElement) {
-        this._canvas = canvasElement;
-        this._context = canvasElement.getContext('2d');
-        this._scale = 1;
+    constructor(width, height) {
+        this._createHiDPICanvas();
+        this.setSize(width, height);
+        this._scale = 1
+    }
+
+    _createHiDPICanvas() {
+        this._canvas = document.createElement("canvas");
+        this._context = this._canvas.getContext('2d');
+        var devicePixelRatio = window.devicePixelRatio || 1;
+        var backingStorePixelRatio = this._context.webkitBackingStorePixelRatio ||
+                this._context.mozBackingStorePixelRatio ||
+                this._context.msBackingStorePixelRatio ||
+                this._context.oBackingStorePixelRatio ||
+                this._context.backingStorePixelRatio || 1;
+        this._ratio = devicePixelRatio / backingStorePixelRatio;
+        this._context.setTransform(this._ratio, 0, 0, this._ratio, 0, 0);
+    }
+
+    /**
+     * @return {!Element}
+     */
+    canvasElement() {
+        return this._canvas;
+    }
+
+    /**
+     * @param {number} width
+     * @param {number} height
+     */
+    setSize(width, height) {
+        this._width = width * this._ratio;
+        this._height = height * this._ratio;
+        this._canvas.width = this._width;
+        this._canvas.height = this._height;
+        this._canvas.style.width = width + "px";
+        this._canvas.style.height = height + "px";
     }
 
     /**
      * @param {!app.Layout} layout
      */
     render(layout) {
-        var width = this._canvas.width;
-        var height = this._canvas.height;
         this._context.save();
-        this._context.clearRect(0, 0, width, height);
-        this._context.translate(width / 2, height / 2);
+        this._context.clearRect(0, 0, this._width, this._height);
+        this._context.translate(this._width / 2, this._height / 2);
         this._context.scale(this._scale, this._scale);
         this._renderScaffolding(this._context, layout.scaffolding);
         for (var person of layout.positions.keys())
