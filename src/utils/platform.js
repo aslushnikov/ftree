@@ -32,6 +32,17 @@ class Multimap {
             return new Set();
         return this._map.get(key);
     }
+
+    get size() {
+        var result = 0;
+        for (var value of this._map.values())
+            result += value.size;
+        return result;
+    }
+
+    keysArray() {
+        return Array.from(this._map.keys());
+    }
 }
 
 Promise.prototype.catchError = function(defaultValue) {

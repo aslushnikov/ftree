@@ -25,21 +25,6 @@ app.Person = class {
     }
 
     /**
-     * @return {!Array<!app.Person>}
-     */
-    selfAndDescendants() {
-        // Just breadth-first search.
-        var result = [this];
-        var wp = 0;
-        while (wp < result.length) {
-            var node = result[wp++];
-            for (var child of node.children)
-                result.push(child);
-        }
-        return result;
-    }
-
-    /**
      * @return {string}
      */
     fullName() {
@@ -69,13 +54,46 @@ app.Person = class {
     }
 }
 
+app.Family = class {
+    constructor(main, alt, children) {
+        this.main = main;
+        this.alt = alt;
+        this.children = children;
+    }
+}
+
 app.FamilyTree = class {
     /**
      * @param {!app.Person} root
      */
     constructor(root) {
         this._root = root;
-        this._layers = [];
+        this._families = new Multimap();
+        // Just breadth-first search.
+        var queue = [root];
+        var wp = 0;
+        while (wp < queue.length) {
+            var node = queue[wp++];
+            if (!node.partners.size) {
+                addFamily.call(this, node, null, node.children);
+            } else {
+                for (var partner of node.partners)
+                    addFamily.call(this, node, partner, partner.children);
+            }
+        }
+
+        function addFamily(main, alt, children) {
+            var family = new app.Family(main, alt, children);
+            queue.push(...children);
+            this._families.set(main, family);
+        }
+    }
+
+    /**
+     * @return {!Set<!app.Family>}
+     */
+    families(person) {
+        return this._families.get(person);
     }
 
     /**
@@ -89,9 +107,7 @@ app.FamilyTree = class {
      * @return {number}
      */
     size() {
-        if (!this._size)
-            this._size = this._root.selfAndDescendants().length;
-        return this._size;
+        return this._families.keysArray().length;
     }
 
     /**

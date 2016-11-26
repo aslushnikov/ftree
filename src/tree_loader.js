@@ -76,7 +76,24 @@ app.TreeLoader = class {
                 }
             }
             var people = Array.from(idToPerson.values());
-            return app.FamilyTree.fromPeople(people);
+            // Cleanup those who don't have any meaningful information.
+            var filteredPeople = [];
+            for (var person of people) {
+                if (person.fullName()) {
+                    filteredPeople.push(person);
+                    continue;
+                }
+                // Remove backreference to the person.
+                for (var child of person.children) {
+                    if (child.mother === person)
+                        child.mother = null;
+                    if (child.father === person)
+                        child.father = null;
+                }
+                for (var partner of person.partners)
+                    partner.partners.delete(person);
+            }
+            return app.FamilyTree.fromPeople(filteredPeople);
         }
 
         /**
