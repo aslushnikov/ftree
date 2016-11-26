@@ -74,12 +74,14 @@ app.FamilyTree = class {
         var wp = 0;
         while (wp < queue.length) {
             var node = queue[wp++];
-            if (!node.partners.size) {
-                addFamily.call(this, node, null, node.children);
-            } else {
-                for (var partner of node.partners)
-                    addFamily.call(this, node, partner, partner.children);
+            var unattributedChildren = new Set(node.children);
+            for (var partner of node.partners) {
+                addFamily.call(this, node, partner, partner.children);
+                unattributedChildren.deleteAll(partner.children);
             }
+            // This means there're children from an unknown partner.
+            if (unattributedChildren.size)
+                addFamily.call(this, node, null, unattributedChildren);
         }
 
         function addFamily(main, alt, children) {

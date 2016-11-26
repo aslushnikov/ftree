@@ -45,6 +45,11 @@ class Multimap {
     }
 }
 
+Set.prototype.deleteAll = function(other) {
+    for (var e of other)
+        this.delete(e);
+}
+
 Promise.prototype.catchError = function(defaultValue) {
     return this.catch(error => {
         console.error(error);

@@ -215,12 +215,9 @@ app.SunLayout = class extends app.LayoutEngine {
         populateLeafNodes.call(this, this._familyTree.root(), leafs);
 
         // assign initial positions to leafs.
-        var minAngleForDepth = new Array(this._familyTreeDepth);
-        for (var i = 0; i < minAngleForDepth.length; ++i)
-            minAngleForDepth[i] = g.segmentLengthToRad(i * this._depthRadiusStep(), this._nodeRadius * 3);
         var required = 0;
         for (var i = 1; i < leafs.length; ++i)
-            required += minAngleForDepth[this._nodeDepth.get(leafs[i])];
+            required += minAngleForNode.call(this, leafs[i]);
         var total = 2 * Math.PI + this._overlap;
         var free = total - required;
         var freeQuant = free / leafs.length;
@@ -230,7 +227,7 @@ app.SunLayout = class extends app.LayoutEngine {
         for (var i = 1; i < leafs.length; ++i) {
             var prevLeaf = leafs[i - 1];
             var leaf = leafs[i];
-            var value = last + minAngleForDepth[this._nodeDepth.get(prevLeaf)] + freeQuant;
+            var value = last + minAngleForNode.call(this, prevLeaf) + freeQuant;
             rotations.set(leaf, value);
             last = value;
         }
@@ -276,6 +273,16 @@ app.SunLayout = class extends app.LayoutEngine {
          */
         function childComparator(a, b) {
             return this._subtreeSize.get(a) - this._subtreeSize.get(b);
+        }
+
+        /**
+         * @param {!app.Person} node
+         * @return {number}
+         */
+        function minAngleForNode(node) {
+            var radius = this._nodeDepth.get(node) * this._depthRadiusStep();
+            var peopleCount = 1 + node.partners.size;
+            return g.segmentLengthToRad(radius, peopleCount * this._nodeRadius * 3);
         }
     }
 
