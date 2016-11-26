@@ -20,7 +20,7 @@ function startApplication() {
     var layoutControls = document.querySelector('.layout-controls');
     var layoutSliders = [
         new app.Slider('size', size => layout.setSize(size))
-            .setValues(100, 5000, layout.size())
+            .setValues(1000, 7000, layout.size())
             .setSuffix('px'),
         new app.Slider('rotation', deg => layout.setInitialRotation(g.degToRad(deg)))
             .setValues(0, 360, g.radToDeg(layout.initialRotation()))
@@ -38,7 +38,7 @@ function startApplication() {
     var rendererControls = document.querySelector('.renderer-controls');
     var rendererSliders = [
         new app.Slider('font size', fontSize => {renderer.setFontSize(fontSize); loop.invalidate(); })
-            .setValues(7, 24, renderer.fontSize())
+            .setValues(7, 36, renderer.fontSize())
             .setSuffix('px'),
     ];
     rendererSliders.forEach(slider => rendererControls.appendChild(slider.element()));
@@ -52,6 +52,9 @@ app.InteractionController = class {
         this._engine = engine;
         this._renderer = renderer;
         this._loop = loop;
+        this._minScale = 1;
+        this._maxScale = 1.5;
+
         this._canvas = renderer.canvasElement();
         this._canvas.addEventListener('mousedown', this._onMouseDown.bind(this));
         this._canvas.addEventListener('mouseup', this._onMouseUp.bind(this));
@@ -111,7 +114,7 @@ app.InteractionController = class {
         var zoomStep = 0.06;
         var newZoom = this._renderer.scale() + zoomStep * delta;
         newZoom = Math.max(newZoom, this._minScale);
-        newZoom = Math.min(newZoom, 2);
+        newZoom = Math.min(newZoom, this._maxScale);
         this._renderer.setScale(newZoom, fixedPoint);
         this._loop.invalidate();
         event.preventDefault();
