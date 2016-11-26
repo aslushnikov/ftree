@@ -1,28 +1,62 @@
 app.CanvasRenderer = class {
     /**
+     * @return {number}
+     */
+    static canvasRatio() {
+        if (app.CanvasRenderer._canvasRatio)
+            return app.CanvasRenderer._canvasRatio;
+        var canvas = document.createElement('canvas');
+        var context = canvas.getContext('2d');
+        var devicePixelRatio = window.devicePixelRatio || 1;
+        var backingStorePixelRatio = context.webkitBackingStorePixelRatio ||
+                context.mozBackingStorePixelRatio ||
+                context.msBackingStorePixelRatio ||
+                context.oBackingStorePixelRatio ||
+                context.backingStorePixelRatio || 1;
+        app.CanvasRenderer._canvasRatio = devicePixelRatio / backingStorePixelRatio;
+        return app.CanvasRenderer._canvasRatio;
+    }
+
+    /**
+     * @return {!Element}
+     */
+    static createHiDPICanvas() {
+        var canvas = document.createElement('canvas');
+        var context = canvas.getContext('2d');
+        var ratio = app.CanvasRenderer.canvasRatio();
+        context.setTransform(ratio, 0, 0, ratio, 0, 0);
+        return canvas;
+    }
+
+    /**
+     * @param {!Element} canvas
+     * @param {number} width
+     * @param {number} height
+     */
+    static setCanvasSize(canvas, width, height) {
+        var ratio = app.CanvasRenderer.canvasRatio();
+        canvas.width = width * ratio;
+        canvas.height = height * ratio;
+        canvas.style.width = width + "px";
+        canvas.style.height = height + "px";
+    }
+
+    /**
      * @param {number} width
      * @param {number} height
      */
     constructor(width, height) {
-        this._createHiDPICanvas();
+        this._canvas = app.CanvasRenderer.createHiDPICanvas();
         this.setSize(width, height);
         this._scale = 1
         this._fontSize = 16;
         this._rotation = 0;
         this._offset = new g.Vec(0, 0);
-    }
 
-    _createHiDPICanvas() {
-        this._canvas = document.createElement("canvas");
-        this._context = this._canvas.getContext('2d');
-        var devicePixelRatio = window.devicePixelRatio || 1;
-        var backingStorePixelRatio = this._context.webkitBackingStorePixelRatio ||
-                this._context.mozBackingStorePixelRatio ||
-                this._context.msBackingStorePixelRatio ||
-                this._context.oBackingStorePixelRatio ||
-                this._context.backingStorePixelRatio || 1;
-        this._ratio = devicePixelRatio / backingStorePixelRatio;
-        this._context.setTransform(this._ratio, 0, 0, this._ratio, 0, 0);
+        /** @type {!Map<string, !Element>} */
+        this._prerenderedText = new Map();
+        /** @type {!Map<string, !TextMetrics>} */
+        this._textMetrics = new Map();
     }
 
     /**
@@ -37,12 +71,10 @@ app.CanvasRenderer = class {
      * @param {number} height
      */
     setSize(width, height) {
-        this._width = width * this._ratio;
-        this._height = height * this._ratio;
-        this._canvas.width = this._width;
-        this._canvas.height = this._height;
-        this._canvas.style.width = width + "px";
-        this._canvas.style.height = height + "px";
+        var ratio = app.CanvasRenderer.canvasRatio();
+        this._width = width * ratio;
+        this._height = height * ratio;
+        app.CanvasRenderer.setCanvasSize(this._canvas, width, height);
     }
 
     /**
@@ -50,6 +82,7 @@ app.CanvasRenderer = class {
      * @param {!g.Vec} fixedPoint
      */
     setScale(scale, fixedPoint) {
+        // Default fixed point is a canvas center - (0, 0).
         fixedPoint = fixedPoint || new g.Vec(0, 0);
         var oldOffset = this.offset();
         var oldScale = this._scale;
@@ -84,20 +117,22 @@ app.CanvasRenderer = class {
      * @param {!g.Vec} offset
      */
     setOffset(offset) {
-        this._offset = offset.scale(this._ratio);
+        this._offset = offset.scale(app.CanvasRenderer.canvasRatio());
     }
 
     /**
      * @return {!g.Vec}
      */
     offset() {
-        return this._offset.scale(1/this._ratio);
+        return this._offset.scale(1/app.CanvasRenderer.canvasRatio());
     }
 
     /**
      * @param {number} fontSize
      */
     setFontSize(fontSize) {
+        this._textMetrics.clear();
+        this._prerenderedText.clear();
         this._fontSize = fontSize;
     }
 
@@ -109,22 +144,58 @@ app.CanvasRenderer = class {
     }
 
     /**
+     * @param {string} text
+     * @return {!Element}
+     */
+    _prerenderText(text, color) {
+        var id = text + "$$" + color;
+        var render = this._prerenderedText.get(id);
+        if (render)
+            return render;
+
+        render = app.CanvasRenderer.createHiDPICanvas();
+        var metrics = this._textMetrics.get(text);
+        var ratio = app.CanvasRenderer.canvasRatio();
+        app.CanvasRenderer.setCanvasSize(render, metrics.width / ratio, (this._fontSize + 5) / ratio);
+        var ctx = render.getContext('2d');
+        ctx.font = this._font();
+        ctx.fillStyle = color;
+        ctx.textBaseline = 'top';
+        ctx.fillText(text, 0, 2);
+        this._prerenderedText.set(id, render);
+        return render;
+    }
+
+    /**
      * @param {!app.Layout} layout
      */
     render(layout) {
-        this._context.save();
-        this._context.clearRect(0, 0, this._width, this._height);
+        var ctx = this._canvas.getContext('2d');
+        ctx.save();
+        ctx.clearRect(0, 0, this._width, this._height);
 
-        this._context.translate(this._width / 2, this._height / 2);
-        this._context.translate(this._offset.x, this._offset.y);
+        ctx.translate(this._width / 2, this._height / 2);
+        ctx.translate(this._offset.x, this._offset.y);
 
-        this._context.scale(this._scale, this._scale);
+        ctx.scale(this._scale, this._scale);
 
-        this._context.rotate(this._rotation);
-        this._renderScaffolding(this._context, layout.scaffolding);
+        ctx.rotate(this._rotation);
+        this._renderScaffolding(ctx, layout.scaffolding);
+
+        ctx.font = this._font();
+        // Calculate missing text metrics.
+        for (var person of layout.positions.keys()) {
+            var fullName = person.fullName();
+            if (!this._textMetrics.has(fullName))
+                this._textMetrics.set(fullName, ctx.measureText(fullName));
+            var dates = person.dates();
+            if (!this._textMetrics.has(dates))
+                this._textMetrics.set(dates, ctx.measureText(dates));
+        }
+
         for (var person of layout.positions.keys())
-            this._renderPerson(this._context, layout, person);
-        this._context.restore();
+            this._renderPerson(ctx, layout, person);
+        ctx.restore();
     }
 
     _font() {
@@ -194,19 +265,16 @@ app.CanvasRenderer = class {
         ctx.save();
         ctx.translate(position.x, position.y);
         ctx.rotate(rotation);
-        ctx.font = this._font();
-        ctx.fillStyle = color;
-        ctx.textBaseline = 'bottom';
+        var fullName = this._prerenderText(person.fullName(), color);
+        var dates = this._prerenderText(person.dates(), color);
         if (textOnLeft) {
-            var textWidth = ctx.measureText(person.fullName()).width;
-            ctx.fillText(person.fullName(), -personRadius - 3 - textWidth, 0);
-            ctx.textBaseline = 'top';
-            textWidth = ctx.measureText(person.dates()).width;
-            ctx.fillText(person.dates(), -personRadius - 3 - textWidth, 0);
+            var textWidth = fullName.width;
+            ctx.drawImage(fullName, -personRadius - 3 - textWidth, -fullName.height);
+            textWidth = dates.width;
+            ctx.drawImage(dates, -personRadius - 3 - textWidth, 0);
         } else {
-            ctx.fillText(person.fullName(), personRadius + 3, 0);
-            ctx.textBaseline = 'top';
-            ctx.fillText(person.dates(), personRadius + 3, 0);
+            ctx.drawImage(fullName, personRadius + 3, -fullName.height);
+            ctx.drawImage(dates, personRadius + 3, 0);
         }
         ctx.restore();
     }
