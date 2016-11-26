@@ -53,3 +53,22 @@ Element.prototype.createChild = function(nodeName, className) {
     return elem;
 }
 
+class EventEmitter {
+    constructor() {
+        this._eventListeners = new Multimap();
+    }
+
+    addListener(eventType, handler) {
+        this._eventListeners.set(eventType, handler);
+    }
+
+    removeListener(eventType, handler) {
+        this._eventListeners.delete(eventType, handler);
+    }
+
+    dispatch(eventType, data) {
+        var handlers = Array.from(this._eventListeners.get(eventType));
+        for (var handler of handlers)
+            handler.call(null, data);
+    }
+}

@@ -6,16 +6,15 @@ function startApplication() {
     // setting up renderer and layout.
     var layout = new app.SunLayout();
     var renderer = new app.CanvasRenderer(document.body.clientWidth, document.body.clientHeight);
-    var renderLoop = new app.RenderLoop(renderer, layout);
+    var loop = new app.RenderLoop(renderer, layout);
 
     // setting defaults
     layout.setPersonRadius(20);
     layout.setSize(3000);
-    renderer.setScale(0.49);
-    renderer.setRotation(g.degToRad(16));
+    layout.setInitialRotation(g.degToRad(16));
 
     document.body.appendChild(renderer.canvasElement());
-    new app.DragController(renderer, renderLoop);
+    var interactionController = new app.InteractionController(layout, renderer, loop);
 
     // setting up layout controls
     var layoutControls = document.querySelector('.layout-controls');
@@ -23,6 +22,9 @@ function startApplication() {
         new app.Slider('size', size => layout.setSize(size))
             .setValues(100, 5000, layout.size())
             .setSuffix('px'),
+        new app.Slider('rotation', deg => layout.setInitialRotation(g.degToRad(deg)))
+            .setValues(0, 360, g.radToDeg(layout.initialRotation()))
+            .setSuffix('deg'),
         new app.Slider('radius', radius => layout.setPersonRadius(radius))
             .setValues(5, 50, layout.personRadius())
             .setSuffix('px'),
@@ -35,35 +37,21 @@ function startApplication() {
     // setting up layout controls
     var rendererControls = document.querySelector('.renderer-controls');
     var rendererSliders = [
-        new app.Slider('rotation', rotation => {renderer.setRotation(g.degToRad(rotation)); renderLoop.invalidate(); })
-            .setValues(0, 360, g.radToDeg(renderer.rotation()))
-            .setSuffix('deg'),
-        new app.Slider('font size', fontSize => {renderer.setFontSize(fontSize); renderLoop.invalidate(); })
+        new app.Slider('font size', fontSize => {renderer.setFontSize(fontSize); loop.invalidate(); })
             .setValues(7, 24, renderer.fontSize())
             .setSuffix('px'),
     ];
     rendererSliders.forEach(slider => rendererControls.appendChild(slider.element()));
 
     // Load tree
-    app.TreeLoader.loadCSV('assets/kalashyan_en.csv').then(onTreeLoaded);
-
-    window.addEventListener('resize', onResize);
-
-    function onTreeLoaded(tree) {
-        console.log(tree);
-        layout.setFamilyTree(tree);
-    }
-
-    function onResize() {
-        renderer.setSize(document.body.clientWidth, document.body.clientHeight);
-        renderLoop.invalidate();
-    }
+    app.TreeLoader.loadCSV('assets/kalashyan_en.csv').then(tree => layout.setFamilyTree(tree));
 }
 
-app.DragController = class {
-    constructor(renderer, renderLoop) {
+app.InteractionController = class {
+    constructor(engine, renderer, loop) {
+        this._engine = engine;
         this._renderer = renderer;
-        this._renderLoop = renderLoop;
+        this._loop = loop;
         this._canvas = renderer.canvasElement();
         this._canvas.addEventListener('mousedown', this._onMouseDown.bind(this));
         this._canvas.addEventListener('mouseup', this._onMouseUp.bind(this));
@@ -73,6 +61,37 @@ app.DragController = class {
         this._canvas.addEventListener("mousewheel", this._onMouseWheel.bind(this), false);
         // Firefox
         this._canvas.addEventListener("DOMMouseScroll", this._onMouseWheel.bind(this), false);
+
+        window.addEventListener('resize', this._onResize.bind(this));
+        this._engine.addListener(app.LayoutEngine.Events.LayoutRecalculated, this._centerGraph.bind(this));
+        this._onResize();
+    }
+
+    _onResize() {
+        this._renderer.setSize(document.body.clientWidth, document.body.clientHeight);
+        this._centerGraph();
+    }
+
+    _updateMinScale() {
+    }
+
+    _computeGraphCenter(boundingBox) {
+        var boundingBox = this._engine.layout().boundingBox();
+        var centerX = boundingBox.x + boundingBox.width / 2;
+        var centerY = boundingBox.y + boundingBox.height / 2;
+        return new g.Vec(-centerX, -centerY).scale(this._minScale/app.CanvasRenderer.canvasRatio());
+    }
+
+    _centerGraph() {
+        var boundingBox = this._engine.layout().boundingBox();
+        var rendererSize = this._renderer.size();
+        if (boundingBox.width === 0 || boundingBox.height === 0)
+            this._minScale = 1;
+        else
+            this._minScale = Math.min(rendererSize.width / boundingBox.width, rendererSize.height / boundingBox.height) * 0.9;
+        this._renderer.setScale(this._minScale);
+        this._renderer.setOffset(this._computeGraphCenter(boundingBox));
+        this._loop.invalidate();
     }
 
     /**
@@ -91,10 +110,10 @@ app.DragController = class {
         var fixedPoint = this._toCoordinates(event);
         var zoomStep = 0.06;
         var newZoom = this._renderer.scale() + zoomStep * delta;
-        newZoom = Math.max(newZoom, 0.25);
+        newZoom = Math.max(newZoom, this._minScale);
         newZoom = Math.min(newZoom, 2);
         this._renderer.setScale(newZoom, fixedPoint);
-        this._renderLoop.invalidate();
+        this._loop.invalidate();
         event.preventDefault();
         event.stopPropagation();
     }
@@ -111,7 +130,7 @@ app.DragController = class {
             return;
         var offset = this._toCoordinates(event).subtract(this._downCoord);
         this._renderer.setOffset(this._offset.add(offset));
-        this._renderLoop.invalidate();
+        this._loop.invalidate();
     }
 
     _onMouseUp(event) {

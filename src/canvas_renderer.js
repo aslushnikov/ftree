@@ -50,7 +50,6 @@ app.CanvasRenderer = class {
         this.setSize(width, height);
         this._scale = 1
         this._fontSize = 16;
-        this._rotation = 0;
         this._offset = new g.Vec(0, 0);
 
         /** @type {!Map<string, !Element>} */
@@ -77,6 +76,10 @@ app.CanvasRenderer = class {
         app.CanvasRenderer.setCanvasSize(this._canvas, width, height);
     }
 
+    size() {
+        return {width: this._width, height: this._height};
+    }
+
     /**
      * @param {number} scale
      * @param {!g.Vec} fixedPoint
@@ -97,20 +100,6 @@ app.CanvasRenderer = class {
      */
     scale() {
         return this._scale;
-    }
-
-    /**
-     * @param {number} rotation
-     */
-    setRotation(rotation) {
-        this._rotation = rotation;
-    }
-
-    /**
-     * @return {number}
-     */
-    rotation() {
-        return this._rotation;
     }
 
     /**
@@ -176,10 +165,8 @@ app.CanvasRenderer = class {
 
         ctx.translate(this._width / 2, this._height / 2);
         ctx.translate(this._offset.x, this._offset.y);
-
         ctx.scale(this._scale, this._scale);
 
-        ctx.rotate(this._rotation);
         this._renderScaffolding(ctx, layout.scaffolding);
 
         ctx.font = this._font();
@@ -257,7 +244,7 @@ app.CanvasRenderer = class {
         }
 
         var rotation = g.normalizeRad(layout.rotations.get(person));
-        var cumulativeRotation = g.normalizeRad(rotation + this._rotation);
+        var cumulativeRotation = g.normalizeRad(rotation);
         var textOnLeft = cumulativeRotation > Math.PI / 2 && cumulativeRotation < 3 * Math.PI / 2;
         if (textOnLeft)
             rotation -= Math.PI;

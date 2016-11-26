@@ -13,6 +13,27 @@ app.Layout = class {
     }
 
     /**
+     * @return {x: number, y: number, width: number, height: number}
+     */
+    boundingBox() {
+        if (this._boundingBox)
+            return this._boundingBox;
+        if (!this.positions.size)
+            return {x: 0, y: 0, width: 0, height: 0};
+        var minX = Infinity;
+        var minY = Infinity;
+        var maxX = -Infinity;
+        var maxY = -Infinity;
+        for (var position of this.positions.values()) {
+            minX = Math.min(minX, position.x);
+            minY = Math.min(minY, position.y);
+            maxX = Math.max(maxX, position.x);
+            maxY = Math.max(maxY, position.y);
+        }
+        return {x: minX, y: minY, width: maxX - minX, height: maxY - minY};
+    }
+
+    /**
      * @return {!app.Layout}
      */
     static empty() {
@@ -20,7 +41,7 @@ app.Layout = class {
     }
 }
 
-app.LayoutEngine = class {
+app.LayoutEngine = class extends EventEmitter {
     /**
      * @return {boolean}
      */
@@ -32,6 +53,10 @@ app.LayoutEngine = class {
     layout() { }
 }
 
+app.LayoutEngine.Events = {
+    LayoutRecalculated: Symbol("LayoutRecalculated"),
+}
+
 app.SunLayout = class extends app.LayoutEngine {
     constructor() {
         super();
@@ -39,6 +64,8 @@ app.SunLayout = class extends app.LayoutEngine {
         this._size = 600;
         this._nodeRadius = 25;
         this._overlap = 0;
+        this._initialRotation = 0;
+
         /** @type {!Map<!app.Person, number>} */
         this._subtreeSize = new Map();
         /** @type {!Map<!app.Person, number>} */
@@ -82,6 +109,17 @@ app.SunLayout = class extends app.LayoutEngine {
      */
     personRadius() {
         return this._nodeRadius;
+    }
+
+    setInitialRotation(rotation) {
+        if (Math.abs(rotation - this._initialRotation) < app.SunLayout.EPS)
+            return;
+        this._initialRotation = rotation;
+        this._isDirty = true;
+    }
+
+    initialRotation() {
+        return this._initialRotation;
     }
 
     /**
@@ -142,6 +180,7 @@ app.SunLayout = class extends app.LayoutEngine {
         positions.set(this._familyTree.root(), new g.Vec(0, 0));
         position.call(this, this._familyTree.root(), 0, Math.PI * 2);
         this._lastLayout = new app.Layout(positions, rotations, scaffolding, this._nodeRadius);
+        this.dispatch(app.LayoutEngine.Events.LayoutRecalculated);
         return this._lastLayout;
 
         function position(node) {
@@ -186,8 +225,8 @@ app.SunLayout = class extends app.LayoutEngine {
         var free = total - required;
         var freeQuant = free / leafs.length;
 
-        rotations.set(leafs[0], 0);
-        var last = 0;
+        var last = this._initialRotation;
+        rotations.set(leafs[0], last);
         for (var i = 1; i < leafs.length; ++i) {
             var prevLeaf = leafs[i - 1];
             var leaf = leafs[i];
