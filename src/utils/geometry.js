@@ -31,6 +31,10 @@ g.Vec = class {
         return new g.Vec(this.x + other.x, this.y + other.y);
     }
 
+    subtract(other) {
+        return new g.Vec(this.x - other.x, this.y - other.y);
+    }
+
     /**
      * @param {number} k
      * @return {!g.Vec}
