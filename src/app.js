@@ -10,8 +10,8 @@ function startApplication() {
 
     // setting defaults
     layout.setPersonRadius(20);
-    layout.setSize(3000);
-    layout.setInitialRotation(g.degToRad(16));
+    layout.setSize(4400);
+    layout.setInitialRotation(g.degToRad(37));
 
     document.body.appendChild(renderer.canvasElement());
     var interactionController = new app.InteractionController(layout, renderer, loop);

@@ -232,10 +232,7 @@ app.CanvasRenderer = class {
             color = '#8eb2bd';
         else if (person.gender === app.Gender.Female)
             color = '#e89096';
-        // DEBUG -->>
-        if (!person.mother && !person.father)
-            color = 'green';
-        // <<--
+
         if (person.children.size) {
             ctx.fillStyle = color;
             ctx.fill();
