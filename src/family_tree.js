@@ -55,7 +55,8 @@ app.Person = class {
 }
 
 app.Family = class {
-    constructor(main, alt, children) {
+    constructor(parentFamily, main, alt, children) {
+        this.parentFamily = parentFamily;
         this.main = main;
         this.alt = alt;
         this.children = children;
@@ -71,22 +72,27 @@ app.FamilyTree = class {
         this._families = new Multimap();
         // Just breadth-first search.
         var queue = [root];
+        var parentFamilies = [null];
         var wp = 0;
         while (wp < queue.length) {
+            var parentFamily = parentFamilies[wp];
             var node = queue[wp++];
             var unattributedChildren = new Set(node.children);
             for (var partner of node.partners) {
-                addFamily.call(this, node, partner, partner.children);
+                addFamily.call(this, parentFamily, node, partner, partner.children);
                 unattributedChildren.deleteAll(partner.children);
             }
             // These are children from unknown partner(s).
             if (unattributedChildren.size)
-                addFamily.call(this, node, null, unattributedChildren);
+                addFamily.call(this, parentFamily, node, null, unattributedChildren);
         }
 
-        function addFamily(main, alt, children) {
-            var family = new app.Family(main, alt, children);
-            queue.push(...children);
+        function addFamily(parentFamily, main, alt, children) {
+            var family = new app.Family(parentFamily, main, alt, children);
+            for (var child of children) {
+                queue.push(child);
+                parentFamilies.push(family);
+            }
             this._families.set(main, family);
         }
     }
