@@ -79,7 +79,7 @@ app.FamilyTree = class {
                 addFamily.call(this, node, partner, partner.children);
                 unattributedChildren.deleteAll(partner.children);
             }
-            // This means there're children from an unknown partner.
+            // These are children from unknown partner(s).
             if (unattributedChildren.size)
                 addFamily.call(this, node, null, unattributedChildren);
         }
