@@ -61,6 +61,14 @@ app.Family = class {
         this.alt = alt;
         this.children = children;
     }
+
+    man() {
+        return this.main.gender === app.Gender.Male ? this.main : this.alt;
+    }
+
+    woman() {
+        return this.main.gender === app.Gender.Female ? this.main : this.alt;
+    }
 }
 
 app.FamilyTree = class {

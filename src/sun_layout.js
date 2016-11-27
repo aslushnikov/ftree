@@ -359,8 +359,16 @@ app.SunLayout = class extends app.LayoutEngine {
             var span = familyRequiredRad.call(this, node);
             if (families.length === 1) {
                 if (families[0].alt) {
-                    rotations.set(families[0].main, nodeRotation + span / 4);
-                    rotations.set(families[0].alt, nodeRotation - span / 4);
+                    // We want to show males over females.
+                    var top = nodeRotation + span / 4;
+                    var bottom = nodeRotation - span / 4;
+                    if (Math.sin(top) > Math.sin(bottom)) {
+                        var tmp = top;
+                        top = bottom;
+                        bottom = tmp;
+                    }
+                    rotations.set(families[0].man(), top);
+                    rotations.set(families[0].woman(), bottom);
                 } else {
                     rotations.set(families[0].main, nodeRotation);
                 }
