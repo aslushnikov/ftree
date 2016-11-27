@@ -275,13 +275,21 @@ app.SunLayout = class extends app.LayoutEngine {
         function layoutTree(node) {
             if (rotations.has(node))
                 return;
-            var children = Array.from(node.children);
+            for (var child of node.children)
+                layoutTree.call(this, child);
             var min = Infinity;
             var max = -Infinity;
-            for (var child of children) {
-                layoutTree.call(this, child);
-                min = Math.min(min, rotations.get(child));
-                max = Math.max(max, rotations.get(child));
+            var families = Array.from(this._familyTree.families(node));
+            if (families.length === 2) {
+                for (var child of families[0].children)
+                    max = Math.max(max, rotations.get(child));
+                for (var child of families[1].children)
+                    min = Math.min(min, rotations.get(child));
+            } else {
+                for (var child of node.children) {
+                    min = Math.min(min, rotations.get(child));
+                    max = Math.max(max, rotations.get(child));
+                }
             }
             rotations.set(node, (min + max) / 2);
         }
@@ -291,14 +299,16 @@ app.SunLayout = class extends app.LayoutEngine {
          * @param {!Array<!app.Person>} leafs
          */
         function populateLeafNodes(node, leafs) {
-            var children = Array.from(node.children);
-            if (!children.length) {
+            if (!node.children.size) {
                 leafs.push(node);
                 return;
             }
-            children.sort(childComparator.bind(this));
-            for (var child of children)
-                populateLeafNodes.call(this, child, leafs);
+            for (var family of this._familyTree.families(node)) {
+                var children = Array.from(family.children);
+                children.sort(childComparator.bind(this));
+                for (var child of children)
+                    populateLeafNodes.call(this, child, leafs);
+            }
         }
 
         /**
