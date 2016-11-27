@@ -49,7 +49,9 @@ app.CanvasRenderer = class {
         this._canvas = app.CanvasRenderer.createHiDPICanvas();
         this.setSize(width, height);
         this._scale = 1
-        this._fontSize = 16;
+        this._fontName = 'Arial';
+        this._nameFontSize = 20;
+        this._datesFontSize = 15;
         this._offset = new g.Vec(0, 0);
 
         /** @type {!Map<string, !Element>} */
@@ -119,25 +121,41 @@ app.CanvasRenderer = class {
     /**
      * @param {number} fontSize
      */
-    setFontSize(fontSize) {
+    setNameFontSize(fontSize) {
         this._textMetrics.clear();
         this._prerenderedText.clear();
-        this._fontSize = fontSize;
+        this._nameFontSize = fontSize;
     }
 
     /**
      * @return {number}
      */
-    fontSize() {
-        return this._fontSize;
+    nameFontSize() {
+        return this._nameFontSize;
+    }
+
+    /**
+     * @param {number} fontSize
+     */
+    setDatesFontSize(fontSize) {
+        this._textMetrics.clear();
+        this._prerenderedText.clear();
+        this._datesFontSize = fontSize;
+    }
+
+    /**
+     * @return {number}
+     */
+    datesFontSize() {
+        return this._datesFontSize;
     }
 
     /**
      * @param {string} text
      * @return {!Element}
      */
-    _prerenderText(text, color) {
-        var id = text + "$$" + color;
+    _prerenderText(text, color, fontName, fontSize) {
+        var id = text + "$$" + color + "$$" + fontName + "$$" + fontSize;
         var render = this._prerenderedText.get(id);
         if (render)
             return render;
@@ -145,9 +163,9 @@ app.CanvasRenderer = class {
         render = app.CanvasRenderer.createHiDPICanvas();
         var metrics = this._textMetrics.get(text);
         var ratio = app.CanvasRenderer.canvasRatio();
-        app.CanvasRenderer.setCanvasSize(render, metrics.width / ratio, (this._fontSize + 5) / ratio);
+        app.CanvasRenderer.setCanvasSize(render, metrics.width / ratio, (fontSize + 5) / ratio);
         var ctx = render.getContext('2d');
-        ctx.font = this._font();
+        ctx.font = fontSize + 'px ' + fontName;
         ctx.fillStyle = color;
         ctx.textBaseline = 'top';
         ctx.fillText(text, 0, 2);
@@ -169,12 +187,15 @@ app.CanvasRenderer = class {
 
         this._renderScaffolding(ctx, layout.scaffolding);
 
-        ctx.font = this._font();
+        ctx.font = this._nameFontSize + 'px ' + this._fontName;
         // Calculate missing text metrics.
         for (var person of layout.positions.keys()) {
             var fullName = person.fullName();
             if (!this._textMetrics.has(fullName))
                 this._textMetrics.set(fullName, ctx.measureText(fullName));
+        }
+        ctx.font = this._datesFontSize + 'px ' + this._fontName;
+        for (var person of layout.positions.keys()) {
             var dates = person.dates();
             if (!this._textMetrics.has(dates))
                 this._textMetrics.set(dates, ctx.measureText(dates));
@@ -224,18 +245,17 @@ app.CanvasRenderer = class {
         var position = layout.positions.get(person);
         var personRadius = layout.personRadius;
 
-        ctx.beginPath();
-        ctx.moveTo(position.x + personRadius, position.y);
-        ctx.arc(position.x, position.y, personRadius, 0, 2*Math.PI);
         var color = 'gray';
         if (person.gender === app.Gender.Male)
             color = '#8eb2bd';
         else if (person.gender === app.Gender.Female)
             color = '#e89096';
 
+        ctx.beginPath();
+        ctx.moveTo(position.x + personRadius, position.y);
+        ctx.arc(position.x, position.y, personRadius, 0, 2*Math.PI);
         if (person.isChild()) {
-            ctx.fillStyle = "white";
-            ctx.fill();
+            this._clearCircle(ctx, position.x, position.y, personRadius);
             ctx.lineWidth = 2;
             ctx.strokeStyle = color;
             ctx.stroke();
@@ -253,8 +273,8 @@ app.CanvasRenderer = class {
         ctx.save();
         ctx.translate(position.x, position.y);
         ctx.rotate(rotation);
-        var fullName = this._prerenderText(person.fullName(), color);
-        var dates = this._prerenderText(person.dates(), color);
+        var fullName = this._prerenderText(person.fullName(), color, this._fontName, this._nameFontSize);
+        var dates = this._prerenderText(person.dates(), color, this._fontName, this._datesFontSize);
         if (textOnLeft) {
             var textWidth = fullName.width;
             ctx.drawImage(fullName, -personRadius - 3 - textWidth, -fullName.height);
@@ -264,6 +284,15 @@ app.CanvasRenderer = class {
             ctx.drawImage(fullName, personRadius + 3, -fullName.height);
             ctx.drawImage(dates, personRadius + 3, 0);
         }
+        ctx.restore();
+    }
+
+    _clearCircle(ctx, x, y, radius) {
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(x, y, radius, 0, 2*Math.PI, true);
+        ctx.clip();
+        ctx.clearRect(x - radius, y - radius, radius*2 , radius*2);
         ctx.restore();
     }
 }

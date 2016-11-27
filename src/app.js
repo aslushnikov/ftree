@@ -37,8 +37,11 @@ function startApplication() {
     // setting up layout controls
     var rendererControls = document.querySelector('.renderer-controls');
     var rendererSliders = [
-        new app.Slider('font size', fontSize => {renderer.setFontSize(fontSize); loop.invalidate(); })
-            .setValues(7, 36, renderer.fontSize())
+        new app.Slider('name font size', fontSize => {renderer.setNameFontSize(fontSize); loop.invalidate(); })
+            .setValues(7, 36, renderer.nameFontSize())
+            .setSuffix('px'),
+        new app.Slider('dates font size', fontSize => {renderer.setDatesFontSize(fontSize); loop.invalidate(); })
+            .setValues(7, 36, renderer.datesFontSize())
             .setSuffix('px'),
     ];
     rendererSliders.forEach(slider => rendererControls.appendChild(slider.element()));
