@@ -13,6 +13,26 @@ g.normalizeRad = function(rad) {
     return rad - 2 * Math.PI * div;
 }
 
+g.EPS = 1e-7;
+
+g.eq = function(float1, float2) {
+    return Math.abs(float1 - float2) < 1e-7;
+}
+
+/**
+ * @param {number} r
+ * @param {number} segmentLength
+ * @return {number}
+ */
+g.segmentLengthToRad = function(r, segmentLength) {
+    var perimeter = 2 * Math.PI * r;
+    return (segmentLength / perimeter) * 2 * Math.PI;
+}
+
+g.segmentRadToLength = function(r, rad) {
+    return rad * r;
+}
+
 g.Vec = class {
     /**
      * @param {number} x
@@ -66,16 +86,6 @@ g.Vec = class {
 }
 
 g.zeroVec = new g.Vec(0, 0);
-
-/**
- * @param {number} r
- * @param {number} segmentLength
- * @return {number}
- */
-g.segmentLengthToRad = function(r, segmentLength) {
-    var perimeter = 2 * Math.PI * r;
-    return (segmentLength / perimeter) * 2 * Math.PI;
-}
 
 g.Line = class {
     /**

@@ -98,7 +98,7 @@ app.SunLayout = class extends app.LayoutEngine {
      * @param {number} radius
      */
     setPersonRadius(radius) {
-        if (Math.abs(radius - this._nodeRadius) < app.SunLayout.EPS)
+        if (g.eq(radius, this._nodeRadius))
             return;
         this._nodeRadius = radius;
         this._isDirty = true;
@@ -112,7 +112,7 @@ app.SunLayout = class extends app.LayoutEngine {
     }
 
     setInitialRotation(rotation) {
-        if (Math.abs(rotation - this._initialRotation) < app.SunLayout.EPS)
+        if (g.eq(rotation, this._initialRotation))
             return;
         this._initialRotation = rotation;
         this._isDirty = true;
@@ -126,7 +126,7 @@ app.SunLayout = class extends app.LayoutEngine {
      * @param {number} size
      */
     setSize(size) {
-        if (Math.abs(size - this._size) < app.SunLayout.EPS)
+        if (g.eq(size, this._size))
             return;
         this._size = size;
         this._isDirty = true;
@@ -143,7 +143,7 @@ app.SunLayout = class extends app.LayoutEngine {
      * @param {number} overlap
      */
     setOverlap(overlap) {
-        if (Math.abs(overlap - this._overlap) < app.SunLayout.EPS)
+        if (g.eq(overlap, this._overlap))
             return;
         this._overlap = overlap;
         this._isDirty = true;
@@ -197,11 +197,46 @@ app.SunLayout = class extends app.LayoutEngine {
                 max = Math.max(max, angle);
                 position.call(this, child);
             }
-            scaffolding.push(new g.Arc(g.zeroVec, r, min, max));
+
+            if (g.eq(min, max)) {
+                // There is a sole child. Render a level join straight to it.
+                var joinStart = positions.get(node);
+                var joinEnd = g.Vec.fromRadial(r, rotations.get(node));
+                scaffolding.push(new g.Line(joinStart, joinEnd));
+                return;
+            }
+
+            var offset = this._nodeRadius * 2;
             // Level join.
             var joinStart = positions.get(node);
-            var joinEnd = g.Vec.fromRadial(1, rotations.get(node)).scale(r);
+            var joinEnd = g.Vec.fromRadial(r - offset, rotations.get(node));
             scaffolding.push(new g.Line(joinStart, joinEnd));
+
+            // Do scaffolding.
+            var totalArcLength = g.segmentRadToLength(r - offset, max - min);
+            var maxCurveRadius = this._nodeRadius;
+            var curveRadius = Math.min(totalArcLength / 2, maxCurveRadius);
+            var curveOffsetRad = g.segmentLengthToRad(r - offset, curveRadius);
+
+            var start1 = g.Vec.fromRadial(r - offset, min + curveOffsetRad);
+            var start2 = g.Vec.fromRadial(r - offset, max - curveOffsetRad);
+            var end1 = g.Vec.fromRadial(r - offset + curveRadius, min);
+            var end2 = g.Vec.fromRadial(r - offset + curveRadius, max);
+            var cp1 = g.Vec.fromRadial(r - offset, min);
+            var cp2 = g.Vec.fromRadial(r - offset, max);
+            scaffolding.push(new g.Arc(g.zeroVec, r - offset, min + curveOffsetRad, max - curveOffsetRad));
+            scaffolding.push(new g.Bezier(start1, end1, cp1));
+            scaffolding.push(new g.Bezier(start2, end2, cp2));
+
+            for (var child of children) {
+                var rotation = rotations.get(child);
+                var from = g.Vec.fromRadial(r - offset, rotation);
+                if (g.eq(rotation, min))
+                    from = end1;
+                else if (g.eq(rotation, max))
+                    from = end2;
+                scaffolding.push(new g.Line(from, g.Vec.fromRadial(r, rotation)));
+            }
         }
     }
 
@@ -315,4 +350,3 @@ app.SunLayout = class extends app.LayoutEngine {
     }
 }
 
-app.SunLayout.EPS = 1e-7;
