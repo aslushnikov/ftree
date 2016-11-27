@@ -10,7 +10,7 @@ function startApplication() {
 
     // setting defaults
     layout.setPersonRadius(20);
-    layout.setSize(4400);
+    layout.setSize(5200);
     layout.setInitialRotation(g.degToRad(37));
 
     document.body.appendChild(renderer.canvasElement());
