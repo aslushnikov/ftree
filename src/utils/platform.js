@@ -50,6 +50,10 @@ Set.prototype.deleteAll = function(other) {
         this.delete(e);
 }
 
+Set.prototype.first = function() {
+    return this.values().next().value || null;
+}
+
 Promise.prototype.catchError = function(defaultValue) {
     return this.catch(error => {
         console.error(error);

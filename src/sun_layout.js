@@ -187,56 +187,69 @@ app.SunLayout = class extends app.LayoutEngine {
 
         // Render family arcs.
         for (var node of rotations.keys()) {
-            var children = node.children;
-            if (!children.size)
+            if (!this._familyTree.isFamilyMain(node))
                 continue;
-            var r = (this._nodeDepth.get(node) + 1) * this._depthRadiusStep();
-            var min = Infinity;
-            var max = -Infinity;
-            for (var child of children) {
-                var angle = rotations.get(child);
-                min = Math.min(min, angle);
-                max = Math.max(max, angle);
-            }
+            for (var family of this._familyTree.families(node)) {
+                var familyR = this._nodeDepth.get(family.main) * this._depthRadiusStep();
+                if (family.alt) {
+                    var rotation1 = rotations.get(family.main);
+                    var rotation2 = rotations.get(family.alt);
+                    scaffolding.push(new g.Arc(g.zeroVec, familyR, Math.min(rotation1, rotation2), Math.max(rotation1, rotation2)));
+                }
+                var children = family.children;
+                if (!children.size)
+                    continue;
+                var r = (this._nodeDepth.get(node) + 1) * this._depthRadiusStep();
+                var min = Infinity;
+                var max = -Infinity;
+                for (var child of children) {
+                    var angle = rotations.get(child);
+                    min = Math.min(min, angle);
+                    max = Math.max(max, angle);
+                }
 
-            if (g.eq(min, max)) {
-                // There is a sole child. Render a level join straight to it.
-                var joinStart = positions.get(node);
-                var joinEnd = g.Vec.fromRadial(r, rotations.get(node));
+                var familyMiddle = rotations.get(family.main);
+                if (family.alt)
+                    familyMiddle = (familyMiddle + rotations.get(family.alt)) / 2;
+                if (g.eq(min, max)) {
+                    // There is a sole child. Render a level join straight to it.
+                    var joinStart = g.Vec.fromRadial(familyR, familyMiddle);
+                    var joinEnd = g.Vec.fromRadial(r, familyMiddle);
+                    scaffolding.push(new g.Line(joinStart, joinEnd));
+                    continue;
+                }
+
+                var offset = this._nodeRadius * 2;
+                // Level join.
+                var joinStart = g.Vec.fromRadial(familyR, familyMiddle);
+                var joinEnd = g.Vec.fromRadial(r - offset, familyMiddle);
                 scaffolding.push(new g.Line(joinStart, joinEnd));
-                continue;
-            }
 
-            var offset = this._nodeRadius * 2;
-            // Level join.
-            var joinStart = positions.get(node);
-            var joinEnd = g.Vec.fromRadial(r - offset, rotations.get(node));
-            scaffolding.push(new g.Line(joinStart, joinEnd));
+                // Do scaffolding.
+                var totalArcLength = g.segmentRadToLength(r - offset, max - min);
+                var maxCurveRadius = this._nodeRadius;
+                var curveRadius = Math.min(totalArcLength / 2, maxCurveRadius);
+                var curveOffsetRad = g.segmentLengthToRad(r - offset, curveRadius);
 
-            // Do scaffolding.
-            var totalArcLength = g.segmentRadToLength(r - offset, max - min);
-            var maxCurveRadius = this._nodeRadius;
-            var curveRadius = Math.min(totalArcLength / 2, maxCurveRadius);
-            var curveOffsetRad = g.segmentLengthToRad(r - offset, curveRadius);
+                var start1 = g.Vec.fromRadial(r - offset, min + curveOffsetRad);
+                var start2 = g.Vec.fromRadial(r - offset, max - curveOffsetRad);
+                var end1 = g.Vec.fromRadial(r - offset + curveRadius, min);
+                var end2 = g.Vec.fromRadial(r - offset + curveRadius, max);
+                var cp1 = g.Vec.fromRadial(r - offset, min);
+                var cp2 = g.Vec.fromRadial(r - offset, max);
+                scaffolding.push(new g.Arc(g.zeroVec, r - offset, min + curveOffsetRad, max - curveOffsetRad));
+                scaffolding.push(new g.Bezier(start1, end1, cp1));
+                scaffolding.push(new g.Bezier(start2, end2, cp2));
 
-            var start1 = g.Vec.fromRadial(r - offset, min + curveOffsetRad);
-            var start2 = g.Vec.fromRadial(r - offset, max - curveOffsetRad);
-            var end1 = g.Vec.fromRadial(r - offset + curveRadius, min);
-            var end2 = g.Vec.fromRadial(r - offset + curveRadius, max);
-            var cp1 = g.Vec.fromRadial(r - offset, min);
-            var cp2 = g.Vec.fromRadial(r - offset, max);
-            scaffolding.push(new g.Arc(g.zeroVec, r - offset, min + curveOffsetRad, max - curveOffsetRad));
-            scaffolding.push(new g.Bezier(start1, end1, cp1));
-            scaffolding.push(new g.Bezier(start2, end2, cp2));
-
-            for (var child of children) {
-                var rotation = rotations.get(child);
-                var from = g.Vec.fromRadial(r - offset, rotation);
-                if (g.eq(rotation, min))
-                    from = end1;
-                else if (g.eq(rotation, max))
-                    from = end2;
-                scaffolding.push(new g.Line(from, g.Vec.fromRadial(r, rotation)));
+                for (var child of children) {
+                    var rotation = rotations.get(child);
+                    var from = g.Vec.fromRadial(r - offset, rotation);
+                    if (g.eq(rotation, min))
+                        from = end1;
+                    else if (g.eq(rotation, max))
+                        from = end2;
+                    scaffolding.push(new g.Line(from, g.Vec.fromRadial(r, rotation)));
+                }
             }
         }
         return scaffolding;
@@ -275,12 +288,12 @@ app.SunLayout = class extends app.LayoutEngine {
         var freeQuant = free / leafs.length;
 
         var last = this._initialRotation;
-        rotations.set(leafs[0], last);
+        setNodeRotations.call(this, leafs[0], last);
         for (var i = 1; i < leafs.length; ++i) {
             var prevLeaf = leafs[i - 1];
             var leaf = leafs[i];
             var value = last + minAngleForNode.call(this, prevLeaf) + freeQuant;
-            rotations.set(leaf, value);
+            setNodeRotations.call(this, leaf, value);
             last = value;
         }
         layoutTree.call(this, this._familyTree.root());
@@ -308,7 +321,26 @@ app.SunLayout = class extends app.LayoutEngine {
                     max = Math.max(max, rotations.get(child));
                 }
             }
-            rotations.set(node, (min + max) / 2);
+            setNodeRotations.call(this, node, (min + max) / 2);
+        }
+
+        function setNodeRotations(node, nodeRotation) {
+            var families = Array.from(this._familyTree.families(node));
+            var span = minAngleForNode.call(this, node);
+            if (families.length === 1) {
+                if (families[0].alt) {
+                    rotations.set(families[0].main, nodeRotation + span / 4);
+                    rotations.set(families[0].alt, nodeRotation - span / 4);
+                } else {
+                    rotations.set(families[0].main, nodeRotation);
+                }
+            } else {
+                rotations.set(node, nodeRotation);
+                if (families[0].alt)
+                    rotations.set(families[0].alt, nodeRotation - span / 3);
+                if (families[1].alt)
+                    rotations.set(families[1].alt, nodeRotation + span / 3);
+            }
         }
 
         /**
@@ -373,6 +405,11 @@ app.SunLayout = class extends app.LayoutEngine {
             this._subtreeDepth.set(node, subtreeDepth);
             this._subtreeSize.set(node, subtreeSize);
             this._nodeDepth.set(node, depth);
+            for (var partner of node.partners) {
+                this._nodeDepth.set(partner, depth);
+                this._subtreeDepth.set(partner, subtreeDepth);
+                this._subtreeSize.set(partner, subtreeSize);
+            }
         }
     }
 }

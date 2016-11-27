@@ -83,7 +83,7 @@ app.FamilyTree = class {
                 unattributedChildren.deleteAll(partner.children);
             }
             // These are children from unknown partner(s).
-            if (unattributedChildren.size)
+            if (unattributedChildren.size || !node.partners.size)
                 addFamily.call(this, parentFamily, node, null, unattributedChildren);
         }
 
@@ -94,6 +94,8 @@ app.FamilyTree = class {
                 parentFamilies.push(family);
             }
             this._families.set(main, family);
+            if (alt)
+                this._families.set(alt, family);
         }
     }
 
@@ -102,6 +104,14 @@ app.FamilyTree = class {
      */
     families(person) {
         return this._families.get(person);
+    }
+
+    /**
+     * @param {!app.Person} person
+     * @return {boolean}
+     */
+    isFamilyMain(person) {
+        return this._families.get(person).first().main === person;
     }
 
     /**
