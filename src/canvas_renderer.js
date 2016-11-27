@@ -53,11 +53,10 @@ app.CanvasRenderer = class {
         this._nameFontSize = 20;
         this._datesFontSize = 15;
         this._offset = new g.Vec(0, 0);
+        this._rootFontScale = 2.0;
 
         /** @type {!Map<string, !Element>} */
         this._prerenderedText = new Map();
-        /** @type {!Map<string, !TextMetrics>} */
-        this._textMetrics = new Map();
     }
 
     /**
@@ -80,6 +79,14 @@ app.CanvasRenderer = class {
 
     size() {
         return {width: this._width, height: this._height};
+    }
+
+    setRootFontScale(scale) {
+        this._rootFontScale = scale;
+    }
+
+    rootFontScale() {
+        return this._rootFontScale;
     }
 
     /**
@@ -122,7 +129,6 @@ app.CanvasRenderer = class {
      * @param {number} fontSize
      */
     setNameFontSize(fontSize) {
-        this._textMetrics.clear();
         this._prerenderedText.clear();
         this._nameFontSize = fontSize;
     }
@@ -138,7 +144,6 @@ app.CanvasRenderer = class {
      * @param {number} fontSize
      */
     setDatesFontSize(fontSize) {
-        this._textMetrics.clear();
         this._prerenderedText.clear();
         this._datesFontSize = fontSize;
     }
@@ -161,7 +166,10 @@ app.CanvasRenderer = class {
             return render;
 
         render = app.CanvasRenderer.createHiDPICanvas();
-        var metrics = this._textMetrics.get(text);
+        var mainCtx = this._canvas.getContext('2d');
+        var font = fontSize + 'px ' + fontName;
+        mainCtx.font = font;
+        var metrics = mainCtx.measureText(text);
         var ratio = app.CanvasRenderer.canvasRatio();
         app.CanvasRenderer.setCanvasSize(render, metrics.width / ratio, (fontSize + 5) / ratio);
         var ctx = render.getContext('2d');
@@ -185,21 +193,17 @@ app.CanvasRenderer = class {
         ctx.translate(this._offset.x, this._offset.y);
         ctx.scale(this._scale, this._scale);
 
-        this._renderScaffolding(ctx, layout.scaffolding);
+        if (layout.backgroundImage) {
+            var img = layout.backgroundImage;
+            ctx.save();
+            ctx.beginPath();
+            ctx.arc(img.center.x, img.center.y, img.r, 0, 2*Math.PI, true);
+            ctx.clip();
+            ctx.drawImage(img.image, img.center.x - img.r, img.center.y - img.r);
+            ctx.restore();
+        }
 
-        ctx.font = this._nameFontSize + 'px ' + this._fontName;
-        // Calculate missing text metrics.
-        for (var person of layout.positions.keys()) {
-            var fullName = person.fullName();
-            if (!this._textMetrics.has(fullName))
-                this._textMetrics.set(fullName, ctx.measureText(fullName));
-        }
-        ctx.font = this._datesFontSize + 'px ' + this._fontName;
-        for (var person of layout.positions.keys()) {
-            var dates = person.dates();
-            if (!this._textMetrics.has(dates))
-                this._textMetrics.set(dates, ctx.measureText(dates));
-        }
+        this._renderScaffolding(ctx, layout.scaffolding);
 
         for (var person of layout.positions.keys())
             this._renderPerson(ctx, layout, person);
@@ -247,7 +251,9 @@ app.CanvasRenderer = class {
 
         var color = 'gray';
         var alpha = person.deceased ? 0.5 : 1;
-        if (person.gender === app.Gender.Male)
+        if (person === layout.root)
+            color = `rgba(231, 174, 68, ${alpha})`;
+        else if (person.gender === app.Gender.Male)
             color = `rgba(142, 178, 189, ${alpha})`;
         else if (person.gender === app.Gender.Female)
             color = `rgba(232, 144, 150, ${alpha})`;
@@ -273,17 +279,25 @@ app.CanvasRenderer = class {
 
         ctx.save();
         ctx.translate(position.x, position.y);
-        ctx.rotate(rotation);
-        var fullName = this._prerenderText(person.fullName(), color, this._fontName, this._nameFontSize);
-        var dates = this._prerenderText(person.dates(), color, this._fontName, this._datesFontSize);
-        if (textOnLeft) {
-            var textWidth = fullName.width;
-            ctx.drawImage(fullName, -personRadius - 3 - textWidth, -fullName.height);
-            textWidth = dates.width;
-            ctx.drawImage(dates, -personRadius - 3 - textWidth, 0);
+        if (person === layout.root) {
+            color = 'black';
+            var fullName = this._prerenderText(person.fullName(), color, this._fontName, this._nameFontSize * this._rootFontScale);
+            var dates = this._prerenderText(person.dates(), color, this._fontName, this._datesFontSize * this._rootFontScale);
+            ctx.drawImage(fullName, -fullName.width / 2, personRadius);
+            ctx.drawImage(dates, -dates.width / 2, personRadius + fullName.height);
         } else {
-            ctx.drawImage(fullName, personRadius + 3, -fullName.height);
-            ctx.drawImage(dates, personRadius + 3, 0);
+            ctx.rotate(rotation);
+            var fullName = this._prerenderText(person.fullName(), color, this._fontName, this._nameFontSize);
+            var dates = this._prerenderText(person.dates(), color, this._fontName, this._datesFontSize);
+            if (textOnLeft) {
+                var textWidth = fullName.width;
+                ctx.drawImage(fullName, -personRadius - 3 - textWidth, -fullName.height);
+                textWidth = dates.width;
+                ctx.drawImage(dates, -personRadius - 3 - textWidth, 0);
+            } else {
+                ctx.drawImage(fullName, personRadius + 3, -fullName.height);
+                ctx.drawImage(dates, personRadius + 3, 0);
+            }
         }
         ctx.restore();
     }

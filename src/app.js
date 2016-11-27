@@ -14,6 +14,10 @@ function startApplication() {
     layout.setOverlap(g.degToRad(-35));
     layout.setInitialRotation(g.degToRad(62));
 
+    var image = new Image();
+    image.src = './assets/map.png';
+    image.onload = () => layout.setBackgroundImage(image);
+
     document.body.appendChild(renderer.canvasElement());
     var interactionController = new app.InteractionController(layout, renderer, loop);
 
@@ -38,6 +42,9 @@ function startApplication() {
     // setting up layout controls
     var rendererControls = document.querySelector('.renderer-controls');
     var rendererSliders = [
+        new app.Slider('root font scale', scale => {renderer.setRootFontScale(scale); loop.invalidate(); })
+            .setValues(1, 4, renderer.rootFontScale(), 0.1)
+            .setSuffix(' times'),
         new app.Slider('name font size', fontSize => {renderer.setNameFontSize(fontSize); loop.invalidate(); })
             .setValues(7, 36, renderer.nameFontSize())
             .setSuffix('px'),

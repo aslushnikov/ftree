@@ -1,14 +1,18 @@
 app.Layout = class {
     /**
+     * @param {?app.Person} root
      * @param {!Map<!app.Person, !g.Vec} positions
      * @param {!Map<!app.Person, number} rotations
      * @param {!Array<!Object>} scaffolding
+     * @param {?g.CircleImage} bgImage
      * @param {number} personRadius
      */
-    constructor(positions, rotations, scaffolding, personRadius) {
+    constructor(root, positions, rotations, scaffolding, bgImage, personRadius) {
+        this.root = root;
         this.positions = positions;
         this.rotations = rotations;
         this.scaffolding = scaffolding;
+        this.backgroundImage = bgImage;
         this.personRadius = personRadius;
     }
 
@@ -37,7 +41,7 @@ app.Layout = class {
      * @return {!app.Layout}
      */
     static empty() {
-        return new app.Layout(new Map(), new Map(), [], 0);
+        return new app.Layout(null, new Map(), new Map(), [], null, 0);
     }
 }
 
@@ -66,6 +70,7 @@ app.SunLayout = class extends app.LayoutEngine {
         this._overlap = 0;
         this._initialRotation = 0;
         this._parentRatio = 1 / g.GOLDEN_RATIO;
+        this._backgroundImage = null;
 
         /** @type {!Map<!app.Person, number>} */
         this._subtreeSize = new Map();
@@ -84,6 +89,14 @@ app.SunLayout = class extends app.LayoutEngine {
      */
     isDirty() {
         return this._isDirty;
+    }
+
+    /**
+     * @param {!HTMLImageElement} image
+     */
+    setBackgroundImage(image) {
+        this._backgroundImage = image;
+        this._isDirty = true;
     }
 
     /**
@@ -189,7 +202,9 @@ app.SunLayout = class extends app.LayoutEngine {
         var rotations = this._computeRotations();
         var positions = this._computePositions(rotations);
         var scaffolding = this._computeScaffolding(rotations, positions);
-        this._lastLayout = new app.Layout(positions, rotations, scaffolding, this._nodeRadius);
+        var bgImage = this._backgroundImage ? new g.CircleImage(g.zeroVec, this._depthRadiusStep() - this._nodeRadius * 3, this._backgroundImage) : null;
+
+        this._lastLayout = new app.Layout(this._familyTree.root(), positions, rotations, scaffolding, bgImage, this._nodeRadius);
         this.dispatch(app.LayoutEngine.Events.LayoutRecalculated);
         return this._lastLayout;
     }

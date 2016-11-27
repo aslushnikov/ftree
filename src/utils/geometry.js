@@ -121,9 +121,27 @@ g.Arc = class {
 }
 
 g.Bezier = class {
+    /**
+     * @param {!g.Vec} from
+     * @param {!g.Vec} to
+     * @param {!g.Vec} cp
+     */
     constructor(from, to, cp) {
         this.from = from;
         this.to = to;
         this.cp = cp;
+    }
+}
+
+g.CircleImage = class {
+    /**
+     * @param {!g.Vec} center
+     * @param {number} r
+     * @param {!HTMLImageElement} image
+     */
+    constructor(center, r, image) {
+        this.center = center;
+        this.r = r;
+        this.image = image;
     }
 }
