@@ -299,12 +299,20 @@ app.SunLayout = class extends app.LayoutEngine {
         /** @type {!Map<!app.Person, number>} */
         var rotations = new Map();
         var leafs = [];
-        populateLeafNodes.call(this, this._familyTree.root(), leafs);
+        var root = this._familyTree.root();
+        populateLeafNodes.call(this, root, leafs);
+
+        var leafCount = new Map();
+        computeLeafCount.call(this, root, leafCount);
+        var deficitPerLeaf = new Map();
+        computeDeficitPerLeaf.call(this, leafCount, root, deficitPerLeaf);
+        var maxDeficit = new Map();
+        computeMaxDeficit.call(this, deficitPerLeaf, root, maxDeficit, 0);
 
         // assign initial positions to leafs.
         var required = 0;
         for (var i = 1; i < leafs.length; ++i)
-            required += minAngleForNode.call(this, leafs[i]);
+            required += familyRequiredRad.call(this, leafs[i]) + maxDeficit.get(leafs[i]);
         var total = 2 * Math.PI + this._overlap;
         var free = total - required;
         var freeQuant = free / leafs.length;
@@ -312,11 +320,11 @@ app.SunLayout = class extends app.LayoutEngine {
         var last = this._initialRotation;
         setNodeRotations.call(this, leafs[0], last);
         for (var i = 1; i < leafs.length; ++i) {
-            var prevLeaf = leafs[i - 1];
             var leaf = leafs[i];
-            var value = last + minAngleForNode.call(this, prevLeaf) + freeQuant;
-            setNodeRotations.call(this, leaf, value);
-            last = value;
+            var value = familyRequiredRad.call(this, leaf) + freeQuant 
+                + maxDeficit.get(leaf);
+            setNodeRotations.call(this, leaf, last + value/2);
+            last = last + value;
         }
         layoutTree.call(this, this._familyTree.root());
         return rotations;
@@ -348,7 +356,7 @@ app.SunLayout = class extends app.LayoutEngine {
 
         function setNodeRotations(node, nodeRotation) {
             var families = Array.from(this._familyTree.families(node));
-            var span = minAngleForNode.call(this, node);
+            var span = familyRequiredRad.call(this, node);
             if (families.length === 1) {
                 if (families[0].alt) {
                     rotations.set(families[0].main, nodeRotation + span / 4);
@@ -391,12 +399,47 @@ app.SunLayout = class extends app.LayoutEngine {
             return this._subtreeSize.get(a) - this._subtreeSize.get(b);
         }
 
+        function computeLeafCount(node, leafCount) {
+            if (!node.children.size) {
+                leafCount.set(node, 1);
+                return 1;
+            }
+            var count = 0;
+            for (var child of node.children)
+                count += computeLeafCount.call(this, child, leafCount);
+            leafCount.set(node, count);
+            return count;
+        }
+
+        function computeDeficitPerLeaf(leafCount, node, deficitPerLeaf) {
+            if (!node.children.size) {
+                deficitPerLeaf.set(node, 0);
+                return familyRequiredRad.call(this, node);
+            }
+            var totalAvailable = 0;
+            for (var child of node.children)
+                totalAvailable += computeDeficitPerLeaf.call(this, leafCount, child, deficitPerLeaf);
+            var deficit = Math.min(totalAvailable - familyRequiredRad.call(this, node), 0);
+            deficitPerLeaf.set(node, Math.abs(deficit) / leafCount.get(node))
+            return totalAvailable;
+        }
+
+        function computeMaxDeficit(deficitPerLeaf, node, maxDeficit, currentMaximum) {
+            currentMaximum = Math.max(currentMaximum, deficitPerLeaf.get(node));
+            maxDeficit.set(node, currentMaximum);
+            for (var child of node.children)
+                computeMaxDeficit.call(this, deficitPerLeaf, child, maxDeficit, currentMaximum);
+        }
+
         /**
          * @param {!app.Person} node
          * @return {number}
          */
-        function minAngleForNode(node) {
-            var radius = this._nodeDepth.get(node) * this._depthRadiusStep();
+        function familyRequiredRad(node) {
+            var depth = this._nodeDepth.get(node);
+            if (!depth)
+                return 0;
+            var radius = depth * this._depthRadiusStep();
             var peopleCount = 1 + node.partners.size;
             return g.segmentLengthToRad(radius, peopleCount * this._nodeRadius * 3);
         }
