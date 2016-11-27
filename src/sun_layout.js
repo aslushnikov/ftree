@@ -189,7 +189,9 @@ app.SunLayout = class extends app.LayoutEngine {
         for (var node of rotations.keys()) {
             if (!this._familyTree.isFamilyMain(node))
                 continue;
-            for (var family of this._familyTree.families(node)) {
+            var families = Array.from(this._familyTree.families(node));
+            for (var i = 0; i < families.length; ++i) {
+                var family = families[i];
                 var familyR = this._nodeDepth.get(family.main) * this._depthRadiusStep();
                 if (family.alt) {
                     var rotation1 = rotations.get(family.main);
@@ -211,7 +213,7 @@ app.SunLayout = class extends app.LayoutEngine {
                 var familyMiddle = rotations.get(family.main);
                 if (family.alt)
                     familyMiddle = (familyMiddle + rotations.get(family.alt)) / 2;
-                if (g.eq(min, max)) {
+                if (g.eq(min, max) && families.length !== 2) {
                     // There is a sole child. Render a level join straight to it.
                     var joinStart = g.Vec.fromRadial(familyR, familyMiddle);
                     var joinEnd = g.Vec.fromRadial(r, familyMiddle);
@@ -220,26 +222,28 @@ app.SunLayout = class extends app.LayoutEngine {
                 }
 
                 var offset = this._nodeRadius * 2;
+
+                var tip1 = 1;
+                var tip2 = 1;
+                if (families.length === 2) {
+                    if (i === 0) {
+                        tip2 = -1;
+                        max = familyMiddle;
+                    } else {
+                        tip1 = -1;
+                        min = familyMiddle;
+                    }
+                }
+                var [end1, end2] = curvyArc.call(this, r - offset, min, max, tip1, tip2);
+
                 // Level join.
                 var joinStart = g.Vec.fromRadial(familyR, familyMiddle);
                 var joinEnd = g.Vec.fromRadial(r - offset, familyMiddle);
+                if (tip1 === -1)
+                    joinEnd = end1;
+                else if (tip2 === -1)
+                    joinEnd = end2;
                 scaffolding.push(new g.Line(joinStart, joinEnd));
-
-                // Do scaffolding.
-                var totalArcLength = g.segmentRadToLength(r - offset, max - min);
-                var maxCurveRadius = this._nodeRadius;
-                var curveRadius = Math.min(totalArcLength / 2, maxCurveRadius);
-                var curveOffsetRad = g.segmentLengthToRad(r - offset, curveRadius);
-
-                var start1 = g.Vec.fromRadial(r - offset, min + curveOffsetRad);
-                var start2 = g.Vec.fromRadial(r - offset, max - curveOffsetRad);
-                var end1 = g.Vec.fromRadial(r - offset + curveRadius, min);
-                var end2 = g.Vec.fromRadial(r - offset + curveRadius, max);
-                var cp1 = g.Vec.fromRadial(r - offset, min);
-                var cp2 = g.Vec.fromRadial(r - offset, max);
-                scaffolding.push(new g.Arc(g.zeroVec, r - offset, min + curveOffsetRad, max - curveOffsetRad));
-                scaffolding.push(new g.Bezier(start1, end1, cp1));
-                scaffolding.push(new g.Bezier(start2, end2, cp2));
 
                 for (var child of children) {
                     var rotation = rotations.get(child);
@@ -253,6 +257,24 @@ app.SunLayout = class extends app.LayoutEngine {
             }
         }
         return scaffolding;
+
+        function curvyArc(r, from, to, curvyTip1, curvyTip2) {
+            var totalArcLength = g.segmentRadToLength(r, to - from);
+            var maxCurveRadius = this._nodeRadius;
+            var curveRadius = Math.min(totalArcLength / 2, maxCurveRadius);
+            var curveOffsetRad = g.segmentLengthToRad(r, curveRadius);
+
+            var start1 = g.Vec.fromRadial(r, min + curveOffsetRad);
+            var start2 = g.Vec.fromRadial(r, max - curveOffsetRad);
+            var end1 = g.Vec.fromRadial(r + curveRadius * curvyTip1, min);
+            var end2 = g.Vec.fromRadial(r + curveRadius * curvyTip2, max);
+            var cp1 = g.Vec.fromRadial(r, min);
+            var cp2 = g.Vec.fromRadial(r, max);
+            scaffolding.push(new g.Arc(g.zeroVec, r, min + curveOffsetRad, max - curveOffsetRad));
+            scaffolding.push(new g.Bezier(start1, end1, cp1));
+            scaffolding.push(new g.Bezier(start2, end2, cp2));
+            return [end1, end2];
+        }
     }
 
     /**
