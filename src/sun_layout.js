@@ -311,7 +311,7 @@ app.SunLayout = class extends app.LayoutEngine {
 
         // assign initial positions to leafs.
         var required = 0;
-        for (var i = 1; i < leafs.length; ++i)
+        for (var i = 0; i < leafs.length; ++i)
             required += familyRequiredRad.call(this, leafs[i]) + maxDeficit.get(leafs[i]);
         var total = 2 * Math.PI + this._overlap;
         var free = total - required;
@@ -319,7 +319,7 @@ app.SunLayout = class extends app.LayoutEngine {
 
         var last = this._initialRotation;
         setNodeRotations.call(this, leafs[0], last);
-        for (var i = 1; i < leafs.length; ++i) {
+        for (var i = 0; i < leafs.length; ++i) {
             var leaf = leafs[i];
             var value = familyRequiredRad.call(this, leaf) + freeQuant 
                 + maxDeficit.get(leaf);
