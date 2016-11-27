@@ -175,27 +175,28 @@ app.SunLayout = class extends app.LayoutEngine {
             return this._lastLayout;
         }
         var rotations = this._computeRotations();
-        var positions = new Map();
-        var scaffolding = [];
-        positions.set(this._familyTree.root(), new g.Vec(0, 0));
-        position.call(this, this._familyTree.root(), 0, Math.PI * 2);
+        var positions = this._computePositions(rotations);
+        var scaffolding = this._computeScaffolding(rotations, positions);
         this._lastLayout = new app.Layout(positions, rotations, scaffolding, this._nodeRadius);
         this.dispatch(app.LayoutEngine.Events.LayoutRecalculated);
         return this._lastLayout;
+    }
 
-        function position(node) {
+    _computeScaffolding(rotations, positions) {
+        var scaffolding = [];
+
+        // Render family arcs.
+        for (var node of rotations.keys()) {
             var children = node.children;
             if (!children.size)
-                return;
+                continue;
             var r = (this._nodeDepth.get(node) + 1) * this._depthRadiusStep();
             var min = Infinity;
             var max = -Infinity;
             for (var child of children) {
                 var angle = rotations.get(child);
-                positions.set(child, g.Vec.fromRadial(r, angle));
                 min = Math.min(min, angle);
                 max = Math.max(max, angle);
-                position.call(this, child);
             }
 
             if (g.eq(min, max)) {
@@ -203,7 +204,7 @@ app.SunLayout = class extends app.LayoutEngine {
                 var joinStart = positions.get(node);
                 var joinEnd = g.Vec.fromRadial(r, rotations.get(node));
                 scaffolding.push(new g.Line(joinStart, joinEnd));
-                return;
+                continue;
             }
 
             var offset = this._nodeRadius * 2;
@@ -238,6 +239,22 @@ app.SunLayout = class extends app.LayoutEngine {
                 scaffolding.push(new g.Line(from, g.Vec.fromRadial(r, rotation)));
             }
         }
+        return scaffolding;
+    }
+
+    /**
+     * @param {!Map<!app.Person, number>} rotations
+     * @return {!Map<!app.Person, !g.Vec>}
+     */
+    _computePositions(rotations) {
+        var positions = new Map();
+        positions.set(this._familyTree.root(), new g.Vec(0, 0));
+        for (var node of rotations.keys()) {
+            var r = this._nodeDepth.get(node) * this._depthRadiusStep();
+            var angle = rotations.get(node);
+            positions.set(node, g.Vec.fromRadial(r, angle));
+        }
+        return positions;
     }
 
     /**
