@@ -9,10 +9,10 @@ function startApplication() {
     var loop = new app.RenderLoop(renderer, layout);
 
     // setting defaults
-    layout.setPersonRadius(20);
-    layout.setSize(5200);
-    layout.setOverlap(g.degToRad(-35));
-    layout.setInitialRotation(g.degToRad(62));
+    layout.setPersonRadius(41);
+    layout.setSize(5570);
+    layout.setOverlap(g.degToRad(142));
+    layout.setInitialRotation(g.degToRad(0));
 
     var image = new Image();
     image.src = './assets/map.png';
