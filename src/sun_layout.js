@@ -65,6 +65,7 @@ app.SunLayout = class extends app.LayoutEngine {
         this._nodeRadius = 25;
         this._overlap = 0;
         this._initialRotation = 0;
+        this._parentRatio = 1 / g.GOLDEN_RATIO;
 
         /** @type {!Map<!app.Person, number>} */
         this._subtreeSize = new Map();
@@ -120,6 +121,17 @@ app.SunLayout = class extends app.LayoutEngine {
 
     initialRotation() {
         return this._initialRotation;
+    }
+
+    setParentRatio(parentRatio) {
+        if (g.eq(parentRatio, this._parentRatio))
+            return;
+        this._parentRatio = parentRatio;
+        this._isDirty = true;
+    }
+
+    parentRatio() {
+        return this._parentRatio;
     }
 
     /**
@@ -190,8 +202,7 @@ app.SunLayout = class extends app.LayoutEngine {
             if (!this._familyTree.isFamilyMain(node))
                 continue;
             var families = Array.from(this._familyTree.families(node));
-            for (var i = 0; i < families.length; ++i) {
-                var family = families[i];
+            for (var family of families) {
                 var familyR = this._nodeDepth.get(family.main) * this._depthRadiusStep();
                 if (family.alt) {
                     var rotation1 = rotations.get(family.main);
@@ -225,14 +236,12 @@ app.SunLayout = class extends app.LayoutEngine {
 
                 var tip1 = 1;
                 var tip2 = 1;
-                if (families.length === 2) {
-                    if (i === 0) {
-                        tip2 = -1;
-                        max = familyMiddle;
-                    } else {
-                        tip1 = -1;
-                        min = familyMiddle;
-                    }
+                if (familyMiddle > max) {
+                    tip2 = -1;
+                    max = familyMiddle;
+                } else if (familyMiddle < min) {
+                    tip1 = -1;
+                    min = familyMiddle;
                 }
                 var [end1, end2] = curvyArc.call(this, r - offset, min, max, tip1, tip2);
 
@@ -327,6 +336,8 @@ app.SunLayout = class extends app.LayoutEngine {
             last = last + value;
         }
         layoutTree.call(this, this._familyTree.root());
+        // Override the root node to make it beautiful.
+        setNodeRotations.call(this, root, 0);
         return rotations;
 
         /**
@@ -351,7 +362,7 @@ app.SunLayout = class extends app.LayoutEngine {
                     max = Math.max(max, rotations.get(child));
                 }
             }
-            setNodeRotations.call(this, node, (min + max) / 2);
+            setNodeRotations.call(this, node, min + (max - min) * this._parentRatio);
         }
 
         function setNodeRotations(node, nodeRotation) {

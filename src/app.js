@@ -11,7 +11,8 @@ function startApplication() {
     // setting defaults
     layout.setPersonRadius(20);
     layout.setSize(5200);
-    layout.setInitialRotation(g.degToRad(37));
+    layout.setOverlap(g.degToRad(-35));
+    layout.setInitialRotation(g.degToRad(62));
 
     document.body.appendChild(renderer.canvasElement());
     var interactionController = new app.InteractionController(layout, renderer, loop);
@@ -29,7 +30,7 @@ function startApplication() {
             .setValues(5, 50, layout.personRadius())
             .setSuffix('px'),
         new app.Slider('overlap', overlap => layout.setOverlap(g.degToRad(overlap)))
-            .setValues(0, 360, g.radToDeg(layout.overlap()))
+            .setValues(-360, 360, g.radToDeg(layout.overlap()))
             .setSuffix('deg'),
     ];
     layoutSliders.forEach(slider => layoutControls.appendChild(slider.element()));

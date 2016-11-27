@@ -15,6 +15,8 @@ g.normalizeRad = function(rad) {
 
 g.EPS = 1e-7;
 
+g.GOLDEN_RATIO = (1 + Math.sqrt(5)) / 2;
+
 g.eq = function(float1, float2) {
     return Math.abs(float1 - float2) < 1e-7;
 }
