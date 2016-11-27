@@ -48,6 +48,7 @@ app.TreeLoader = class {
                 var birthYear = descriptor[14];
                 var deathYear = descriptor[17];
                 var person = new app.Person(firstName, lastName, gender, birthYear, deathYear);
+                person.deceased = descriptor[6] === "Y";
                 idToPerson.set(id, person);
             }
             // Second pass - set mothers/fathers/children/partners.
@@ -106,6 +107,7 @@ app.TreeLoader = class {
                 2: "First names",
                 3: "Surname now",
                 5: "Gender",
+                6: "Deceased",
                 7: "Mother ID",
                 9: "Father ID",
                 11: "Partner ID",

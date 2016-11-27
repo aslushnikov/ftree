@@ -15,6 +15,7 @@ app.Person = class {
     constructor(firstName, lastName, gender, birthYear, deathYear) {
         this.firstName = firstName;
         this.lastName = lastName;
+        this.deceased = !isNaN(deathYear);
         this.gender = gender;
         this.birthYear = birthYear;
         this.deathYear = deathYear;
@@ -30,7 +31,11 @@ app.Person = class {
     age() {
         if (isNaN(this.birthYear))
             return Infinity;
-        return new Date().getFullYear() - parseInt(this.birthYear, 10);
+        if (this.deceased && isNaN(this.deathYear))
+            return Infinity;
+        var from = parseInt(this.birthYear, 10);
+        var to = this.deceased ? parseInt(this.deathYear, 10) : new Date().getFullYear();
+        return to - from;
     }
 
     /**

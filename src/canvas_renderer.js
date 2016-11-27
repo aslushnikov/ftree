@@ -246,16 +246,17 @@ app.CanvasRenderer = class {
         var personRadius = layout.personRadius;
 
         var color = 'gray';
+        var alpha = person.deceased ? 0.5 : 1;
         if (person.gender === app.Gender.Male)
-            color = '#8eb2bd';
+            color = `rgba(142, 178, 189, ${alpha})`;
         else if (person.gender === app.Gender.Female)
-            color = '#e89096';
+            color = `rgba(232, 144, 150, ${alpha})`;
 
+        this._clearCircle(ctx, position.x, position.y, personRadius);
         ctx.beginPath();
         ctx.moveTo(position.x + personRadius, position.y);
         ctx.arc(position.x, position.y, personRadius, 0, 2*Math.PI);
         if (person.isChild()) {
-            this._clearCircle(ctx, position.x, position.y, personRadius);
             ctx.lineWidth = 2;
             ctx.strokeStyle = color;
             ctx.stroke();
