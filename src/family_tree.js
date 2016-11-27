@@ -25,6 +25,22 @@ app.Person = class {
     }
 
     /**
+     * @return {number}
+     */
+    age() {
+        if (isNaN(this.birthYear))
+            return Infinity;
+        return new Date().getFullYear() - parseInt(this.birthYear, 10);
+    }
+
+    /**
+     * @return {boolean}
+     */
+    isChild() {
+        return this.age() < 18;
+    }
+
+    /**
      * @return {string}
      */
     fullName() {

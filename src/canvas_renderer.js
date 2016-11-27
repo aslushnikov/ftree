@@ -233,15 +233,15 @@ app.CanvasRenderer = class {
         else if (person.gender === app.Gender.Female)
             color = '#e89096';
 
-        if (person.children.size) {
-            ctx.fillStyle = color;
-            ctx.fill();
-        } else {
+        if (person.isChild()) {
             ctx.fillStyle = "white";
             ctx.fill();
             ctx.lineWidth = 2;
             ctx.strokeStyle = color;
             ctx.stroke();
+        } else {
+            ctx.fillStyle = color;
+            ctx.fill();
         }
 
         var rotation = g.normalizeRad(layout.rotations.get(person));
