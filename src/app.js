@@ -2,6 +2,8 @@ self.app = {};
 
 document.addEventListener('DOMContentLoaded', startApplication);
 
+var storage = window.localStorage || {};
+
 function startApplication() {
     // setting up renderer and layout.
     var layout = new app.SunLayout();
@@ -29,19 +31,27 @@ function startApplication() {
         .then(onConfigs);
 
     function onConfigs(configs) {
+        var preselectConfigName = storage['configName'];
+        var preselectConfig = null;
         var selector = document.querySelector('.config-selector');
         for (var i = 0; i < configs.length; ++i) {
             var option = selector.createChild('option');
             option.textContent = configs[i].name;
             option.value = i;
+            if (configs[i].name === preselectConfigName) {
+                preselectConfig = configs[i];
+                option.selected = true;
+            }
         }
         selector.addEventListener('input', () => selectConfig(configs[selector.value]));
-        // Load tree
-        if (configs.length)
-            selectConfig(configs[0]);
+        if (!preselectConfig && configs.length)
+            preselectConfig = configs[0];
+        if (preselectConfig)
+            selectConfig(preselectConfig);
     }
 
     function selectConfig(config) {
+        storage['configName'] = config.name;
         app.TreeLoader.loadCSV(config.tree).then(tree => layout.setFamilyTree(tree));
 
         fetch(config.legend).then(response => response.json()).then(renderLegend);
@@ -58,7 +68,5 @@ function startApplication() {
             story.innerHTML = column;
         }
     }
-
 }
-
 
