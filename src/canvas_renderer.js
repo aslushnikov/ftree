@@ -261,12 +261,13 @@ app.CanvasRenderer = class {
         this._clearCircle(ctx, position.x, position.y, personRadius);
         ctx.beginPath();
         ctx.moveTo(position.x + personRadius, position.y);
-        ctx.arc(position.x, position.y, personRadius, 0, 2*Math.PI);
         if (person.isChild()) {
             ctx.lineWidth = 6;
             ctx.strokeStyle = color;
+            ctx.arc(position.x, position.y, personRadius - ((ctx.lineWidth / 2)|0), 0, 2*Math.PI);
             ctx.stroke();
         } else {
+            ctx.arc(position.x, position.y, personRadius, 0, 2*Math.PI);
             ctx.fillStyle = color;
             ctx.fill();
         }
@@ -280,6 +281,7 @@ app.CanvasRenderer = class {
         ctx.save();
         ctx.translate(position.x, position.y);
         color = `rgba(48, 48, 48, ${alpha}`;
+        var textPadding = 6;
         if (person === layout.root) {
             var fullName = this._prerenderText(person.fullName(), color, this._fontName, this._nameFontSize * this._rootFontScale);
             var dates = this._prerenderText(person.dates(), color, this._fontName, this._datesFontSize * this._rootFontScale);
@@ -291,12 +293,12 @@ app.CanvasRenderer = class {
             var dates = this._prerenderText(person.dates(), color, this._fontName, this._datesFontSize);
             if (textOnLeft) {
                 var textWidth = fullName.width;
-                ctx.drawImage(fullName, -personRadius - 3 - textWidth, -fullName.height);
+                ctx.drawImage(fullName, -personRadius - textPadding - textWidth, -fullName.height);
                 textWidth = dates.width;
-                ctx.drawImage(dates, -personRadius - 3 - textWidth, 0);
+                ctx.drawImage(dates, -personRadius - textPadding - textWidth, 0);
             } else {
-                ctx.drawImage(fullName, personRadius + 3, -fullName.height);
-                ctx.drawImage(dates, personRadius + 3, 0);
+                ctx.drawImage(fullName, personRadius + textPadding, -fullName.height);
+                ctx.drawImage(dates, personRadius + textPadding, 0);
             }
         }
         ctx.restore();
