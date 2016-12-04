@@ -3,6 +3,7 @@ html, body {
     margin: 0;
     background-color: #fdf9ef;
     font-family: arial;
+    color: #333;
 }
 
 .config-selector {
