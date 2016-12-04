@@ -279,8 +279,8 @@ app.CanvasRenderer = class {
 
         ctx.save();
         ctx.translate(position.x, position.y);
+        color = `rgba(48, 48, 48, ${alpha}`;
         if (person === layout.root) {
-            color = 'black';
             var fullName = this._prerenderText(person.fullName(), color, this._fontName, this._nameFontSize * this._rootFontScale);
             var dates = this._prerenderText(person.dates(), color, this._fontName, this._datesFontSize * this._rootFontScale);
             ctx.drawImage(fullName, -fullName.width / 2, personRadius);
