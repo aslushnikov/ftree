@@ -35,6 +35,7 @@ function startApplication() {
             option.textContent = configs[i].name;
             option.value = i;
         }
+        selector.addEventListener('input', () => selectConfig(configs[selector.value]));
         // Load tree
         if (configs.length)
             selectConfig(configs[0]);
@@ -50,6 +51,7 @@ function startApplication() {
         document.querySelector("header .title").textContent = legendJSON.title;
         document.querySelector("header .subtitle").textContent = legendJSON.subtitle;
         var stories = document.querySelector('.stories');
+        stories.textContent = '';
         var columns = legendJSON['text_columns'];
         for (var column of columns) {
             var story = stories.createChild('div', 'story');

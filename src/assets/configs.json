@@ -4,5 +4,11 @@
         "tree": "./assets/kalashyan-tree.en.csv",
         "legend": "./assets/kalashyan-legend.en.json",
         "background": "./assets/map.png"
+    },
+    {
+        "name": "Russian",
+        "tree": "./assets/kalashyan-tree.en.csv",
+        "legend": "./assets/kalashyan-legend.rus.json",
+        "background": "./assets/map.png"
     }
 ]
