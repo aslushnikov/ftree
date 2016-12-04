@@ -263,7 +263,7 @@ app.CanvasRenderer = class {
         ctx.moveTo(position.x + personRadius, position.y);
         ctx.arc(position.x, position.y, personRadius, 0, 2*Math.PI);
         if (person.isChild()) {
-            ctx.lineWidth = 2;
+            ctx.lineWidth = 6;
             ctx.strokeStyle = color;
             ctx.stroke();
         } else {
