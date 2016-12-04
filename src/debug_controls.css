@@ -1,0 +1,26 @@
+.debug-controls {
+    position: fixed;
+    left: 0;
+    top: 0;
+    background-color: rgba(255, 255, 255, 0.7);
+    display: flex;
+    flex-direction: column;
+    opacity: 0.2;
+}
+
+.debug-controls:hover {
+    opacity: 1;
+}
+
+.debug-controls .slider {
+    display: flex;
+}
+
+.debug-controls .slider * {
+    flex-shrink: 0;
+}
+
+.debug-controls .slider input {
+    margin: 0 1em 0 1em;
+}
+

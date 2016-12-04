@@ -1,6 +1,6 @@
 app.DebugControls = class {
     constructor(layout, renderer, loop) {
-        var element = createElementWithClass('div', 'controls');
+        var element = createElementWithClass('div', 'debug-controls');
         this._element = element;
         // setting up layout controls
         var layoutControls = element.createChild('fieldset', '.layout-controls');
