@@ -1,9 +1,8 @@
 self.app = {};
-var CONFIG_NAME = './assets/kalashyan.json';
 
-document.addEventListener('DOMContentLoaded', startApplication.bind(null, CONFIG_NAME));
+document.addEventListener('DOMContentLoaded', startApplication);
 
-function startApplication(configName) {
+function startApplication() {
     // setting up renderer and layout.
     var layout = new app.SunLayout();
     var renderer = new app.CanvasRenderer(document.body.clientWidth, document.body.clientHeight);
@@ -23,10 +22,41 @@ function startApplication(configName) {
     var interactionController = new app.InteractionController(layout, renderer, loop);
 
     var debugControls = new app.DebugControls(layout, renderer, loop);
-    document.body.appendChild(debugControls.element());
+    //document.body.appendChild(debugControls.element());
 
-    // Load tree
-    app.TreeLoader.loadCSV('assets/kalashyan-tree.en.csv').then(tree => layout.setFamilyTree(tree));
+    fetch('./assets/configs.json')
+        .then(response => response.json())
+        .then(onConfigs);
+
+    function onConfigs(configs) {
+        var selector = document.querySelector('.config-selector');
+        for (var i = 0; i < configs.length; ++i) {
+            var option = selector.createChild('option');
+            option.textContent = configs[i].name;
+            option.value = i;
+        }
+        // Load tree
+        if (configs.length)
+            selectConfig(configs[0]);
+    }
+
+    function selectConfig(config) {
+        app.TreeLoader.loadCSV(config.tree).then(tree => layout.setFamilyTree(tree));
+
+        fetch(config.legend).then(response => response.json()).then(renderLegend);
+    }
+
+    function renderLegend(legendJSON) {
+        document.querySelector("header .title").textContent = legendJSON.title;
+        document.querySelector("header .subtitle").textContent = legendJSON.subtitle;
+        var stories = document.querySelector('.stories');
+        var columns = legendJSON['text_columns'];
+        for (var column of columns) {
+            var story = stories.createChild('div', 'story');
+            story.innerHTML = column;
+        }
+    }
+
 }
 
 

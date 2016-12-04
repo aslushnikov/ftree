@@ -1,7 +1,8 @@
-{
-    "en": {
+[
+    {
+        "name": "English",
         "tree": "./assets/kalashyan-tree.en.csv",
         "legend": "./assets/kalashyan-legend.en.json",
         "background": "./assets/map.png"
     }
-}
+]
