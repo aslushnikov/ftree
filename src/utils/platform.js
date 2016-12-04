@@ -66,9 +66,19 @@ Promise.prototype.catchError = function(defaultValue) {
  * @param {string} className
  * @return {!Element}
  */
-Element.prototype.createChild = function(nodeName, className) {
+function createElementWithClass(nodeName, className) {
     var elem = document.createElement(nodeName);
     elem.className = className || '';
+    return elem;
+}
+
+/**
+ * @param {string} nodeName
+ * @param {string} className
+ * @return {!Element}
+ */
+Element.prototype.createChild = function(nodeName, className) {
+    var elem = createElementWithClass(nodeName, className);
     this.appendChild(elem);
     return elem;
 }
