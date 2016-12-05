@@ -157,9 +157,11 @@ app.CanvasRenderer = class {
 
     /**
      * @param {string} text
-     * @return {!Element}
+     * @return {?Element}
      */
     _prerenderText(text, color, fontName, fontSize) {
+        if (!text)
+            return null;
         var id = text + "$$" + color + "$$" + fontName + "$$" + fontSize;
         var render = this._prerenderedText.get(id);
         if (render)
@@ -285,23 +287,29 @@ app.CanvasRenderer = class {
         if (person === layout.root) {
             var fullName = this._prerenderText(person.fullName(), color, this._fontName, this._nameFontSize * this._rootFontScale);
             var dates = this._prerenderText(person.dates(), color, this._fontName, this._datesFontSize * this._rootFontScale);
-            ctx.drawImage(fullName, -fullName.width / 2, personRadius);
-            ctx.drawImage(dates, -dates.width / 2, personRadius + fullName.height);
+            this._drawImage(ctx, fullName, -fullName.width / 2, personRadius);
+            this._drawImage(ctx, dates, -dates.width / 2, personRadius + fullName.height);
         } else {
             ctx.rotate(rotation);
             var fullName = this._prerenderText(person.fullName(), color, this._fontName, this._nameFontSize);
             var dates = this._prerenderText(person.dates(), color, this._fontName, this._datesFontSize);
             if (textOnLeft) {
                 var textWidth = fullName.width;
-                ctx.drawImage(fullName, -personRadius - textPadding - textWidth, -fullName.height);
-                textWidth = dates.width;
-                ctx.drawImage(dates, -personRadius - textPadding - textWidth, 0);
+                this._drawImage(ctx, fullName, -personRadius - textPadding - textWidth, -fullName.height);
+                textWidth = dates ? dates.width : 0;
+                this._drawImage(ctx, dates, -personRadius - textPadding - textWidth, 0);
             } else {
-                ctx.drawImage(fullName, personRadius + textPadding, -fullName.height);
-                ctx.drawImage(dates, personRadius + textPadding, 0);
+                this._drawImage(ctx, fullName, personRadius + textPadding, -fullName.height);
+                this._drawImage(ctx, dates, personRadius + textPadding, 0);
             }
         }
         ctx.restore();
+    }
+
+    _drawImage(ctx, image, x, y) {
+        if (!image)
+            return;
+        ctx.drawImage(image, x, y);
     }
 
     _clearCircle(ctx, x, y, radius) {
