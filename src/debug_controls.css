@@ -1,7 +1,7 @@
 .debug-controls {
     position: fixed;
     left: 0;
-    top: 0;
+    top: 10%;
     background-color: rgba(255, 255, 255, 0.7);
     display: flex;
     flex-direction: column;

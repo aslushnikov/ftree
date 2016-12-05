@@ -24,7 +24,7 @@ function startApplication() {
     var interactionController = new app.InteractionController(layout, renderer, loop);
 
     var debugControls = new app.DebugControls(layout, renderer, loop);
-    //document.body.appendChild(debugControls.element());
+    document.body.appendChild(debugControls.element());
 
     fetch('./assets/configs.json')
         .then(response => response.json())
