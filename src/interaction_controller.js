@@ -39,12 +39,18 @@ app.InteractionController = class {
     _centerGraph() {
         var boundingBox = this._engine.layout().boundingBox();
         var rendererSize = this._renderer.size();
-        if (boundingBox.width === 0 || boundingBox.height === 0)
-            this._minScale = 1;
-        else
-            this._minScale = Math.min(rendererSize.width / boundingBox.width, rendererSize.height / boundingBox.height) * 0.9;
+        this._minScale = 1;
+        if (boundingBox.width !== 0 && boundingBox.height !== 0) {
+            var hw = rendererSize.width / 2;
+            var hh = rendererSize.height / 2;
+            this._minScale = Math.min(hw / Math.abs(boundingBox.x), this._minScale);
+            this._minScale = Math.min(hw / Math.abs(boundingBox.x + boundingBox.width), this._minScale);
+            this._minScale = Math.min(hh / Math.abs(boundingBox.y), this._minScale);
+            this._minScale = Math.min(hh / Math.abs(boundingBox.y + boundingBox.height), this._minScale);
+            this._minScale *= 0.9;
+        }
         this._renderer.setScale(this._minScale);
-        this._renderer.setOffset(this._computeGraphCenter(boundingBox));
+        this._renderer.setOffset(g.zeroVec);
         this._loop.invalidate();
     }
 

@@ -202,7 +202,7 @@ app.SunLayout = class extends app.LayoutEngine {
         var rotations = this._computeRotations();
         var positions = this._computePositions(rotations);
         var scaffolding = this._computeScaffolding(rotations, positions);
-        var bgImage = this._backgroundImage ? new g.CircleImage(g.zeroVec, this._depthRadiusStep() - this._nodeRadius * 3, this._backgroundImage) : null;
+        var bgImage = this._backgroundImage ? new g.CircleImage(g.zeroVec, Math.max(this._depthRadiusStep() - this._nodeRadius * 3, 0), this._backgroundImage) : null;
 
         this._lastLayout = new app.Layout(this._familyTree.root(), positions, rotations, scaffolding, bgImage, this._nodeRadius);
         this.dispatch(app.LayoutEngine.Events.LayoutRecalculated);
@@ -283,6 +283,7 @@ app.SunLayout = class extends app.LayoutEngine {
         return scaffolding;
 
         function curvyArc(r, from, to, curvyTip1, curvyTip2) {
+            r = Math.max(r, 0);
             var totalArcLength = g.segmentRadToLength(r, to - from);
             var maxCurveRadius = this._nodeRadius;
             var curveRadius = Math.min(totalArcLength / 2, maxCurveRadius);
