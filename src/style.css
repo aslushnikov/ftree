@@ -22,12 +22,17 @@ html, body {
     pointer-events: none;
 }
 
+.hidden-overlay .stories {
+    transform: translateY(100%);
+}
+
 .stories {
     display: flex;
     background-color: rgba(253, 249, 239, 0.75);
     position: fixed;
     bottom: 0;
     pointer-events: auto;
+    transition: transform 0.1s ease-in-out;
 }
 
 .stories .story {
@@ -35,7 +40,12 @@ html, body {
 }
 
 .overlay header {
-    margin: 1em;
+    padding: 1em;
+    transition: transform 0.1s ease-in-out;
+}
+
+.hidden-overlay header {
+    transform: translateY(-100%);
 }
 
 .overlay header .title {

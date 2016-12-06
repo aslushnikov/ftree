@@ -1,5 +1,6 @@
 app.InteractionController = class {
-    constructor(engine, renderer, loop) {
+    constructor(engine, renderer, loop, overlay) {
+        this._overlay = overlay;
         this._engine = engine;
         this._renderer = renderer;
         this._loop = loop;
@@ -72,6 +73,7 @@ app.InteractionController = class {
         var newZoom = this._renderer.scale() + zoomStep * delta;
         newZoom = Math.max(newZoom, this._minScale);
         newZoom = Math.min(newZoom, this._maxScale);
+        this._overlay.classList.toggle('hidden-overlay', !g.eq(newZoom, this._minScale));
         this._renderer.setScale(newZoom, fixedPoint);
         this._loop.invalidate();
         event.preventDefault();

@@ -21,7 +21,9 @@ function startApplication() {
     image.onload = () => layout.setBackgroundImage(image);
 
     document.body.appendChild(renderer.canvasElement());
-    var interactionController = new app.InteractionController(layout, renderer, loop);
+
+    var overlay = document.querySelector('.overlay');
+    var interactionController = new app.InteractionController(layout, renderer, loop, overlay);
 
     var debugControls = new app.DebugControls(layout, renderer, loop);
     document.body.appendChild(debugControls.element());
