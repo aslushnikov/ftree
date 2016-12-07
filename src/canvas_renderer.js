@@ -30,15 +30,15 @@ app.CanvasRenderer = class {
 
     /**
      * @param {!Element} canvas
-     * @param {number} width
-     * @param {number} height
+     * @param {number} canvasWidth
+     * @param {number} canvasHeight
      */
-    static setCanvasSize(canvas, width, height) {
+    static setCanvasSize(canvas, canvasWidth, canvasHeight) {
         var ratio = app.CanvasRenderer.canvasRatio();
-        canvas.width = width * ratio;
-        canvas.height = height * ratio;
-        canvas.style.width = width + "px";
-        canvas.style.height = height + "px";
+        canvas.width = canvasWidth;
+        canvas.height = canvasHeight;
+        canvas.style.width = (canvasWidth/ratio) + "px";
+        canvas.style.height = (canvasHeight/ratio) + "px";
     }
 
     /**
@@ -74,7 +74,7 @@ app.CanvasRenderer = class {
         var ratio = app.CanvasRenderer.canvasRatio();
         this._width = width * ratio;
         this._height = height * ratio;
-        app.CanvasRenderer.setCanvasSize(this._canvas, width, height);
+        app.CanvasRenderer.setCanvasSize(this._canvas, this._width, this._height);
     }
 
     size() {
@@ -172,8 +172,7 @@ app.CanvasRenderer = class {
         var font = fontSize + 'px ' + fontName;
         mainCtx.font = font;
         var metrics = mainCtx.measureText(text);
-        var ratio = app.CanvasRenderer.canvasRatio();
-        app.CanvasRenderer.setCanvasSize(render, metrics.width / ratio, (fontSize + 5) / ratio);
+        app.CanvasRenderer.setCanvasSize(render, metrics.width, fontSize + 5);
         var ctx = render.getContext('2d');
         ctx.font = fontSize + 'px ' + fontName;
         ctx.fillStyle = color;
@@ -242,6 +241,41 @@ app.CanvasRenderer = class {
         ctx.stroke();
     }
 
+    createPersonIcon(radius, gender, isChild, isDeceased) {
+        var canvas = app.CanvasRenderer.createHiDPICanvas();
+        app.CanvasRenderer.setCanvasSize(canvas, radius * 2, radius * 2);
+        var ctx = canvas.getContext('2d');
+        this._renderPersonCircle(ctx, new g.Vec(radius, radius), radius, false, gender, isChild, isDeceased);
+        var img = document.createElement('img');
+        img.src = canvas.toDataURL('image/png');
+        return img;
+    }
+
+    _renderPersonCircle(ctx, position, radius, isRoot, gender, isChild, isDeceased) {
+        var color = 'gray';
+        var alpha = isDeceased ? 0.5 : 1;
+        if (isRoot)
+            color = `rgba(231, 174, 68, ${alpha})`;
+        else if (gender === app.Gender.Male)
+            color = `rgba(142, 178, 189, ${alpha})`;
+        else if (gender === app.Gender.Female)
+            color = `rgba(232, 144, 150, ${alpha})`;
+
+        this._clearCircle(ctx, position.x, position.y, radius);
+        ctx.beginPath();
+        ctx.moveTo(position.x + radius, position.y);
+        if (isChild) {
+            ctx.lineWidth = Math.ceil(0.146 * radius);
+            ctx.strokeStyle = color;
+            ctx.arc(position.x, position.y, radius - ((ctx.lineWidth / 2)|0), 0, 2*Math.PI);
+            ctx.stroke();
+        } else {
+            ctx.arc(position.x, position.y, radius, 0, 2*Math.PI);
+            ctx.fillStyle = color;
+            ctx.fill();
+        }
+    }
+
     /**
      * @param {!CanvasRenderingContext2D} ctx
      * @param {!app.Layout} layout
@@ -251,28 +285,7 @@ app.CanvasRenderer = class {
         var position = layout.positions.get(person);
         var personRadius = layout.personRadius;
 
-        var color = 'gray';
-        var alpha = person.deceased ? 0.5 : 1;
-        if (person === layout.root)
-            color = `rgba(231, 174, 68, ${alpha})`;
-        else if (person.gender === app.Gender.Male)
-            color = `rgba(142, 178, 189, ${alpha})`;
-        else if (person.gender === app.Gender.Female)
-            color = `rgba(232, 144, 150, ${alpha})`;
-
-        this._clearCircle(ctx, position.x, position.y, personRadius);
-        ctx.beginPath();
-        ctx.moveTo(position.x + personRadius, position.y);
-        if (person.isChild()) {
-            ctx.lineWidth = 6;
-            ctx.strokeStyle = color;
-            ctx.arc(position.x, position.y, personRadius - ((ctx.lineWidth / 2)|0), 0, 2*Math.PI);
-            ctx.stroke();
-        } else {
-            ctx.arc(position.x, position.y, personRadius, 0, 2*Math.PI);
-            ctx.fillStyle = color;
-            ctx.fill();
-        }
+        this._renderPersonCircle(ctx, position, personRadius, person === layout.root, person.gender, person.isChild(), person.deceased);
 
         var rotation = g.normalizeRad(layout.rotations.get(person));
         var cumulativeRotation = g.normalizeRad(rotation);
@@ -282,7 +295,7 @@ app.CanvasRenderer = class {
 
         ctx.save();
         ctx.translate(position.x, position.y);
-        color = `rgba(48, 48, 48, ${alpha}`;
+        var color = `rgba(48, 48, 48, ${person.deceased ? 0.5 : 1}`;
         var textPadding = 6;
         if (person === layout.root) {
             var fullName = this._prerenderText(person.fullName(), color, this._fontName, this._nameFontSize * this._rootFontScale);

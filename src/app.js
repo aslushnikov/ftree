@@ -60,15 +60,43 @@ function startApplication() {
     }
 
     function renderLegend(legendJSON) {
-        document.querySelector("header .title").textContent = legendJSON.title;
-        document.querySelector("header .subtitle").textContent = legendJSON.subtitle;
-        var stories = document.querySelector('.stories');
-        stories.textContent = '';
+        var overlay = document.querySelector('.overlay');
+        overlay.querySelector("header .title").textContent = legendJSON.title;
+        overlay.querySelector("header .subtitle").textContent = legendJSON.subtitle;
+        var footer = overlay.querySelector('footer');
+        footer.textContent = '';
+        var stories = footer.createChild('div', 'stories');
         var columns = legendJSON['text_columns'];
         for (var column of columns) {
             var story = stories.createChild('div', 'story');
             story.innerHTML = column;
         }
+        var footer = overlay.querySelector('footer');
+        footer.appendChild(mapLegend(legendJSON));
+    }
+
+    function mapLegend(legendJSON) {
+        var mapLegend = document.createElement('div');
+        mapLegend.classList.add('story');
+        mapLegend.classList.add('map-legend');
+        mapLegend.appendChild(createLegendLine(legendJSON.map_legend.father, app.Gender.Male, false, false));
+        mapLegend.appendChild(createLegendLine(legendJSON.map_legend.mother, app.Gender.Female, false, false));
+        mapLegend.appendChild(createLegendLine(legendJSON.map_legend.infant_male, app.Gender.Male, true, false));
+        mapLegend.appendChild(createLegendLine(legendJSON.map_legend.infant_female, app.Gender.Female, true, false));
+        mapLegend.appendChild(createLegendLine(legendJSON.map_legend.deceased, app.Gender.Male, false, true));
+        return mapLegend;
+    }
+
+    function createLegendLine(name, gender, isChild, isDeceased) {
+        var line = document.createElement('div');
+        line.classList.add('legend-line');
+        var icon = renderer.createPersonIcon(12, gender, isChild, isDeceased);
+        icon.classList.add('legend-icon');
+        line.appendChild(icon);
+        var text = line.createChild('div', 'legend-text');
+        text.textContent = name;
+        line.appendChild(text);
+        return line;
     }
 }
 

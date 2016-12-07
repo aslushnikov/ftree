@@ -22,17 +22,22 @@ html, body {
     pointer-events: none;
 }
 
-.hidden-overlay .stories {
+.hidden-overlay footer {
     transform: translateY(100%);
+}
+
+.overlay footer {
+    position: fixed;
+    bottom: 0;
+    transition: transform 0.1s ease-in-out;
+    display: flex;
+    align-items: flex-start;
 }
 
 .stories {
     display: flex;
     background-color: rgba(253, 249, 239, 0.75);
-    position: fixed;
-    bottom: 0;
     pointer-events: auto;
-    transition: transform 0.1s ease-in-out;
 }
 
 .stories .story {
@@ -50,4 +55,22 @@ html, body {
 
 .overlay header .title {
     font-weight: 800;
+}
+
+.map-legend {
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+    margin: 1em;
+    pointer-events: auto;
+}
+
+.map-legend .legend-line {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+.map-legend .legend-text {
+    margin: 5px;
 }
