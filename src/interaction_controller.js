@@ -27,9 +27,6 @@ app.InteractionController = class {
         this._centerGraph();
     }
 
-    _updateMinScale() {
-    }
-
     _computeGraphCenter(boundingBox) {
         var boundingBox = this._engine.layout().boundingBox();
         var centerX = boundingBox.x + boundingBox.width / 2;
@@ -75,28 +72,43 @@ app.InteractionController = class {
         newZoom = Math.min(newZoom, this._maxScale);
         this._overlay.classList.toggle('hidden-overlay', !g.eq(newZoom, this._minScale));
         this._renderer.setScale(newZoom, fixedPoint);
+        this._constrainOffset();
         this._loop.invalidate();
         event.preventDefault();
         event.stopPropagation();
     }
 
     _onMouseDown(event) {
-        this._downCoord = this._toCoordinates(event);
-        this._offset = this._renderer.offset();
+        this._mouseDownCoordinate = this._toCoordinates(event);
+        this._mouseDownOffset = this._renderer.offset();
         event.preventDefault(true);
         event.stopPropagation();
     }
 
     _onMouseMove(event) {
-        if (!this._downCoord)
+        if (!this._mouseDownCoordinate)
             return;
-        var offset = this._toCoordinates(event).subtract(this._downCoord);
-        this._renderer.setOffset(this._offset.add(offset));
+        var moveOffset = this._toCoordinates(event).subtract(this._mouseDownCoordinate);
+        var newOffset = this._mouseDownOffset.add(moveOffset);
+        this._renderer.setOffset(newOffset);
+        this._constrainOffset();
         this._loop.invalidate();
     }
 
+    _constrainOffset() {
+        var offset = this._renderer.offset();
+        var boundingBox = this._engine.layout().boundingBox();
+        var maxDimension = Math.max(boundingBox.width, boundingBox.height)/2;
+        var maxLen = maxDimension * this._renderer.scale() / app.CanvasRenderer.canvasRatio();
+        var len = offset.len();
+        if (len > maxLen) {
+            this._renderer.setOffset(offset.scale(maxLen / len));
+            this._loop.invalidate();
+        }
+    }
+
     _onMouseUp(event) {
-        this._downCoord = null;
-        this._offset = null;
+        this._mouseDownCoordinate = null;
+        this._mouseDownOffset = null;
     }
 }
