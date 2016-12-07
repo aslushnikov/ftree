@@ -4,19 +4,21 @@ html, body {
     background-color: #fdf9ef;
     font-family: arial;
     color: #333;
+    position: relative;
 }
 
 .config-selector {
-    position: fixed;
+    position: absolute;
     right: 0;
     top: 0;
     pointer-events: auto;
+    margin: 1em;
 }
 
 .overlay {
-    position: fixed;
-    left: 0;
-    right: 0;
+    position: absolute;
+    left: calc(50% - 500px);
+    right: calc(50% - 500px);
     top: 0;
     bottom: 0;
     pointer-events: none;
@@ -27,7 +29,7 @@ html, body {
 }
 
 .overlay footer {
-    position: fixed;
+    position: absolute;
     bottom: 0;
     transition: transform 0.1s ease-in-out;
     display: flex;
