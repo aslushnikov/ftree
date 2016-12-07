@@ -61,7 +61,7 @@ app.Person = class {
         if (this.birthYear && this.deathYear)
             return this.birthYear + ' - ' + this.deathYear;
         if (this.birthYear)
-            return 'b.' + this.birthYear;
+            return 'b. ' + this.birthYear;
         if (this.deathYear)
             return 'd.' + this.deathYear;
         return '';

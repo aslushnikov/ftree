@@ -10,5 +10,11 @@
         "tree": "./assets/kalashyan-tree.en.csv",
         "legend": "./assets/kalashyan-legend.rus.json",
         "background": "./assets/map.png"
+    },
+    {
+        "name": "Հայերեն",
+        "tree": "./assets/kalashyan-tree.am.csv",
+        "legend": "./assets/kalashyan-legend.am.json",
+        "background": "./assets/map.png"
     }
 ]
