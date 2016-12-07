@@ -37,8 +37,8 @@ app.CanvasRenderer = class {
         var ratio = app.CanvasRenderer.canvasRatio();
         canvas.width = canvasWidth;
         canvas.height = canvasHeight;
-        canvas.style.width = (canvasWidth/ratio) + "px";
-        canvas.style.height = (canvasHeight/ratio) + "px";
+        canvas.style.width = ((canvasWidth/ratio)|0) + "px";
+        canvas.style.height = ((canvasHeight/ratio)|0) + "px";
     }
 
     /**
@@ -241,14 +241,14 @@ app.CanvasRenderer = class {
         ctx.stroke();
     }
 
-    createPersonIcon(radius, gender, isChild, isDeceased) {
+    createPersonIcon(size, gender, isChild, isDeceased) {
+        size *= app.CanvasRenderer.canvasRatio();
         var canvas = app.CanvasRenderer.createHiDPICanvas();
-        app.CanvasRenderer.setCanvasSize(canvas, radius * 2, radius * 2);
+        app.CanvasRenderer.setCanvasSize(canvas, size, size);
         var ctx = canvas.getContext('2d');
+        var radius = (size / 2)|0;
         this._renderPersonCircle(ctx, new g.Vec(radius, radius), radius, false, gender, isChild, isDeceased);
-        var img = document.createElement('img');
-        img.src = canvas.toDataURL('image/png');
-        return img;
+        return canvas;
     }
 
     _renderPersonCircle(ctx, position, radius, isRoot, gender, isChild, isDeceased) {
