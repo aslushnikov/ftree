@@ -29,6 +29,7 @@ html, body {
 }
 
 .overlay footer {
+    background-color: rgba(253, 249, 239, 0.75);
     position: absolute;
     bottom: 0;
     transition: transform 0.1s ease-in-out;
@@ -38,7 +39,6 @@ html, body {
 
 .stories {
     display: flex;
-    background-color: rgba(253, 249, 239, 0.75);
     pointer-events: auto;
 }
 
@@ -47,7 +47,9 @@ html, body {
 }
 
 .overlay header {
+    background-color: rgba(253, 249, 239, 0.75);
     padding: 1em;
+    display: inline-block;
     transition: transform 0.1s ease-in-out;
 }
 
