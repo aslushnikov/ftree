@@ -25,8 +25,10 @@ function startApplication() {
     var overlay = document.querySelector('.overlay');
     var interactionController = new app.InteractionController(layout, renderer, loop, overlay);
 
-    var debugControls = new app.DebugControls(layout, renderer, loop);
-    document.body.appendChild(debugControls.element());
+    if (window.location.hash === '#debug') {
+        var debugControls = new app.DebugControls(layout, renderer, loop);
+        document.body.appendChild(debugControls.element());
+    }
 
     fetch('./assets/configs.json')
         .then(response => response.json())
