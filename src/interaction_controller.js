@@ -104,6 +104,11 @@ app.InteractionController = class {
     }
 
     _constrainOffset() {
+        if (g.eq(this._renderer.scale(), this._minScale)) {
+            this._renderer.setOffset(this._center);
+            this._loop.invalidate();
+            return;
+        }
         var offset = this._renderer.offset();
         var boundingBox = this._engine.layout().boundingBox();
         var maxDimension = -Infinity;
@@ -113,13 +118,12 @@ app.InteractionController = class {
         maxDimension = Math.max(maxDimension, Math.abs(boundingBox.y + boundingBox.height));
         maxDimension = maxDimension * this._renderer.scale() / app.CanvasRenderer.canvasRatio();
         var minRendererSize = Math.min(this._renderer.size().width, this._renderer.size().height) / app.CanvasRenderer.canvasRatio() / 2;
-        var maxOffset = Math.max(maxDimension - minRendererSize, 0);
-        var center = g.eq(this._renderer.scale(), this._minScale) ? this._center : g.zeroVec;
-        var radiusVector = offset.subtract(center);
+        var maxOffset = Math.max(maxDimension - minRendererSize/2, 0);
+        var radiusVector = offset.subtract(this._center);
         var len = radiusVector.len();
         if (len > maxOffset) {
             radiusVector = radiusVector.scale(maxOffset / len);
-            this._renderer.setOffset(center.add(radiusVector));
+            this._renderer.setOffset(this._center.add(radiusVector));
             this._loop.invalidate();
         }
     }
