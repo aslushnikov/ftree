@@ -13,8 +13,8 @@
     },
     {
         "name": "Russian",
-        "tree": "./assets/kalashyan-tree.en.csv",
-        "legend": "./assets/kalashyan-legend.rus.json",
+        "tree": "./assets/kalashyan-tree.ru.csv",
+        "legend": "./assets/kalashyan-legend.ru.json",
         "background": "./assets/map.JPG"
     }
 ]
