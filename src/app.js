@@ -53,9 +53,14 @@ function startApplication() {
 
     function selectConfig(config) {
         storage['configName'] = config.name;
-        app.TreeLoader.loadCSV(config.tree).then(tree => layout.setFamilyTree(tree));
 
-        fetch(config.legend).then(response => response.json()).then(renderLegend);
+        Promise.all([
+            app.TreeLoader.loadCSV(config.tree),
+            fetch(config.legend).then(response => response.json()).then(renderLegend)
+        ]).then(results => {
+            var tree = results[0];
+            layout.setFamilyTree(tree);
+        });
 
         var image = new Image();
         image.src = config.background;

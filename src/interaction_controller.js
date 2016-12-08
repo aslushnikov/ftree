@@ -1,11 +1,13 @@
 app.InteractionController = class {
     constructor(engine, renderer, loop, overlay) {
         this._overlay = overlay;
+        this._viewport = overlay.querySelector('.viewport');
         this._engine = engine;
         this._renderer = renderer;
         this._loop = loop;
         this._minScale = 1;
         this._maxScale = 1.5;
+        this._center = g.zeroVec;
 
         this._canvas = renderer.canvasElement();
         this._canvas.addEventListener('mousedown', this._onMouseDown.bind(this));
@@ -36,11 +38,14 @@ app.InteractionController = class {
 
     _centerGraph() {
         var boundingBox = this._engine.layout().boundingBox();
+        var viewportBox = this._viewport.getBoundingClientRect();
         var rendererSize = this._renderer.size();
+        var viewportWidth = viewportBox.width * app.CanvasRenderer.canvasRatio();
+        var viewportHeight = viewportBox.height * app.CanvasRenderer.canvasRatio();
         this._minScale = 1;
         if (boundingBox.width !== 0 && boundingBox.height !== 0) {
-            var hw = rendererSize.width / 2;
-            var hh = rendererSize.height / 2;
+            var hw = viewportWidth / 2;
+            var hh = viewportHeight / 2;
             this._minScale = Math.min(hw / Math.abs(boundingBox.x), this._minScale);
             this._minScale = Math.min(hw / Math.abs(boundingBox.x + boundingBox.width), this._minScale);
             this._minScale = Math.min(hh / Math.abs(boundingBox.y), this._minScale);
@@ -48,7 +53,10 @@ app.InteractionController = class {
             this._minScale *= 0.9;
         }
         this._renderer.setScale(this._minScale);
-        this._renderer.setOffset(g.zeroVec);
+        var viewportCenter = new g.Vec((viewportBox.left + viewportBox.width / 2), (viewportBox.top + viewportBox.height / 2));
+        var canvasCenter = new g.Vec(rendererSize.width / 2, rendererSize.height / 2);
+        this._center = viewportCenter.subtract(canvasCenter.scale(1/app.CanvasRenderer.canvasRatio()));
+        this._renderer.setOffset(this._center);
         this._loop.invalidate();
     }
 
@@ -98,11 +106,20 @@ app.InteractionController = class {
     _constrainOffset() {
         var offset = this._renderer.offset();
         var boundingBox = this._engine.layout().boundingBox();
-        var maxDimension = Math.max(boundingBox.width, boundingBox.height)/2;
-        var maxLen = maxDimension * this._renderer.scale() / app.CanvasRenderer.canvasRatio();
-        var len = offset.len();
-        if (len > maxLen) {
-            this._renderer.setOffset(offset.scale(maxLen / len));
+        var maxDimension = -Infinity;
+        maxDimension = Math.max(maxDimension, Math.abs(boundingBox.x));
+        maxDimension = Math.max(maxDimension, Math.abs(boundingBox.y));
+        maxDimension = Math.max(maxDimension, Math.abs(boundingBox.x + boundingBox.width));
+        maxDimension = Math.max(maxDimension, Math.abs(boundingBox.y + boundingBox.height));
+        maxDimension = maxDimension * this._renderer.scale() / app.CanvasRenderer.canvasRatio();
+        var minRendererSize = Math.min(this._renderer.size().width, this._renderer.size().height) / app.CanvasRenderer.canvasRatio() / 2;
+        var maxOffset = Math.max(maxDimension - minRendererSize, 0);
+        var center = g.eq(this._renderer.scale(), this._minScale) ? this._center : g.zeroVec;
+        var radiusVector = offset.subtract(center);
+        var len = radiusVector.len();
+        if (len > maxOffset) {
+            radiusVector = radiusVector.scale(maxOffset / len);
+            this._renderer.setOffset(center.add(radiusVector));
             this._loop.invalidate();
         }
     }
