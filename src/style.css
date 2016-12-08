@@ -40,6 +40,7 @@ html, body {
 .stories {
     display: flex;
     pointer-events: auto;
+    font-size: 0.9em;
 }
 
 .stories .story {
@@ -61,12 +62,17 @@ html, body {
     font-weight: 800;
 }
 
+.subtitle {
+    font-size: 0.9em;
+}
+
 .map-legend {
     display: flex;
     flex-direction: column;
     flex-shrink: 0;
     margin: 1em;
     pointer-events: auto;
+    font-size: 0.9em;
 }
 
 .map-legend .legend-line {
@@ -76,5 +82,5 @@ html, body {
 }
 
 .map-legend .legend-text {
-    margin: 5px;
+    margin: 5px 5px 5px 7px;
 }
