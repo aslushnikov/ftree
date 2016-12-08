@@ -72,6 +72,9 @@ html, body {
 .subtitle {
     font-size: 0.9em;
 }
+.tutorial {
+    font-size: 0.8em;
+}
 
 .map-legend {
     display: flex;
