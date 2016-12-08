@@ -10,9 +10,14 @@ html, body {
 .config-selector {
     position: absolute;
     right: 0;
-    top: 0;
+    top: 0em;
     pointer-events: auto;
     margin: 1em;
+    transition: transform 0.1s ease-in-out;
+}
+
+.hidden-overlay .config-selector {
+    transform: translateY(-300%);
 }
 
 .overlay {
@@ -48,6 +53,7 @@ html, body {
 }
 
 .overlay header {
+    pointer-events: auto;
     background-color: rgba(253, 249, 239, 0.75);
     padding: 1em;
     display: inline-block;
