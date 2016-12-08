@@ -92,7 +92,7 @@ function startApplication() {
     function createLegendLine(name, gender, isChild, isDeceased) {
         var line = document.createElement('div');
         line.classList.add('legend-line');
-        var icon = renderer.createPersonIcon(21, gender, isChild, isDeceased);
+        var icon = renderer.createPersonIcon(17, gender, isChild, isDeceased);
         icon.classList.add('legend-icon');
         line.appendChild(icon);
         var text = line.createChild('div', 'legend-text');
