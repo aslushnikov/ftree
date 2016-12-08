@@ -17,8 +17,8 @@ html, body {
 
 .overlay {
     position: absolute;
-    left: calc(50% - 500px);
-    right: calc(50% - 500px);
+    left: calc(50% - 550px);
+    right: calc(50% - 550px);
     top: 0;
     bottom: 0;
     pointer-events: none;
