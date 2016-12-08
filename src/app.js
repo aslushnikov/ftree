@@ -16,10 +16,6 @@ function startApplication() {
     layout.setOverlap(g.degToRad(126));
     layout.setInitialRotation(g.degToRad(0));
 
-    var image = new Image();
-    image.src = './assets/map.png';
-    image.onload = () => layout.setBackgroundImage(image);
-
     document.body.appendChild(renderer.canvasElement());
 
     var overlay = document.querySelector('.overlay');
@@ -59,6 +55,10 @@ function startApplication() {
         app.TreeLoader.loadCSV(config.tree).then(tree => layout.setFamilyTree(tree));
 
         fetch(config.legend).then(response => response.json()).then(renderLegend);
+
+        var image = new Image();
+        image.src = config.background;
+        image.onload = () => layout.setBackgroundImage(image);
     }
 
     function renderLegend(legendJSON) {
@@ -86,6 +86,7 @@ function startApplication() {
         mapLegend.appendChild(createLegendLine(legendJSON.map_legend.infant_male, app.Gender.Male, true, false));
         mapLegend.appendChild(createLegendLine(legendJSON.map_legend.infant_female, app.Gender.Female, true, false));
         mapLegend.appendChild(createLegendLine(legendJSON.map_legend.deceased, app.Gender.Male, false, true));
+
         return mapLegend;
     }
 
