@@ -9,12 +9,12 @@
         "name": "Հայերեն",
         "tree": "./assets/kalashyan-tree.am.csv",
         "legend": "./assets/kalashyan-legend.am.json",
-        "background": "./assets/map.JPG"
+        "background": "./assets/map.png"
     },
     {
         "name": "Russian",
         "tree": "./assets/kalashyan-tree.ru.csv",
         "legend": "./assets/kalashyan-legend.ru.json",
-        "background": "./assets/map.JPG"
+        "background": "./assets/map.png"
     }
 ]
