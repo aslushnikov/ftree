@@ -117,6 +117,7 @@ app.InteractionController = class {
         maxDimension = Math.max(maxDimension, Math.abs(boundingBox.x + boundingBox.width));
         maxDimension = Math.max(maxDimension, Math.abs(boundingBox.y + boundingBox.height));
         maxDimension = maxDimension * this._renderer.scale() / app.CanvasRenderer.canvasRatio();
+        maxDimension += Math.max(Math.abs(this._center.x), Math.abs(this._center.y));
         var minRendererSize = Math.min(this._renderer.size().width, this._renderer.size().height) / app.CanvasRenderer.canvasRatio() / 2;
         var maxOffset = Math.max(maxDimension - minRendererSize/2, 0);
         var radiusVector = offset.subtract(this._center);
