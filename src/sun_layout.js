@@ -72,6 +72,9 @@ app.SunLayout = class extends app.LayoutEngine {
         this._parentRatio = 1 / g.GOLDEN_RATIO;
         this._backgroundImage = null;
 
+        this._levelSizeOffsets = new Map();
+        this._cumulativeLevelOffsets = [];
+
         /** @type {!Map<!app.Person, number>} */
         this._subtreeSize = new Map();
         /** @type {!Map<!app.Person, number>} */
@@ -82,6 +85,23 @@ app.SunLayout = class extends app.LayoutEngine {
         this._isDirty = false;
         /** @type {!app.Layout} */
         this._lastLayout = app.Layout.empty();
+    }
+
+    /**
+     * @param {number} level
+     * @param {number} offset
+     */
+    setLevelSizeOffset(level, offset) {
+        this._isDirty = true;
+        this._levelSizeOffsets.set(level, offset);
+    }
+
+    /**
+     * @param {number} level
+     * @return {number}
+     */
+    levelSizeOffset(level) {
+        return this._levelSizeOffsets.get(level) || 0;
     }
 
     /**
@@ -182,10 +202,12 @@ app.SunLayout = class extends app.LayoutEngine {
     }
 
     /**
+     * @param {number} level
      * @return {number}
      */
-    _depthRadiusStep() {
-        return (this._size - this._nodeRadius) / 2 / this._familyTreeDepth;
+    _depthRadiusStep(level) {
+        var defaultSize = (this._size - this._nodeRadius) / 2 / this._familyTreeDepth;
+        return level * defaultSize + this._cumulativeLevelOffsets[level];
     }
 
     /**
@@ -199,6 +221,13 @@ app.SunLayout = class extends app.LayoutEngine {
             this._lastLayout = app.Layout.empty();
             return this._lastLayout;
         }
+
+        var total = 0;
+        for (var i = 0; i < this._familyTreeDepth; ++i) {
+            total += this._levelSizeOffsets.get(i) || 0;
+            this._cumulativeLevelOffsets.push(total);
+        }
+
         var rotations = this._computeRotations();
         var positions = this._computePositions(rotations);
         var scaffolding = this._computeScaffolding(rotations, positions);
@@ -218,7 +247,7 @@ app.SunLayout = class extends app.LayoutEngine {
                 continue;
             var families = Array.from(this._familyTree.families(node));
             for (var family of families) {
-                var familyR = this._nodeDepth.get(family.main) * this._depthRadiusStep();
+                var familyR = this._depthRadiusStep(this._nodeDepth.get(family.main));
                 if (family.alt) {
                     var rotation1 = rotations.get(family.main);
                     var rotation2 = rotations.get(family.alt);
@@ -227,7 +256,7 @@ app.SunLayout = class extends app.LayoutEngine {
                 var children = family.children;
                 if (!children.size)
                     continue;
-                var r = (this._nodeDepth.get(node) + 1) * this._depthRadiusStep();
+                var r = this._depthRadiusStep(this._nodeDepth.get(node) + 1);
                 var min = Infinity;
                 var max = -Infinity;
                 for (var child of children) {
@@ -310,7 +339,7 @@ app.SunLayout = class extends app.LayoutEngine {
         var positions = new Map();
         positions.set(this._familyTree.root(), new g.Vec(0, 0));
         for (var node of rotations.keys()) {
-            var r = this._nodeDepth.get(node) * this._depthRadiusStep();
+            var r = this._depthRadiusStep(this._nodeDepth.get(node));
             var angle = rotations.get(node);
             positions.set(node, g.Vec.fromRadial(r, angle));
         }
@@ -474,7 +503,7 @@ app.SunLayout = class extends app.LayoutEngine {
             var depth = this._nodeDepth.get(node);
             if (!depth)
                 return 0;
-            var radius = depth * this._depthRadiusStep();
+            var radius = this._depthRadiusStep(depth);
             var peopleCount = 1 + node.partners.size;
             return g.segmentLengthToRad(radius, peopleCount * this._nodeRadius * 3);
         }

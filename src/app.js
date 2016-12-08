@@ -15,6 +15,7 @@ function startApplication() {
     layout.setSize(5000);
     layout.setOverlap(g.degToRad(126));
     layout.setInitialRotation(g.degToRad(0));
+    layout.setLevelSizeOffset(1, 100);
 
     document.body.appendChild(renderer.canvasElement());
 
