@@ -11,9 +11,9 @@ function startApplication() {
     var loop = new app.RenderLoop(renderer, layout);
 
     // setting defaults
-    layout.setPersonRadius(41);
-    layout.setSize(5570);
-    layout.setOverlap(g.degToRad(142));
+    layout.setPersonRadius(30);
+    layout.setSize(5000);
+    layout.setOverlap(g.degToRad(126));
     layout.setInitialRotation(g.degToRad(0));
 
     var image = new Image();
