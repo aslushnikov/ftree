@@ -50,10 +50,10 @@ app.CanvasRenderer = class {
         this.setSize(width, height);
         this._scale = 1
         this._fontName = 'Arial';
-        this._nameFontSize = 20;
-        this._datesFontSize = 15;
+        this._nameFontSize = 22;
+        this._datesFontSize = 17;
         this._offset = new g.Vec(0, 0);
-        this._rootFontScale = 2.0;
+        this._rootFontScale = 1.8;
 
         /** @type {!Map<string, !Element>} */
         this._prerenderedText = new Map();
@@ -199,7 +199,7 @@ app.CanvasRenderer = class {
             ctx.save();
             ctx.beginPath();
             ctx.arc(img.center.x, img.center.y, img.r, 0, 2*Math.PI, true);
-            ctx.clip();
+            /**ctx.clip();*/
             ctx.drawImage(img.image, img.center.x - img.r, img.center.y - img.r);
             ctx.restore();
         }
