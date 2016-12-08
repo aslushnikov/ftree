@@ -4,7 +4,7 @@ app.Layout = class {
      * @param {!Map<!app.Person, !g.Vec} positions
      * @param {!Map<!app.Person, number} rotations
      * @param {!Array<!Object>} scaffolding
-     * @param {?g.CircleImage} bgImage
+     * @param {?g.Image} bgImage
      * @param {number} personRadius
      */
     constructor(root, positions, rotations, scaffolding, bgImage, personRadius) {
@@ -202,7 +202,7 @@ app.SunLayout = class extends app.LayoutEngine {
         var rotations = this._computeRotations();
         var positions = this._computePositions(rotations);
         var scaffolding = this._computeScaffolding(rotations, positions);
-        var bgImage = this._backgroundImage ? new g.CircleImage(g.zeroVec, Math.max(this._depthRadiusStep() - this._nodeRadius * 3, 0), this._backgroundImage) : null;
+        var bgImage = this._backgroundImage ? new g.Image(new g.Vec(-this._backgroundImage.width / 2, -this._backgroundImage.height / 2), this._backgroundImage) : null;
 
         this._lastLayout = new app.Layout(this._familyTree.root(), positions, rotations, scaffolding, bgImage, this._nodeRadius);
         this.dispatch(app.LayoutEngine.Events.LayoutRecalculated);

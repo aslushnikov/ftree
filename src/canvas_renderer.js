@@ -196,6 +196,7 @@ app.CanvasRenderer = class {
 
         if (layout.backgroundImage) {
             var img = layout.backgroundImage;
+            ctx.drawImage(img.image, img.topLeft.x, img.topLeft.y);
         }
 
         this._renderScaffolding(ctx, layout.scaffolding);

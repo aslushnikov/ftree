@@ -133,15 +133,13 @@ g.Bezier = class {
     }
 }
 
-g.CircleImage = class {
+g.Image = class {
     /**
-     * @param {!g.Vec} center
-     * @param {number} r
+     * @param {!g.Vec} topLeft
      * @param {!HTMLImageElement} image
      */
-    constructor(center, r, image) {
-        this.center = center;
-        this.r = r;
+    constructor(topLeft, image) {
+        this.topLeft = topLeft;
         this.image = image;
     }
 }
