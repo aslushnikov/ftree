@@ -92,3 +92,9 @@ html, body {
 .map-legend .legend-text {
     margin: 5px 5px 5px 7px;
 }
+
+@media (max-width: 720px)  {
+.overlay {
+    left: 0;
+    right: 0;
+}
