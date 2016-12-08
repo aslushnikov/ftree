@@ -7,20 +7,6 @@ html, body {
     position: relative;
 }
 
-.top-right-container {
-    position: absolute;
-    right: 0;
-    top: 0em;
-    pointer-events: auto;
-    margin: 1em;
-    text-align: right;
-    transition: transform 0.1s ease-in-out;
-}
-
-.hidden-overlay .top-right-container {
-    transform: translateY(-300%);
-}
-
 .overlay {
     position: absolute;
     left: calc(50% - 550px);
@@ -28,6 +14,39 @@ html, body {
     top: 0;
     bottom: 0;
     pointer-events: none;
+}
+
+.overlay header {
+    position: absolute;
+    right: 0;
+    top: 0;
+    left: 0;
+    pointer-events: auto;
+    transition: transform 0.1s ease-in-out;
+    display: flex;
+    background-color: rgba(253, 249, 239, 0.75);
+    justify-content: space-between;
+    padding-top: 1em;
+}
+
+.hidden-overlay header {
+    transform: translateY(-100%);
+}
+
+.overlay header .title {
+    font-weight: 800;
+}
+
+.overlay header .subtitle {
+    font-size: 0.9em;
+}
+
+.overlay header .tutorial {
+    font-size: 0.8em;
+}
+
+.overlay header .top-right {
+    text-align: right;
 }
 
 .hidden-overlay footer {
@@ -51,29 +70,6 @@ html, body {
 
 .stories .story {
     margin: 1em;
-}
-
-.overlay header {
-    pointer-events: auto;
-    background-color: rgba(253, 249, 239, 0.75);
-    padding: 1em;
-    display: inline-block;
-    transition: transform 0.1s ease-in-out;
-}
-
-.hidden-overlay header {
-    transform: translateY(-100%);
-}
-
-.overlay header .title {
-    font-weight: 800;
-}
-
-.subtitle {
-    font-size: 0.9em;
-}
-.tutorial {
-    font-size: 0.8em;
 }
 
 .map-legend {
