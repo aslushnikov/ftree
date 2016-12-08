@@ -75,6 +75,9 @@ function startApplication() {
         }
         var footer = overlay.querySelector('footer');
         footer.appendChild(mapLegend(legendJSON));
+
+        var tutorial = overlay.querySelector('.tutorial');
+        tutorial.textContent = legendJSON.tutorial;
     }
 
     function mapLegend(legendJSON) {

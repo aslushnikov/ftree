@@ -7,16 +7,17 @@ html, body {
     position: relative;
 }
 
-.config-selector {
+.top-right-container {
     position: absolute;
     right: 0;
     top: 0em;
     pointer-events: auto;
     margin: 1em;
+    text-align: right;
     transition: transform 0.1s ease-in-out;
 }
 
-.hidden-overlay .config-selector {
+.hidden-overlay .top-right-container {
     transform: translateY(-300%);
 }
 
