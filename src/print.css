@@ -1,0 +1,88 @@
+html, body {
+    padding: 0;
+    margin: 0;
+    background-color: #fdf9ef;
+    font-family: arial;
+    color: #333;
+    position: relative;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+}
+
+header {
+    flex-grow: 0;
+    pointer-events: auto;
+    background-color: rgba(253, 249, 239, 0.75);
+    padding-top: 1em;
+}
+
+header .title {
+    font-weight: 800;
+}
+
+header .subtitle {
+    font-size: 0.9em;
+}
+
+header .tutorial {
+    font-size: 0.8em;
+}
+
+header .top-right {
+    text-align: right;
+}
+
+@media print {
+    .config-selector {
+        display: none;
+    }
+}
+
+.viewport {
+    flex-grow: 0;
+}
+
+canvas {
+    display: block;
+}
+
+footer {
+    flex-grow: 0;
+    background-color: rgba(253, 249, 239, 0.75);
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+}
+
+.stories {
+    display: flex;
+    pointer-events: auto;
+    font-size: 0.9em;
+}
+
+.stories .story {
+    margin: 1em;
+}
+
+.map-legend {
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+    margin: 1em;
+    pointer-events: auto;
+    font-size: 0.9em;
+}
+
+.map-legend .legend-line {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+.map-legend .legend-text {
+    margin: 5px 5px 5px 7px;
+}
+

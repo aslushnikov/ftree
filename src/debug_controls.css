@@ -24,3 +24,8 @@
     margin: 0 1em 0 1em;
 }
 
+@media print {
+    .debug-controls {
+        display: none;
+    }
+}

@@ -1,7 +1,5 @@
-<meta name="viewport" content="width=device-width">
 <base href="./src/">
 <title>The Kalashyan Family Tree</title>
-<meta name="viewport" content="width=1100">
 <meta name="description" content="The Kalashyan Family Tree. From ancestors to future generations, from the roots to the top.">
 <meta property="og:image" content="http://sedrak.info/we.jpg">
 <meta property="og:image:url" content="http://sedrak.info/we.jpg">
@@ -14,27 +12,21 @@
 <script src='./sun_layout.js'></script>
 <script src='./canvas_renderer.js'></script>
 <script src='./tree_loader.js'></script>
-<script src='./interaction_controller.js'></script>
 <script src='./debug_controls.js'></script>
-<script src='./index.js'></script>
+<script src='./print.js'></script>
 
-<link rel='stylesheet' href='style.css'>
+<link rel='stylesheet' href='print.css'>
 <link rel='stylesheet' href='debug_controls.css'>
-<div class='overlay'>
-    <header>
-        <div>
-            <div class='title'></div>
-            <div class='subtitle'></div>
-        </div>
-        <div class='top-right'>
-            <select class='config-selector'></select>
-            <div class='tutorial'></div>
-        </div>
-    </header>
-    <div class='viewport'></div>
-    <footer>
-    </footer>
-</div>
+<header>
+    <div>
+        <span class='title'></span>
+        <select class='config-selector'></select>
+    </div>
+    <div class='subtitle'></div>
+</header>
+<div class='viewport'></div>
+<footer>
+</footer>
 <script>
   (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
   (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
