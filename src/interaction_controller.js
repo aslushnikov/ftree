@@ -29,13 +29,6 @@ app.InteractionController = class {
         this._centerGraph();
     }
 
-    _computeGraphCenter(boundingBox) {
-        var boundingBox = this._engine.layout().boundingBox();
-        var centerX = boundingBox.x + boundingBox.width / 2;
-        var centerY = boundingBox.y + boundingBox.height / 2;
-        return new g.Vec(-centerX, -centerY).scale(this._minScale/app.CanvasRenderer.canvasRatio());
-    }
-
     _centerGraph() {
         var boundingBox = this._engine.layout().boundingBox();
         var viewportBox = this._viewport.getBoundingClientRect();
