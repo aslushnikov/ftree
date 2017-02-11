@@ -28,9 +28,25 @@
     fill: var(--color);
 }
 
+.person {
+    font-family: Arial;
+}
+
 .person .name {
+    font-size: 22px;
 }
 
 .person .dates {
+    font-size: 18px;
+}
+
+.person.root .name {
+    font-size: 40px;
+    transform: translate(0, 80px);
+}
+
+.person.root .dates {
+    font-size: 32px;
+    transform: translate(0, 80px);
 }
 

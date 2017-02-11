@@ -209,10 +209,10 @@ app.SVGRenderer = class extends app.Renderer {
         if (isRoot) {
             fullName.setAttribute('text-anchor', 'middle');
             fullName.setAttribute('x', 0);
-            fullName.setAttribute('y', 2 * personRadius);
+            fullName.setAttribute('y', 0);
             dates.setAttribute('text-anchor', 'middle');
             dates.setAttribute('x', 0);
-            dates.setAttribute('y', 2 * personRadius);
+            dates.setAttribute('y', 0);
         } else if (textOnLeft) {
             fullName.setAttribute('x', -personRadius - textPadding);
             fullName.setAttribute('y', 0);
