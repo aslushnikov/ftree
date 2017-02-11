@@ -1,0 +1,36 @@
+.person.deceased {
+    opacity: 0.5;
+}
+
+.person.sex-male {
+    --color: rgb(142, 178, 189);
+}
+
+.person.sex-female {
+    --color: rgb(232, 144, 150);
+}
+
+.person.sex-other {
+    --color: gray;
+}
+
+.person.root {
+    --color: rgb(231, 174, 68);
+}
+
+.person.infant circle {
+    stroke: var(--color);
+    stroke-width: 2;
+    fill: none;
+}
+
+.person:not(.infant) circle {
+    fill: var(--color);
+}
+
+.person .name {
+}
+
+.person .dates {
+}
+

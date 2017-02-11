@@ -153,24 +153,6 @@ app.SVGRenderer = class extends app.Renderer {
         circle.setAttribute('cx', position.x);
         circle.setAttribute('cy', position.y);
         circle.setAttribute('r', radius);
-
-        var color = 'gray';
-        var alpha = isDeceased ? 0.5 : 1;
-        if (isRoot)
-            color = `rgba(231, 174, 68, ${alpha})`;
-        else if (gender === app.Gender.Male)
-            color = `rgba(142, 178, 189, ${alpha})`;
-        else if (gender === app.Gender.Female)
-            color = `rgba(232, 144, 150, ${alpha})`;
-
-        if (isChild) {
-            circle.setAttribute('stroke', color);
-            circle.setAttribute('stroke-width', Math.ceil(0.146 * radius));
-            circle.setAttribute('fill', 'none');
-        } else {
-            circle.setAttribute('stroke', 'none');
-            circle.setAttribute('fill', color);
-        }
         return circle;
     }
 
@@ -183,9 +165,6 @@ app.SVGRenderer = class extends app.Renderer {
         var position = layout.positions.get(person);
         var personRadius = layout.personRadius;
 
-        var circle = this._renderPersonCircle(position, personRadius, person === layout.root, person.gender, person.isChild(), person.deceased);
-        container.appendChild(circle);
-
         var rotation = g.normalizeRad(layout.rotations.get(person));
         var cumulativeRotation = g.normalizeRad(rotation);
         var textOnLeft = cumulativeRotation > Math.PI / 2 && cumulativeRotation < 3 * Math.PI / 2;
@@ -193,20 +172,38 @@ app.SVGRenderer = class extends app.Renderer {
             rotation -= Math.PI;
         rotation = g.radToDeg(rotation);
 
-        var color = `rgba(48, 48, 48, ${person.deceased ? 0.5 : 1}`;
         var textPadding = 6;
+
         var group = document.createElementNS('http://www.w3.org/2000/svg', 'g');
         var transform = 'translate(' + position.x + ', ' + position.y + ') ';
         transform += 'rotate(' + rotation + ')';
         group.setAttribute('transform', transform);
+        group.classList.add('person');
+        if (person.deceased)
+            group.classList.add('deceased');
+        if (person.gender === app.Gender.Male)
+            group.classList.add('sex-male');
+        else if (person.gender === app.Gender.Female)
+            group.classList.add('sex-female');
+        else
+            group.classList.add('sex-other');
+        if (person.isChild())
+            group.classList.add('infant');
+        if (person === layout.root)
+            group.classList.add('root');
         container.appendChild(group);
+
+        var circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        circle.setAttribute('r', personRadius);
+        group.appendChild(circle);
+
         if (person === layout.root) {
             var fullName = document.createElementNS('http://www.w3.org/2000/svg', 'text');
             fullName.setAttribute('x', 0);
             fullName.setAttribute('y', personRadius);
             fullName.setAttribute('text-anchor', 'middle');
             fullName.setAttribute('dominant-baseline', 'text-after-edge');
-            fullName.classList.add('root-name');
+            fullName.classList.add('name');
             fullName.textContent = person.fullName();
             group.appendChild(fullName);
 
@@ -215,19 +212,19 @@ app.SVGRenderer = class extends app.Renderer {
             dates.setAttribute('y', personRadius);
             dates.setAttribute('text-anchor', 'middle');
             dates.setAttribute('dominant-baseline', 'text-before-edge');
-            dates.classList.add('root-dates');
+            dates.classList.add('dates');
             dates.textContent = person.dates();
             group.appendChild(dates);
         } else {
             var fullName = document.createElementNS('http://www.w3.org/2000/svg', 'text');
             fullName.setAttribute('dominant-baseline', 'text-after-edge');
-            fullName.classList.add('regular-name');
+            fullName.classList.add('name');
             fullName.textContent = person.fullName();
             group.appendChild(fullName);
 
             var dates = document.createElementNS('http://www.w3.org/2000/svg', 'text');
             dates.setAttribute('dominant-baseline', 'text-before-edge');
-            dates.classList.add('regular-dates');
+            dates.classList.add('dates');
             dates.textContent = person.dates();
             group.appendChild(dates);
             if (textOnLeft) {
