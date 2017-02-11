@@ -93,17 +93,9 @@ app.CanvasRenderer = class {
 
     /**
      * @param {number} scale
-     * @param {!g.Vec} fixedPoint
      */
-    setScale(scale, fixedPoint) {
-        // Default fixed point is a canvas center - (0, 0).
-        fixedPoint = fixedPoint || new g.Vec(0, 0);
-        var oldOffset = this.offset();
-        var oldScale = this.scale();
-
-        var newOffset = fixedPoint.subtract(fixedPoint.subtract(oldOffset).scale(scale/oldScale))
+    setScale(scale) {
         this._scale = scale;
-        this.setOffset(newOffset);
     }
 
     /**

@@ -72,7 +72,13 @@ app.InteractionController = class {
         newZoom = Math.max(newZoom, this._minScale);
         newZoom = Math.min(newZoom, this._maxScale);
         this._overlay.classList.toggle('hidden-overlay', !g.eq(newZoom, this._minScale));
-        this._renderer.setScale(newZoom, fixedPoint);
+        var oldOffset = this._renderer.offset();
+        var oldScale = this._renderer.scale();
+
+        var newOffset = fixedPoint.subtract(fixedPoint.subtract(oldOffset).scale(newZoom/oldScale))
+        this._renderer.setScale(newZoom);
+        this._renderer.setOffset(newOffset);
+
         this._constrainOffset();
         this._loop.invalidate();
         event.preventDefault();
