@@ -5,14 +5,16 @@ app.SVGRenderer = class extends app.Renderer {
      */
     constructor(width, height) {
         super();
-        this._element = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-        this._container = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-        this._element.appendChild(this._container);
+        this._element = this._createSVG('svg');
         this._scale = 1;
         this._offset = new g.Vec(0, 0);
         this._layout = null;
         this._isDirty = false;
         this.setSize(width, height);
+    }
+
+    _createSVG(name) {
+        return document.createElementNS('http://www.w3.org/2000/svg', name);
     }
 
     /**
@@ -80,6 +82,8 @@ app.SVGRenderer = class extends app.Renderer {
     }
 
     _setTransformAttribute() {
+        if (!this._container)
+            return;
         var value = 'translate(' + (this._width/2) + ', ' + (this._height/2) + ') ';
         value += 'translate(' + this._offset.x + ', ' + this._offset.y + ') ';
         value += 'scale(' + this._scale + ', ' + this._scale + ') ';
@@ -105,9 +109,12 @@ app.SVGRenderer = class extends app.Renderer {
         this._isDirty = false;
         if (this._container)
             this._container.remove();
-        this._container = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        this._container = this._createSVG('g');
+        this._container.setAttribute('style', 'pointer-events: none');
         this._element.appendChild(this._container);
         this._setTransformAttribute();
+        if (!this._layout)
+            return;
 
         this._renderScaffolding(this._container, this._layout.scaffolding);
 
@@ -146,19 +153,11 @@ app.SVGRenderer = class extends app.Renderer {
             }
         }
 
-        var element = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        var element = this._createSVG('path');
         element.setAttribute('d', path);
         element.setAttribute('fill', 'none');
         element.setAttribute('stroke', 'gray');
         container.appendChild(element);
-    }
-
-    _renderPersonCircle(position, radius, isRoot, gender, isChild, isDeceased) {
-        var circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-        circle.setAttribute('cx', position.x);
-        circle.setAttribute('cy', position.y);
-        circle.setAttribute('r', radius);
-        return circle;
     }
 
     /**
@@ -175,7 +174,7 @@ app.SVGRenderer = class extends app.Renderer {
 
         var textPadding = 6;
 
-        var group = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        var group = this._createSVG('g');
         var transform = 'translate(' + position.x + ', ' + position.y + ') ';
         transform += 'rotate(' + rotation + ')';
         group.setAttribute('transform', transform);
@@ -193,12 +192,12 @@ app.SVGRenderer = class extends app.Renderer {
         if (isRoot)
             group.classList.add('root');
 
-        var circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        var circle = this._createSVG('circle');
         circle.setAttribute('r', personRadius);
         group.appendChild(circle);
 
         if (isRoot) {
-            var fullName = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            var fullName = this._createSVG('text');
             fullName.setAttribute('x', 0);
             fullName.setAttribute('y', personRadius);
             fullName.setAttribute('text-anchor', 'middle');
@@ -207,7 +206,7 @@ app.SVGRenderer = class extends app.Renderer {
             fullName.textContent = person.fullName();
             group.appendChild(fullName);
 
-            var dates = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            var dates = this._createSVG('text');
             dates.setAttribute('x', 0);
             dates.setAttribute('y', personRadius);
             dates.setAttribute('text-anchor', 'middle');
@@ -216,13 +215,13 @@ app.SVGRenderer = class extends app.Renderer {
             dates.textContent = person.dates();
             group.appendChild(dates);
         } else {
-            var fullName = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            var fullName = this._createSVG('text');
             fullName.setAttribute('dominant-baseline', 'text-after-edge');
             fullName.classList.add('name');
             fullName.textContent = person.fullName();
             group.appendChild(fullName);
 
-            var dates = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            var dates = this._createSVG('text');
             dates.setAttribute('dominant-baseline', 'text-before-edge');
             dates.classList.add('dates');
             dates.textContent = person.dates();
@@ -245,7 +244,7 @@ app.SVGRenderer = class extends app.Renderer {
     }
 
     createPersonIcon(size, gender, isChild, isDeceased) {
-        var svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        var svg = this._createSVG('svg');
         svg.setAttribute('width', size + 2);
         svg.setAttribute('height', size + 2);
         var radius = size / 2;
