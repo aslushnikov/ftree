@@ -21,21 +21,24 @@ app.DebugControls = class {
         ];
         layoutSliders.forEach(slider => layoutControls.appendChild(slider.element()));
 
-        // setting up layout controls
-        var rendererControls = element.createChild('fieldset', '.renderer-controls');
-        rendererControls.createChild('legend').textContent = 'Renderer controls';
-        var rendererSliders = [
-            new app.Slider('root font scale', scale => renderer.setRootFontScale(scale))
-                .setValues(1, 4, renderer.rootFontScale(), 0.1)
-                .setSuffix(' times'),
-            new app.Slider('name font size', fontSize => renderer.setNameFontSize(fontSize))
-                .setValues(7, 36, renderer.nameFontSize())
-                .setSuffix('px'),
-            new app.Slider('dates font size', fontSize => renderer.setDatesFontSize(fontSize))
-                .setValues(7, 36, renderer.datesFontSize())
-                .setSuffix('px'),
-        ];
-        rendererSliders.forEach(slider => rendererControls.appendChild(slider.element()));
+        // setting up canvas layout controls
+        // TODO: this is hackish sniffing for CanvasRenderer.
+        if (renderer.setRootFontScale) {
+            var rendererControls = element.createChild('fieldset', '.renderer-controls');
+            rendererControls.createChild('legend').textContent = 'Renderer controls';
+            var rendererSliders = [
+                new app.Slider('root font scale', scale => renderer.setRootFontScale(scale))
+                    .setValues(1, 4, renderer.rootFontScale(), 0.1)
+                    .setSuffix(' times'),
+                new app.Slider('name font size', fontSize => renderer.setNameFontSize(fontSize))
+                    .setValues(7, 36, renderer.nameFontSize())
+                    .setSuffix('px'),
+                new app.Slider('dates font size', fontSize => renderer.setDatesFontSize(fontSize))
+                    .setValues(7, 36, renderer.datesFontSize())
+                    .setSuffix('px'),
+            ];
+            rendererSliders.forEach(slider => rendererControls.appendChild(slider.element()));
+        }
     }
 
     /**
