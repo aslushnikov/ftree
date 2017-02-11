@@ -6,7 +6,7 @@ function startApplication() {
     // setting up renderer and layout.
     var layout = new app.SunLayout();
     var renderer = new app.CanvasRenderer(document.body.clientWidth, document.body.clientHeight);
-    var loop = new app.RenderLoop(renderer, layout);
+    new app.RenderLoop(renderer, layout);
 
     // setting defaults
     layout.setPersonRadius(30);
@@ -18,10 +18,10 @@ function startApplication() {
     document.body.appendChild(renderer.element());
 
     var overlay = document.querySelector('.overlay');
-    var interactionController = new app.InteractionController(layout, renderer, loop, overlay);
+    var interactionController = new app.InteractionController(layout, renderer, overlay);
 
     if (window.location.hash === '#debug') {
-        var debugControls = new app.DebugControls(layout, renderer, loop);
+        var debugControls = new app.DebugControls(layout, renderer);
         document.body.appendChild(debugControls.element());
     }
 

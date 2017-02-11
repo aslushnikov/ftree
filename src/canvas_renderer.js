@@ -58,6 +58,8 @@ app.CanvasRenderer = class extends app.Renderer {
         this._datesFontSize = 9;
         this._offset = new g.Vec(0, 0);
         this._rootFontScale = 1.8;
+        this._layout = null;
+        this._isDirty = false;
 
         /** @type {!Map<string, !Element>} */
         this._prerenderedText = new Map();
@@ -77,9 +79,12 @@ app.CanvasRenderer = class extends app.Renderer {
      * @param {number} height
      */
     setSize(width, height) {
+        if (g.eq(this._width, width) && g.eq(this._height, height))
+            return;
         this._width = width;
         this._height = height;
         app.CanvasRenderer.setCanvasSize(this._canvas, this._width, this._height);
+        this._isDirty = true;
     }
 
     /**
@@ -91,10 +96,23 @@ app.CanvasRenderer = class extends app.Renderer {
     }
 
     /**
+     * @param {!app.Layout} layout
+     */
+    setLayout(layout) {
+        if (this._layout === layout)
+            return;
+        this._layout = layout;
+        this._isDirty = true;
+    }
+
+    /**
      * @param {number} scale
      */
     setRootFontScale(scale) {
+        if (g.eq(scale, this._rootFontScale))
+            return;
         this._rootFontScale = scale;
+        this._isDirty = true;
     }
 
     /**
@@ -108,7 +126,10 @@ app.CanvasRenderer = class extends app.Renderer {
      * @param {number} scale
      */
     setScale(scale) {
+        if (g.eq(scale, this._scale))
+            return;
         this._scale = scale;
+        this._isDirty = true;
     }
 
     /**
@@ -124,7 +145,10 @@ app.CanvasRenderer = class extends app.Renderer {
      * @param {!g.Vec} offset
      */
     setOffset(offset) {
+        if (this._offset.isEqual(offset))
+            return;
         this._offset = offset;
+        this._isDirty = true;
     }
 
     /**
@@ -139,8 +163,11 @@ app.CanvasRenderer = class extends app.Renderer {
      * @param {number} fontSize
      */
     setNameFontSize(fontSize) {
+        if (g.eq(fontSize, this._nameFontSize))
+            return;
         this._prerenderedText.clear();
         this._nameFontSize = fontSize;
+        this._isDirty = true;
     }
 
     /**
@@ -154,8 +181,11 @@ app.CanvasRenderer = class extends app.Renderer {
      * @param {number} fontSize
      */
     setDatesFontSize(fontSize) {
+        if (g.eq(fontSize, this._datesFontSize))
+            return;
         this._prerenderedText.clear();
         this._datesFontSize = fontSize;
+        this._isDirty = true;
     }
 
     /**
@@ -194,9 +224,11 @@ app.CanvasRenderer = class extends app.Renderer {
 
     /**
      * @override
-     * @param {!app.Layout} layout
      */
-    render(layout) {
+    render() {
+        if (!this._isDirty)
+            return;
+        this._isDirty = false;
         var ctx = this._canvas.getContext('2d');
         ctx.save();
         ctx.clearRect(0, 0, this._width, this._height);
@@ -204,15 +236,15 @@ app.CanvasRenderer = class extends app.Renderer {
         ctx.translate(this._offset.x, this._offset.y);
         ctx.scale(this._scale, this._scale);
 
-        if (layout.backgroundImage) {
-            var img = layout.backgroundImage;
+        if (this._layout.backgroundImage) {
+            var img = this._layout.backgroundImage;
             ctx.drawImage(img.image, img.topLeft.x, img.topLeft.y);
         }
 
-        this._renderScaffolding(ctx, layout.scaffolding);
+        this._renderScaffolding(ctx, this._layout.scaffolding);
 
-        for (var person of layout.positions.keys())
-            this._renderPerson(ctx, layout, person);
+        for (var person of this._layout.positions.keys())
+            this._renderPerson(ctx, this._layout, person);
         ctx.restore();
     }
 
@@ -339,30 +371,3 @@ app.CanvasRenderer = class extends app.Renderer {
     }
 }
 
-app.RenderLoop = class {
-    /**
-     * @param {!app.Renderer} renderer
-     * @param {!app.LayoutEngine} layoutEngine
-     */
-    constructor(renderer, layoutEngine) {
-        this._layoutEngine = layoutEngine;
-        this._renderer = renderer;
-        this._renderLoopBound = this._renderLoop.bind(this);
-
-        // First render must be forced.
-        this._invalidated = true;
-        requestAnimationFrame(this._renderLoopBound);
-    }
-
-    _renderLoop() {
-        if (this._invalidated || this._layoutEngine.isDirty()) {
-            this._renderer.render(this._layoutEngine.layout());
-            this._invalidated = false;
-        }
-        requestAnimationFrame(this._renderLoopBound);
-    }
-
-    invalidate() {
-        this._invalidated = true;
-    }
-}

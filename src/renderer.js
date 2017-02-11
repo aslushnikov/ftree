@@ -47,3 +47,22 @@ app.Renderer = class {
     createPersonIcon(size, gender, isChild, isDeceased) { }
 }
 
+app.RenderLoop = class {
+    /**
+     * @param {!app.Renderer} renderer
+     * @param {!app.LayoutEngine} layoutEngine
+     */
+    constructor(renderer, layoutEngine) {
+        this._layoutEngine = layoutEngine;
+        this._renderer = renderer;
+        this._renderLoopBound = this._renderLoop.bind(this);
+
+        requestAnimationFrame(this._renderLoopBound);
+    }
+
+    _renderLoop() {
+        this._renderer.setLayout(this._layoutEngine.layout());
+        this._renderer.render();
+        requestAnimationFrame(this._renderLoopBound);
+    }
+}

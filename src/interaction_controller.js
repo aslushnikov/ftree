@@ -1,10 +1,9 @@
 app.InteractionController = class {
-    constructor(engine, renderer, loop, overlay) {
+    constructor(engine, renderer, overlay) {
         this._overlay = overlay;
         this._viewport = overlay.querySelector('.viewport');
         this._engine = engine;
         this._renderer = renderer;
-        this._loop = loop;
         this._minScale = 1;
         this._maxScale = 1.5;
         this._center = g.zeroVec;
@@ -50,7 +49,6 @@ app.InteractionController = class {
         var canvasCenter = new g.Vec(rendererSize.width / 2, rendererSize.height / 2);
         this._center = viewportCenter.subtract(canvasCenter);
         this._renderer.setOffset(this._center);
-        this._loop.invalidate();
     }
 
     /**
@@ -80,7 +78,6 @@ app.InteractionController = class {
         this._renderer.setOffset(newOffset);
 
         this._constrainOffset();
-        this._loop.invalidate();
         event.preventDefault();
         event.stopPropagation();
     }
@@ -99,13 +96,11 @@ app.InteractionController = class {
         var newOffset = this._mouseDownOffset.add(moveOffset);
         this._renderer.setOffset(newOffset);
         this._constrainOffset();
-        this._loop.invalidate();
     }
 
     _constrainOffset() {
         if (g.eq(this._renderer.scale(), this._minScale)) {
             this._renderer.setOffset(this._center);
-            this._loop.invalidate();
             return;
         }
         var offset = this._renderer.offset();
@@ -124,7 +119,6 @@ app.InteractionController = class {
         if (len > maxOffset) {
             radiusVector = radiusVector.scale(maxOffset / len);
             this._renderer.setOffset(this._center.add(radiusVector));
-            this._loop.invalidate();
         }
     }
 

@@ -1,5 +1,5 @@
 app.DebugControls = class {
-    constructor(layout, renderer, loop) {
+    constructor(layout, renderer) {
         var element = createElementWithClass('div', 'debug-controls');
         this._element = element;
         // setting up layout controls
@@ -25,13 +25,13 @@ app.DebugControls = class {
         var rendererControls = element.createChild('fieldset', '.renderer-controls');
         rendererControls.createChild('legend').textContent = 'Renderer controls';
         var rendererSliders = [
-            new app.Slider('root font scale', scale => {renderer.setRootFontScale(scale); loop.invalidate(); })
+            new app.Slider('root font scale', scale => renderer.setRootFontScale(scale))
                 .setValues(1, 4, renderer.rootFontScale(), 0.1)
                 .setSuffix(' times'),
-            new app.Slider('name font size', fontSize => {renderer.setNameFontSize(fontSize); loop.invalidate(); })
+            new app.Slider('name font size', fontSize => renderer.setNameFontSize(fontSize))
                 .setValues(7, 36, renderer.nameFontSize())
                 .setSuffix('px'),
-            new app.Slider('dates font size', fontSize => {renderer.setDatesFontSize(fontSize); loop.invalidate(); })
+            new app.Slider('dates font size', fontSize => renderer.setDatesFontSize(fontSize))
                 .setValues(7, 36, renderer.datesFontSize())
                 .setSuffix('px'),
         ];

@@ -78,6 +78,14 @@ g.Vec = class {
     }
 
     /**
+     * @param {!g.Vec} other
+     * @return {boolean}
+     */
+    isEqual(other) {
+        return g.eq(this.x, other.x) && g.eq(this.y, other.y);
+    }
+
+    /**
      * @param {number} r
      * @param {number} angle
      * @return {!g.Vec}
