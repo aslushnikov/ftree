@@ -116,6 +116,15 @@ app.SVGRenderer = class extends app.Renderer {
         if (!this._layout)
             return;
 
+        if (this._layout.backgroundImage) {
+            var img = this._layout.backgroundImage;
+            var image = this._createSVG('image');
+            image.setAttributeNS('http://www.w3.org/1999/xlink', 'xlink:href',img.image.src);
+            image.setAttribute('x', img.topLeft.x);
+            image.setAttribute('y', img.topLeft.y);
+            this._container.appendChild(image);
+        }
+
         this._renderScaffolding(this._container, this._layout.scaffolding);
 
         var radius = this._layout.personRadius;
