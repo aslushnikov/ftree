@@ -33,8 +33,8 @@ app.InteractionController = class {
         var boundingBox = this._engine.layout().boundingBox();
         var viewportBox = this._viewport.getBoundingClientRect();
         var rendererSize = this._renderer.size();
-        var viewportWidth = viewportBox.width * app.CanvasRenderer.canvasRatio();
-        var viewportHeight = viewportBox.height * app.CanvasRenderer.canvasRatio();
+        var viewportWidth = viewportBox.width;
+        var viewportHeight = viewportBox.height;
         this._minScale = 1;
         if (boundingBox.width !== 0 && boundingBox.height !== 0) {
             var hw = viewportWidth / 2;
@@ -48,7 +48,7 @@ app.InteractionController = class {
         this._renderer.setScale(this._minScale);
         var viewportCenter = new g.Vec((viewportBox.left + viewportBox.width / 2), (viewportBox.top + viewportBox.height / 2));
         var canvasCenter = new g.Vec(rendererSize.width / 2, rendererSize.height / 2);
-        this._center = viewportCenter.subtract(canvasCenter.scale(1/app.CanvasRenderer.canvasRatio()));
+        this._center = viewportCenter.subtract(canvasCenter);
         this._renderer.setOffset(this._center);
         this._loop.invalidate();
     }
@@ -109,9 +109,9 @@ app.InteractionController = class {
         maxDimension = Math.max(maxDimension, Math.abs(boundingBox.y));
         maxDimension = Math.max(maxDimension, Math.abs(boundingBox.x + boundingBox.width));
         maxDimension = Math.max(maxDimension, Math.abs(boundingBox.y + boundingBox.height));
-        maxDimension = maxDimension * this._renderer.scale() / app.CanvasRenderer.canvasRatio();
+        maxDimension = maxDimension * this._renderer.scale();
         maxDimension += Math.max(Math.abs(this._center.x), Math.abs(this._center.y));
-        var minRendererSize = Math.min(this._renderer.size().width, this._renderer.size().height) / app.CanvasRenderer.canvasRatio() / 2;
+        var minRendererSize = Math.min(this._renderer.size().width, this._renderer.size().height) / 2;
         var maxOffset = Math.max(maxDimension - minRendererSize/2, 0);
         var radiusVector = offset.subtract(this._center);
         var len = radiusVector.len();

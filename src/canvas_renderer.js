@@ -24,7 +24,7 @@ app.CanvasRenderer = class {
         var canvas = document.createElement('canvas');
         var context = canvas.getContext('2d');
         var ratio = app.CanvasRenderer.canvasRatio();
-        context.setTransform(ratio, 0, 0, ratio, 0, 0);
+        context.scale(ratio, ratio);
         return canvas;
     }
 
@@ -35,10 +35,13 @@ app.CanvasRenderer = class {
      */
     static setCanvasSize(canvas, canvasWidth, canvasHeight) {
         var ratio = app.CanvasRenderer.canvasRatio();
-        canvas.width = canvasWidth;
-        canvas.height = canvasHeight;
-        canvas.style.width = ((canvasWidth/ratio)|0) + "px";
-        canvas.style.height = ((canvasHeight/ratio)|0) + "px";
+        canvas.width = canvasWidth * ratio;
+        canvas.height = canvasHeight * ratio;
+        canvas.style.width = canvasWidth + "px";
+        canvas.style.height = canvasHeight + "px";
+        var ratio = app.CanvasRenderer.canvasRatio();
+        var context = canvas.getContext('2d');
+        context.scale(ratio, ratio);
     }
 
     /**
@@ -48,10 +51,10 @@ app.CanvasRenderer = class {
     constructor(width, height) {
         this._canvas = app.CanvasRenderer.createHiDPICanvas();
         this.setSize(width, height);
-        this._scale = 1
+        this._scale = 1;
         this._fontName = 'Arial';
-        this._nameFontSize = 22;
-        this._datesFontSize = 17;
+        this._nameFontSize = 11;
+        this._datesFontSize = 9;
         this._offset = new g.Vec(0, 0);
         this._rootFontScale = 1.8;
 
@@ -71,9 +74,8 @@ app.CanvasRenderer = class {
      * @param {number} height
      */
     setSize(width, height) {
-        var ratio = app.CanvasRenderer.canvasRatio();
-        this._width = width * ratio;
-        this._height = height * ratio;
+        this._width = width;
+        this._height = height;
         app.CanvasRenderer.setCanvasSize(this._canvas, this._width, this._height);
     }
 
@@ -97,7 +99,7 @@ app.CanvasRenderer = class {
         // Default fixed point is a canvas center - (0, 0).
         fixedPoint = fixedPoint || new g.Vec(0, 0);
         var oldOffset = this.offset();
-        var oldScale = this._scale;
+        var oldScale = this.scale();
 
         var newOffset = fixedPoint.subtract(fixedPoint.subtract(oldOffset).scale(scale/oldScale))
         this._scale = scale;
@@ -115,14 +117,14 @@ app.CanvasRenderer = class {
      * @param {!g.Vec} offset
      */
     setOffset(offset) {
-        this._offset = offset.scale(app.CanvasRenderer.canvasRatio());
+        this._offset = offset;
     }
 
     /**
      * @return {!g.Vec}
      */
     offset() {
-        return this._offset.scale(1/app.CanvasRenderer.canvasRatio());
+        return this._offset;
     }
 
     /**
@@ -189,7 +191,6 @@ app.CanvasRenderer = class {
         var ctx = this._canvas.getContext('2d');
         ctx.save();
         ctx.clearRect(0, 0, this._width, this._height);
-
         ctx.translate(this._width / 2, this._height / 2);
         ctx.translate(this._offset.x, this._offset.y);
         ctx.scale(this._scale, this._scale);
@@ -237,7 +238,6 @@ app.CanvasRenderer = class {
     }
 
     createPersonIcon(size, gender, isChild, isDeceased) {
-        size *= app.CanvasRenderer.canvasRatio();
         var canvas = app.CanvasRenderer.createHiDPICanvas();
         app.CanvasRenderer.setCanvasSize(canvas, size, size);
         var ctx = canvas.getContext('2d');
