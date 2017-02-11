@@ -251,7 +251,8 @@ app.SunLayout = class extends app.LayoutEngine {
                 if (family.alt) {
                     var rotation1 = rotations.get(family.main);
                     var rotation2 = rotations.get(family.alt);
-                    scaffolding.push(new g.Arc(g.zeroVec, familyR, Math.min(rotation1, rotation2), Math.max(rotation1, rotation2)));
+                    var padding = g.segmentLengthToRad(familyR, this._nodeRadius);
+                    scaffolding.push(new g.Arc(g.zeroVec, familyR, Math.min(rotation1, rotation2) + padding, Math.max(rotation1, rotation2) - padding));
                 }
                 var children = family.children;
                 if (!children.size)
@@ -270,8 +271,8 @@ app.SunLayout = class extends app.LayoutEngine {
                     familyMiddle = (familyMiddle + rotations.get(family.alt)) / 2;
                 if (g.eq(min, max) && families.length !== 2) {
                     // There is a sole child. Render a level join straight to it.
-                    var joinStart = g.Vec.fromRadial(familyR, familyMiddle);
-                    var joinEnd = g.Vec.fromRadial(r, familyMiddle);
+                    var joinStart = g.Vec.fromRadial(familyR + (family.alt ? 0 : this._nodeRadius), familyMiddle);
+                    var joinEnd = g.Vec.fromRadial(r - this._nodeRadius, familyMiddle);
                     scaffolding.push(new g.Line(joinStart, joinEnd));
                     continue;
                 }
@@ -290,7 +291,7 @@ app.SunLayout = class extends app.LayoutEngine {
                 var [end1, end2] = curvyArc.call(this, r - offset, min, max, tip1, tip2);
 
                 // Level join.
-                var joinStart = g.Vec.fromRadial(familyR, familyMiddle);
+                var joinStart = g.Vec.fromRadial(familyR + (family.alt ? 0 : this._nodeRadius), familyMiddle);
                 var joinEnd = g.Vec.fromRadial(r - offset, familyMiddle);
                 if (tip1 === -1)
                     joinEnd = end1;
@@ -305,7 +306,7 @@ app.SunLayout = class extends app.LayoutEngine {
                         from = end1;
                     else if (g.eq(rotation, max))
                         from = end2;
-                    scaffolding.push(new g.Line(from, g.Vec.fromRadial(r, rotation)));
+                    scaffolding.push(new g.Line(from, g.Vec.fromRadial(r - this._nodeRadius, rotation)));
                 }
             }
         }
