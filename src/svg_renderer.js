@@ -166,13 +166,10 @@ app.SVGRenderer = class extends app.Renderer {
      */
     _renderPerson(person, position, rotation, personRadius, isRoot) {
         rotation = g.normalizeRad(rotation);
-        var cumulativeRotation = g.normalizeRad(rotation);
-        var textOnLeft = cumulativeRotation > Math.PI / 2 && cumulativeRotation < 3 * Math.PI / 2;
+        var textOnLeft = rotation > Math.PI / 2 && rotation < 3 * Math.PI / 2;
         if (textOnLeft)
             rotation -= Math.PI;
         rotation = g.radToDeg(rotation);
-
-        var textPadding = 6;
 
         var group = this._createSVG('g');
         var transform = 'translate(' + position.x + ', ' + position.y + ') ';
@@ -196,49 +193,38 @@ app.SVGRenderer = class extends app.Renderer {
         circle.setAttribute('r', personRadius);
         group.appendChild(circle);
 
+        var fullName = this._createSVG('text');
+        fullName.setAttribute('dominant-baseline', 'text-after-edge');
+        fullName.classList.add('name');
+        fullName.textContent = person.fullName();
+        group.appendChild(fullName);
+
+        var dates = this._createSVG('text');
+        dates.setAttribute('dominant-baseline', 'text-before-edge');
+        dates.classList.add('dates');
+        dates.textContent = person.dates();
+        group.appendChild(dates);
+
+        var textPadding = 6;
         if (isRoot) {
-            var fullName = this._createSVG('text');
-            fullName.setAttribute('x', 0);
-            fullName.setAttribute('y', personRadius);
             fullName.setAttribute('text-anchor', 'middle');
-            fullName.setAttribute('dominant-baseline', 'text-after-edge');
-            fullName.classList.add('name');
-            fullName.textContent = person.fullName();
-            group.appendChild(fullName);
-
-            var dates = this._createSVG('text');
-            dates.setAttribute('x', 0);
-            dates.setAttribute('y', personRadius);
+            fullName.setAttribute('x', 0);
+            fullName.setAttribute('y', 2 * personRadius);
             dates.setAttribute('text-anchor', 'middle');
-            dates.setAttribute('dominant-baseline', 'text-before-edge');
-            dates.classList.add('dates');
-            dates.textContent = person.dates();
-            group.appendChild(dates);
+            dates.setAttribute('x', 0);
+            dates.setAttribute('y', 2 * personRadius);
+        } else if (textOnLeft) {
+            fullName.setAttribute('x', -personRadius - textPadding);
+            fullName.setAttribute('y', 0);
+            fullName.setAttribute('text-anchor', 'end');
+            dates.setAttribute('x', -personRadius - textPadding);
+            dates.setAttribute('y', 0);
+            dates.setAttribute('text-anchor', 'end');
         } else {
-            var fullName = this._createSVG('text');
-            fullName.setAttribute('dominant-baseline', 'text-after-edge');
-            fullName.classList.add('name');
-            fullName.textContent = person.fullName();
-            group.appendChild(fullName);
-
-            var dates = this._createSVG('text');
-            dates.setAttribute('dominant-baseline', 'text-before-edge');
-            dates.classList.add('dates');
-            dates.textContent = person.dates();
-            group.appendChild(dates);
-            if (textOnLeft) {
-                fullName.setAttribute('x', -personRadius - textPadding);
-                fullName.setAttribute('y', 0);
-                fullName.setAttribute('text-anchor', 'end');
-                dates.setAttribute('x', -personRadius - textPadding);
-                dates.setAttribute('y', 0);
-                dates.setAttribute('text-anchor', 'end');
-            } else {
-                fullName.setAttribute('x', personRadius + textPadding);
-                fullName.setAttribute('y', 0);
-                dates.setAttribute('x', personRadius + textPadding);
-                dates.setAttribute('y', 0);
-            }
+            fullName.setAttribute('x', personRadius + textPadding);
+            fullName.setAttribute('y', 0);
+            dates.setAttribute('x', personRadius + textPadding);
+            dates.setAttribute('y', 0);
         }
         return group;
     }
