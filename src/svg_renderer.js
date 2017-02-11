@@ -109,8 +109,43 @@ app.SVGRenderer = class extends app.Renderer {
         this._element.appendChild(this._container);
         this._setTransformAttribute();
 
+        this._renderScaffolding(this._container, this._layout.scaffolding);
+
         for (var person of this._layout.positions.keys())
             this._renderPerson(this._container, this._layout, person);
+    }
+
+    /**
+     * @param {!Element} container
+     * @param {!app.Layout} layout
+     */
+    _renderScaffolding(container, scaffolding) {
+        var path = '';
+        for (var shape of scaffolding) {
+            if (shape instanceof g.Line) {
+                var line = /** @type {!g.Line} */(shape);
+                path += ' M' + line.from.x + ' ' + line.from.y;
+                path += ' L ' + line.to.x + ' ' + line.to.y;
+            } else if (shape instanceof g.Arc) {
+                var arc = /** @type {!g.Arc} */(shape);
+                path += ' M' + arc.from.x + ' ' + arc.from.y;
+                path += ' A ' + arc.r + ' ' + arc.r;
+                var isLargeArc = g.normalizeRad(arc.toAngle - arc.fromAngle) > Math.PI;
+                var component = isLargeArc ? ' 1 1' : ' 0 1';
+                path += ' 0 ' + component;
+                path += ' ' + arc.to.x + ' ' + arc.to.y;
+            } else if (shape instanceof g.Bezier) {
+                var bezier = /** @type {!g.Bezier} */(shape);
+                path += ' M' + bezier.from.x + ' ' + bezier.from.y;
+                path += ' Q ' + bezier.cp.x + ' ' + bezier.cp.y + ' ' + bezier.to.x + ' ' + bezier.to.y;
+            }
+        }
+
+        var element = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        element.setAttribute('d', path);
+        element.setAttribute('fill', 'none');
+        element.setAttribute('stroke', 'gray');
+        container.appendChild(element);
     }
 
     _renderPersonCircle(position, radius, isRoot, gender, isChild, isDeceased) {
