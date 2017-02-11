@@ -5,7 +5,8 @@ var storage = window.localStorage || {};
 function startApplication() {
     // setting up renderer and layout.
     var layout = new app.SunLayout();
-    var renderer = new app.CanvasRenderer(document.body.clientWidth, document.body.clientHeight);
+    var useSVG = window.location.hash.includes('svg');
+    var renderer = useSVG ? new app.SVGRenderer(document.body.clientWidth, document.body.clientHeight) : new app.CanvasRenderer(document.body.clientWidth, document.body.clientHeight);
     new app.RenderLoop(renderer, layout);
 
     // setting defaults
@@ -20,7 +21,7 @@ function startApplication() {
     var overlay = document.querySelector('.overlay');
     var interactionController = new app.InteractionController(layout, renderer, overlay);
 
-    if (window.location.hash === '#debug') {
+    if (window.location.hash.includes('debug')) {
         var debugControls = new app.DebugControls(layout, renderer);
         document.body.appendChild(debugControls.element());
     }

@@ -5,6 +5,11 @@ app.Renderer = class {
     element() {}
 
     /**
+     * @param {!app.Layout} layout
+     */
+    setLayout(layout) { }
+
+    /**
      * @param {number} width
      * @param {number} height
      */
@@ -32,10 +37,7 @@ app.Renderer = class {
      */
     offset() { }
 
-    /**
-     * @param {!app.Layout} layout
-     */
-    render(layout) { }
+    render() { }
 
     /**
      * @param {number} size
