@@ -1,31 +1,37 @@
+.scaffolding {
+    fill: none;
+    stroke: darkgray;
+    stroke-width: 1px;
+}
+
 .person.deceased {
     opacity: 0.5;
 }
 
-.person.sex-male {
-    --color: rgb(142, 178, 189);
+.sex-male {
+    --person-color: rgb(142, 178, 189);
 }
 
-.person.sex-female {
-    --color: rgb(232, 144, 150);
+.sex-female {
+    --person-color: rgb(232, 144, 150);
 }
 
-.person.sex-other {
-    --color: gray;
+.sex-other {
+    --person-color: gray;
 }
 
-.person.root {
-    --color: rgb(231, 174, 68);
+.root {
+    --person-color: rgb(231, 174, 68);
 }
 
 .person.infant circle {
-    stroke: var(--color);
-    stroke-width: 2;
+    stroke: var(--person-color);
+    stroke-width: 4px;
     fill: none;
 }
 
 .person:not(.infant) circle {
-    fill: var(--color);
+    fill: var(--person-color);
 }
 
 .person {
@@ -50,3 +56,6 @@
     transform: translate(0, 80px);
 }
 
+.legend .person.infant circle {
+    stroke-width: 2px;
+}

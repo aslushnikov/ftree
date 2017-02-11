@@ -154,9 +154,8 @@ app.SVGRenderer = class extends app.Renderer {
         }
 
         var element = this._createSVG('path');
+        element.classList.add('scaffolding');
         element.setAttribute('d', path);
-        element.setAttribute('fill', 'none');
-        element.setAttribute('stroke', 'gray');
         container.appendChild(element);
     }
 
@@ -231,6 +230,7 @@ app.SVGRenderer = class extends app.Renderer {
 
     createPersonIcon(size, gender, isChild, isDeceased) {
         var svg = this._createSVG('svg');
+        svg.classList.add('legend');
         svg.setAttribute('width', size + 2);
         svg.setAttribute('height', size + 2);
         var radius = size / 2;
