@@ -202,37 +202,32 @@ app.SVGRenderer = class extends app.Renderer {
         group.appendChild(circle);
 
         var fullName = this._createSVG('text');
-        fullName.setAttribute('dominant-baseline', 'text-after-edge');
         fullName.classList.add('name');
         fullName.textContent = person.fullName();
+        fullName.setAttribute('y', '-0.15em');
         group.appendChild(fullName);
 
         var dates = this._createSVG('text');
         dates.setAttribute('dominant-baseline', 'text-before-edge');
         dates.classList.add('dates');
         dates.textContent = person.dates();
+        dates.setAttribute('y', 0);
         group.appendChild(dates);
 
         var textPadding = 6;
         if (isRoot) {
             fullName.setAttribute('text-anchor', 'middle');
             fullName.setAttribute('x', 0);
-            fullName.setAttribute('y', 0);
             dates.setAttribute('text-anchor', 'middle');
             dates.setAttribute('x', 0);
-            dates.setAttribute('y', 0);
         } else if (textOnLeft) {
             fullName.setAttribute('x', -personRadius - textPadding);
-            fullName.setAttribute('y', 0);
             fullName.setAttribute('text-anchor', 'end');
             dates.setAttribute('x', -personRadius - textPadding);
-            dates.setAttribute('y', 0);
             dates.setAttribute('text-anchor', 'end');
         } else {
             fullName.setAttribute('x', personRadius + textPadding);
-            fullName.setAttribute('y', 0);
             dates.setAttribute('x', personRadius + textPadding);
-            dates.setAttribute('y', 0);
         }
         return group;
     }
