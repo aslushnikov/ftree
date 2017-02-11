@@ -111,8 +111,13 @@ app.SVGRenderer = class extends app.Renderer {
 
         this._renderScaffolding(this._container, this._layout.scaffolding);
 
-        for (var person of this._layout.positions.keys())
-            this._renderPerson(this._container, this._layout, person);
+        var radius = this._layout.personRadius;
+        for (var person of this._layout.positions.keys()) {
+            var position = this._layout.positions.get(person);
+            var rotation = this._layout.rotations.get(person);
+            var isRoot = person === this._layout.root;
+            this._container.appendChild(this._renderPerson(person, position, rotation, radius, isRoot));
+        }
     }
 
     /**
@@ -157,15 +162,11 @@ app.SVGRenderer = class extends app.Renderer {
     }
 
     /**
-     * @param {!Element} container
-     * @param {!app.Layout} layout
      * @param {!app.Person} person
+     * @return {!Element}
      */
-    _renderPerson(container, layout, person) {
-        var position = layout.positions.get(person);
-        var personRadius = layout.personRadius;
-
-        var rotation = g.normalizeRad(layout.rotations.get(person));
+    _renderPerson(person, position, rotation, personRadius, isRoot) {
+        rotation = g.normalizeRad(rotation);
         var cumulativeRotation = g.normalizeRad(rotation);
         var textOnLeft = cumulativeRotation > Math.PI / 2 && cumulativeRotation < 3 * Math.PI / 2;
         if (textOnLeft)
@@ -189,15 +190,14 @@ app.SVGRenderer = class extends app.Renderer {
             group.classList.add('sex-other');
         if (person.isChild())
             group.classList.add('infant');
-        if (person === layout.root)
+        if (isRoot)
             group.classList.add('root');
-        container.appendChild(group);
 
         var circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
         circle.setAttribute('r', personRadius);
         group.appendChild(circle);
 
-        if (person === layout.root) {
+        if (isRoot) {
             var fullName = document.createElementNS('http://www.w3.org/2000/svg', 'text');
             fullName.setAttribute('x', 0);
             fullName.setAttribute('y', personRadius);
@@ -241,6 +241,7 @@ app.SVGRenderer = class extends app.Renderer {
                 dates.setAttribute('y', 0);
             }
         }
+        return group;
     }
 
     createPersonIcon(size, gender, isChild, isDeceased) {
@@ -248,7 +249,12 @@ app.SVGRenderer = class extends app.Renderer {
         svg.setAttribute('width', size + 2);
         svg.setAttribute('height', size + 2);
         var radius = size / 2;
-        svg.appendChild(this._renderPersonCircle(new g.Vec(radius+1, radius+1), radius, false, gender, isChild, isDeceased));
+        var thisYear = new Date().getFullYear();
+        var birthYear = isChild ? thisYear : 0;
+        var deathYear = isDeceased ? thisYear : null;
+        var person = new app.Person('', '', gender, birthYear, deathYear);
+        person.deceased = isDeceased;
+        svg.appendChild(this._renderPerson(person, new g.Vec(radius+1, radius+1), 0, radius, false));
         return svg;
     }
 }
