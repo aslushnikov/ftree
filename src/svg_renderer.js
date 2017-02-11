@@ -151,38 +151,64 @@ app.SVGRenderer = class extends app.Renderer {
         var circle = this._renderPersonCircle(position, personRadius, person === layout.root, person.gender, person.isChild(), person.deceased);
         container.appendChild(circle);
 
-    /*
         var rotation = g.normalizeRad(layout.rotations.get(person));
         var cumulativeRotation = g.normalizeRad(rotation);
         var textOnLeft = cumulativeRotation > Math.PI / 2 && cumulativeRotation < 3 * Math.PI / 2;
         if (textOnLeft)
             rotation -= Math.PI;
+        rotation = g.radToDeg(rotation);
 
-        ctx.save();
-        ctx.translate(position.x, position.y);
         var color = `rgba(48, 48, 48, ${person.deceased ? 0.5 : 1}`;
         var textPadding = 6;
+        var group = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        var transform = 'translate(' + position.x + ', ' + position.y + ') ';
+        transform += 'rotate(' + rotation + ')';
+        group.setAttribute('transform', transform);
+        container.appendChild(group);
         if (person === layout.root) {
-            var fullName = this._prerenderText(person.fullName(), color, this._fontName, this._nameFontSize * this._rootFontScale);
-            var dates = this._prerenderText(person.dates(), color, this._fontName, this._datesFontSize * this._rootFontScale);
-            this._drawImage(ctx, fullName, -fullName.width / 2, personRadius);
-            this._drawImage(ctx, dates, -dates.width / 2, personRadius + fullName.height);
+            var fullName = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            fullName.setAttribute('x', 0);
+            fullName.setAttribute('y', personRadius);
+            fullName.setAttribute('text-anchor', 'middle');
+            fullName.setAttribute('dominant-baseline', 'text-after-edge');
+            fullName.classList.add('root-name');
+            fullName.textContent = person.fullName();
+            group.appendChild(fullName);
+
+            var dates = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            dates.setAttribute('x', 0);
+            dates.setAttribute('y', personRadius);
+            dates.setAttribute('text-anchor', 'middle');
+            dates.setAttribute('dominant-baseline', 'text-before-edge');
+            dates.classList.add('root-dates');
+            dates.textContent = person.dates();
+            group.appendChild(dates);
         } else {
-            ctx.rotate(rotation);
-            var fullName = this._prerenderText(person.fullName(), color, this._fontName, this._nameFontSize);
-            var dates = this._prerenderText(person.dates(), color, this._fontName, this._datesFontSize);
+            var fullName = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            fullName.setAttribute('dominant-baseline', 'text-after-edge');
+            fullName.classList.add('regular-name');
+            fullName.textContent = person.fullName();
+            group.appendChild(fullName);
+
+            var dates = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            dates.setAttribute('dominant-baseline', 'text-before-edge');
+            dates.classList.add('regular-dates');
+            dates.textContent = person.dates();
+            group.appendChild(dates);
             if (textOnLeft) {
-                var textWidth = fullName.width;
-                this._drawImage(ctx, fullName, -personRadius - textPadding - textWidth, -fullName.height);
-                textWidth = dates ? dates.width : 0;
-                this._drawImage(ctx, dates, -personRadius - textPadding - textWidth, 0);
+                fullName.setAttribute('x', -personRadius - textPadding);
+                fullName.setAttribute('y', 0);
+                fullName.setAttribute('text-anchor', 'end');
+                dates.setAttribute('x', -personRadius - textPadding);
+                dates.setAttribute('y', 0);
+                dates.setAttribute('text-anchor', 'end');
             } else {
-                this._drawImage(ctx, fullName, personRadius + textPadding, -fullName.height);
-                this._drawImage(ctx, dates, personRadius + textPadding, 0);
+                fullName.setAttribute('x', personRadius + textPadding);
+                fullName.setAttribute('y', 0);
+                dates.setAttribute('x', personRadius + textPadding);
+                dates.setAttribute('y', 0);
             }
         }
-        ctx.restore();
-        */
     }
 
     createPersonIcon(size, gender, isChild, isDeceased) {
