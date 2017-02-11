@@ -15,7 +15,7 @@ function startApplication() {
     layout.setInitialRotation(g.degToRad(0));
     layout.setLevelSizeOffset(1, 100);
 
-    document.body.appendChild(renderer.canvasElement());
+    document.body.appendChild(renderer.element());
 
     var overlay = document.querySelector('.overlay');
     var interactionController = new app.InteractionController(layout, renderer, loop, overlay);

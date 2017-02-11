@@ -9,15 +9,15 @@ app.InteractionController = class {
         this._maxScale = 1.5;
         this._center = g.zeroVec;
 
-        this._canvas = renderer.canvasElement();
-        this._canvas.addEventListener('mousedown', this._onMouseDown.bind(this));
-        this._canvas.addEventListener('mouseup', this._onMouseUp.bind(this));
-        this._canvas.addEventListener('mousemove', this._onMouseMove.bind(this));
-        this._canvas.addEventListener('mouseout', this._onMouseUp.bind(this));
+        this._element = renderer.element();
+        this._element.addEventListener('mousedown', this._onMouseDown.bind(this));
+        this._element.addEventListener('mouseup', this._onMouseUp.bind(this));
+        this._element.addEventListener('mousemove', this._onMouseMove.bind(this));
+        this._element.addEventListener('mouseout', this._onMouseUp.bind(this));
         // IE9, Chrome, Safari, Opera
-        this._canvas.addEventListener("mousewheel", this._onMouseWheel.bind(this), false);
+        this._element.addEventListener("mousewheel", this._onMouseWheel.bind(this), false);
         // Firefox
-        this._canvas.addEventListener("DOMMouseScroll", this._onMouseWheel.bind(this), false);
+        this._element.addEventListener("DOMMouseScroll", this._onMouseWheel.bind(this), false);
 
         window.addEventListener('resize', this._onResize.bind(this));
         this._engine.addListener(app.LayoutEngine.Events.LayoutRecalculated, this._centerGraph.bind(this));
@@ -58,7 +58,7 @@ app.InteractionController = class {
      * @return {!g.Vec}
      */
     _toCoordinates(event) {
-        var rect = this._canvas.getBoundingClientRect();
+        var rect = this._element.getBoundingClientRect();
         var center = new g.Vec(rect.left + rect.width / 2, rect.top + rect.height / 2);
         var point = new g.Vec(event.clientX, event.clientY);
         return point.subtract(center);

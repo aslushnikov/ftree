@@ -1,4 +1,4 @@
-app.CanvasRenderer = class {
+app.CanvasRenderer = class extends app.Renderer {
     /**
      * @return {number}
      */
@@ -49,6 +49,7 @@ app.CanvasRenderer = class {
      * @param {number} height
      */
     constructor(width, height) {
+        super();
         this._canvas = app.CanvasRenderer.createHiDPICanvas();
         this.setSize(width, height);
         this._scale = 1;
@@ -63,13 +64,15 @@ app.CanvasRenderer = class {
     }
 
     /**
+     * @override
      * @return {!Element}
      */
-    canvasElement() {
+    element() {
         return this._canvas;
     }
 
     /**
+     * @override
      * @param {number} width
      * @param {number} height
      */
@@ -79,14 +82,24 @@ app.CanvasRenderer = class {
         app.CanvasRenderer.setCanvasSize(this._canvas, this._width, this._height);
     }
 
+    /**
+     * @override
+     * @return {{width: number, height: number}}
+     */
     size() {
         return {width: this._width, height: this._height};
     }
 
+    /**
+     * @param {number} scale
+     */
     setRootFontScale(scale) {
         this._rootFontScale = scale;
     }
 
+    /**
+     * @return {number}
+     */
     rootFontScale() {
         return this._rootFontScale;
     }
@@ -99,6 +112,7 @@ app.CanvasRenderer = class {
     }
 
     /**
+     * @override
      * @return {number}
      */
     scale() {
@@ -106,6 +120,7 @@ app.CanvasRenderer = class {
     }
 
     /**
+     * @override
      * @param {!g.Vec} offset
      */
     setOffset(offset) {
@@ -113,6 +128,7 @@ app.CanvasRenderer = class {
     }
 
     /**
+     * @override
      * @return {!g.Vec}
      */
     offset() {
@@ -177,6 +193,7 @@ app.CanvasRenderer = class {
     }
 
     /**
+     * @override
      * @param {!app.Layout} layout
      */
     render(layout) {
