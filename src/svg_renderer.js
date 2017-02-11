@@ -9,7 +9,8 @@ app.SVGRenderer = class extends app.Renderer {
         this._scale = 1;
         this._offset = new g.Vec(0, 0);
         this._layout = null;
-        this._isDirty = false;
+        this._isDirtyTransform = false;
+        this._isDirtyLayout = false;
         this.setSize(width, height);
     }
 
@@ -37,7 +38,7 @@ app.SVGRenderer = class extends app.Renderer {
         this._height = height;
         this._element.setAttribute('width', width + 'px');
         this._element.setAttribute('height', height + 'px');
-        this._setTransformAttribute();
+        this._isDirtyTransform = true;
     }
 
     /**
@@ -53,7 +54,7 @@ app.SVGRenderer = class extends app.Renderer {
      */
     setScale(scale) {
         this._scale = scale;
-        this._setTransformAttribute();
+        this._isDirtyTransform = true;
     }
 
     /**
@@ -70,7 +71,7 @@ app.SVGRenderer = class extends app.Renderer {
      */
     setOffset(offset) {
         this._offset = offset;
-        this._setTransformAttribute();
+        this._isDirtyTransform = true;
     }
 
     /**
@@ -97,16 +98,22 @@ app.SVGRenderer = class extends app.Renderer {
         if (this._layout === layout)
             return;
         this._layout = layout;
-        this._isDirty = true;
+        this._isDirtyLayout = true;
     }
 
     /**
      * @override
      */
     render() {
-        if (!this._isDirty)
+        if (this._isDirtyTransform && !this._isDirtyLayout) {
+            this._isDirtyTransform = false;
+            this._setTransformAttribute();
             return;
-        this._isDirty = false;
+        }
+        if (!this._isDirtyLayout)
+            return;
+        this._isDirtyLayout = false;
+        this._isDirtyTransform = false;
         if (this._container)
             this._container.remove();
         this._container = this._createSVG('g');
