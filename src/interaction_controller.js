@@ -13,10 +13,15 @@ app.InteractionController = class {
         this._element.addEventListener('mouseup', this._onMouseUp.bind(this));
         this._element.addEventListener('mousemove', this._onMouseMove.bind(this));
         this._element.addEventListener('mouseout', this._onMouseUp.bind(this));
+        this._element.addEventListener('touchstart', this._onMouseDown.bind(this));
+        this._element.addEventListener('touchend', this._onMouseUp.bind(this));
+        this._element.addEventListener('touchmove', this._onMouseMove.bind(this));
+        this._element.addEventListener('touchcancel', this._onMouseUp.bind(this));
         // IE9, Chrome, Safari, Opera
         this._element.addEventListener("mousewheel", this._onMouseWheel.bind(this), false);
         // Firefox
         this._element.addEventListener("DOMMouseScroll", this._onMouseWheel.bind(this), false);
+        this._element.addEventListener("gesturechange", this._onGestureChange.bind(this), false);
 
         window.addEventListener('resize', this._onResize.bind(this));
         this._engine.addListener(app.LayoutEngine.Events.LayoutRecalculated, this._centerGraph.bind(this));
@@ -44,7 +49,7 @@ app.InteractionController = class {
             this._minScale = Math.min(hh / Math.abs(boundingBox.y + boundingBox.height), this._minScale);
             this._minScale *= 0.9;
         }
-        this._renderer.setScale(this._minScale);
+        this._renderer.setScale(1);
         var viewportCenter = new g.Vec((viewportBox.left + viewportBox.width / 2), (viewportBox.top + viewportBox.height / 2));
         var canvasCenter = new g.Vec(rendererSize.width / 2, rendererSize.height / 2);
         this._center = viewportCenter.subtract(canvasCenter);
@@ -58,17 +63,25 @@ app.InteractionController = class {
     _toCoordinates(event) {
         var size = this._renderer.size();
         var center = new g.Vec(size.width / 2, size.height / 2);
-        var point = new g.Vec(event.clientX, event.clientY);
+        var eventX = 0;
+        var eventY = 0;
+        // Support touch events
+        if (event.touches) {
+            for (var touch of event.touches) {
+                eventX += touch.clientX;
+                eventY += touch.clientY;
+            }
+            eventX /= event.touches.length;
+            eventY /= event.touches.length;
+        } else {
+            eventX = event.clientX;
+            eventY = event.clientY;
+        }
+        var point = new g.Vec(eventX, eventY);
         return point.subtract(center);
     }
 
-    _onMouseWheel(event) {
-        var delta = Math.max(-1, Math.min(1, (event.wheelDelta || -event.detail)));
-        var fixedPoint = this._toCoordinates(event);
-        var zoomStep = 0.06;
-        var newZoom = this._renderer.scale() + zoomStep * delta;
-        newZoom = Math.max(newZoom, this._minScale);
-        newZoom = Math.min(newZoom, this._maxScale);
+    _handleZoom(newZoom, fixedPoint) {
         this._overlay.classList.toggle('hidden-overlay', !g.eq(newZoom, this._minScale));
         var oldOffset = this._renderer.offset();
         var oldScale = this._renderer.scale();
@@ -78,6 +91,27 @@ app.InteractionController = class {
         this._renderer.setOffset(newOffset);
 
         this._constrainOffset();
+    }
+
+    _onGestureChange(event) {
+        var fixedPoint = this._toCoordinates(event);
+        var zoomStep = 0.06;
+        var newZoom = this._renderer.scale() * event.scale;
+        newZoom = Math.max(newZoom, this._minScale);
+        newZoom = Math.min(newZoom, this._maxScale);
+        this._handleZoom(newZoom, fixedPoint);
+        event.preventDefault();
+        event.stopPropagation();
+    }
+
+    _onMouseWheel(event) {
+        var delta = Math.max(-1, Math.min(1, (event.wheelDelta || -event.detail)));
+        var fixedPoint = this._toCoordinates(event);
+        var zoomStep = 0.06;
+        var newZoom = this._renderer.scale() + zoomStep * delta;
+        newZoom = Math.max(newZoom, this._minScale);
+        newZoom = Math.min(newZoom, this._maxScale);
+        this._handleZoom(newZoom, fixedPoint);
         event.preventDefault();
         event.stopPropagation();
     }
