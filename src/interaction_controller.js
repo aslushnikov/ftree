@@ -51,7 +51,7 @@ app.InteractionController = class {
             this._minScale = Math.min(hh / Math.abs(boundingBox.y + boundingBox.height), this._minScale);
             this._minScale *= 0.9;
         }
-        this._renderer.setScale(1);
+        this._renderer.setScale(this._minScale);
         var viewportCenter = new g.Vec((viewportBox.left + viewportBox.width / 2), (viewportBox.top + viewportBox.height / 2));
         var canvasCenter = new g.Vec(rendererSize.width / 2, rendererSize.height / 2);
         this._center = viewportCenter.subtract(canvasCenter);
