@@ -117,7 +117,7 @@ app.SVGRenderer = class extends app.Renderer {
         if (this._container)
             this._container.remove();
         this._container = this._createSVG('g');
-        this._container.setAttribute('style', 'pointer-events: none');
+        this._container.setAttribute('style', 'will-change:transform;pointer-events: none');
         this._element.appendChild(this._container);
         this._setTransformAttribute();
         if (!this._layout)

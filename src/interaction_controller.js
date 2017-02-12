@@ -56,8 +56,8 @@ app.InteractionController = class {
      * @return {!g.Vec}
      */
     _toCoordinates(event) {
-        var rect = this._element.getBoundingClientRect();
-        var center = new g.Vec(rect.left + rect.width / 2, rect.top + rect.height / 2);
+        var size = this._renderer.size();
+        var center = new g.Vec(size.width / 2, size.height / 2);
         var point = new g.Vec(event.clientX, event.clientY);
         return point.subtract(center);
     }
