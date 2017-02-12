@@ -67,7 +67,7 @@ function startApplication() {
         var overlay = document.body;
         overlay.querySelector("header .title").textContent = legendJSON.title;
         overlay.querySelector("header .subtitle").textContent = legendJSON.subtitle;
-        var footer = overlay.querySelector('footer');
+        var footer = overlay.querySelector('footer section');
         footer.textContent = '';
         var stories = footer.createChild('div', 'stories');
         var columns = legendJSON['text_columns'];
@@ -75,10 +75,7 @@ function startApplication() {
             var story = stories.createChild('div', 'story');
             story.innerHTML = column;
         }
-        var footer = overlay.querySelector('footer');
-        footer.appendChild(mapLegend(legendJSON));
-
-        onResize();
+        document.body.appendChild(mapLegend(legendJSON));
     }
 
     function mapLegend(legendJSON) {
@@ -112,7 +109,8 @@ function startApplication() {
         renderer.setSize(boundingBox.width + padding, boundingBox.height + padding);
         var center = new g.Vec(2 * boundingBox.x + boundingBox.width, 2 * boundingBox.y + boundingBox.height).scale(-0.5);
         renderer.setOffset(center);
-        console.log(renderer.offset());
+        document.body.style.setProperty('width', renderer.size().width + 'px');
+        document.body.style.setProperty('height', renderer.size().height + 'px');
     }
 }
 

@@ -50,21 +50,22 @@ canvas {
 }
 
 footer {
-    flex-grow: 0;
-    background-color: rgba(253, 249, 239, 0.75);
-    display: flex;
-    align-items: center;
-    justify-content: space-around;
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    margin: 1em;
 }
 
 .stories {
     display: flex;
     pointer-events: auto;
     font-size: 0.9em;
+    flex-direction: column;
+    width: 450px;
 }
 
 .stories .story {
-    margin: 1em;
+    margin-top: 1em;
 }
 
 .map-legend {
@@ -74,6 +75,9 @@ footer {
     margin: 1em;
     pointer-events: auto;
     font-size: 0.9em;
+    position: absolute;
+    right: 0;
+    bottom: 0;
 }
 
 .map-legend .legend-line {
