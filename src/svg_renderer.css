@@ -39,21 +39,21 @@
 }
 
 .person .name {
-    font-size: 22px;
+    font-size: 11px;
 }
 
 .person .dates {
-    font-size: 18px;
+    font-size: 9px;
 }
 
 .person.root .name {
-    font-size: 40px;
-    transform: translate(0, 80px);
+    font-size: 20px;
+    transform: translate(0, 40px);
 }
 
 .person.root .dates {
-    font-size: 32px;
-    transform: translate(0, 80px);
+    font-size: 16px;
+    transform: translate(0, 40px);
 }
 
 .legend .person.infant circle {

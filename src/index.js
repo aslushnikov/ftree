@@ -10,11 +10,21 @@ function startApplication() {
     new app.RenderLoop(renderer, layout);
 
     // setting defaults
-    layout.setPersonRadius(30);
-    layout.setSize(5000);
-    layout.setOverlap(g.degToRad(112));
-    layout.setInitialRotation(g.degToRad(0));
-    layout.setLevelSizeOffset(1, 100);
+    // For some reason, Canvas renderer does a 2x scaling. Thus
+    // defaults are different for different renderers.
+    if (useSVG) {
+        layout.setPersonRadius(15);
+        layout.setSize(2500);
+        layout.setOverlap(g.degToRad(93));
+        layout.setInitialRotation(g.degToRad(0));
+        layout.setLevelSizeOffset(1, 200);
+    } else {
+        layout.setPersonRadius(30);
+        layout.setSize(5000);
+        layout.setOverlap(g.degToRad(112));
+        layout.setInitialRotation(g.degToRad(0));
+        layout.setLevelSizeOffset(1, 100);
+    }
 
     document.body.appendChild(renderer.element());
 
