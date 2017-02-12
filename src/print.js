@@ -7,8 +7,8 @@ function startApplication() {
 
     // setting up renderer and layout.
     var layout = new app.SunLayout();
-    var renderer = new app.CanvasRenderer(10, 10);
-    var loop = new app.RenderLoop(renderer, layout);
+    var renderer = new app.SVGRenderer(10, 10);
+    new app.RenderLoop(renderer, layout);
 
     // setting defaults
     layout.setPersonRadius(30);
@@ -18,9 +18,9 @@ function startApplication() {
     layout.setLevelSizeOffset(1, 100);
     layout.addListener(app.LayoutEngine.Events.LayoutRecalculated, onResize);
 
-    viewport.appendChild(renderer.canvasElement());
+    viewport.appendChild(renderer.element());
 
-    var debugControls = new app.DebugControls(layout, renderer, loop);
+    var debugControls = new app.DebugControls(layout, renderer);
     document.body.appendChild(debugControls.element());
 
     fetch('./assets/configs.json')
@@ -108,10 +108,11 @@ function startApplication() {
 
     function onResize() {
         var boundingBox = layout.layout().boundingBox();
-        var width = Math.max(Math.abs(boundingBox.x), Math.abs(boundingBox.x + boundingBox.width));
-        var height = Math.max(Math.abs(boundingBox.y), Math.abs(boundingBox.y + boundingBox.height));
-        renderer.setSize(width + 200, height + 200);
-        loop.invalidate();
+        var padding = 300;
+        renderer.setSize(boundingBox.width + padding, boundingBox.height + padding);
+        var center = new g.Vec(2 * boundingBox.x + boundingBox.width, 2 * boundingBox.y + boundingBox.height).scale(-0.5);
+        renderer.setOffset(center);
+        console.log(renderer.offset());
     }
 }
 
