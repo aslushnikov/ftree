@@ -21,7 +21,9 @@ app.InteractionController = class {
         this._element.addEventListener("mousewheel", this._onMouseWheel.bind(this), false);
         // Firefox
         this._element.addEventListener("DOMMouseScroll", this._onMouseWheel.bind(this), false);
+        this._element.addEventListener("gesturestart", this._onGestureStart.bind(this), false);
         this._element.addEventListener("gesturechange", this._onGestureChange.bind(this), false);
+        this._element.addEventListener("gestureend", this._onGestureEnd.bind(this), false);
 
         window.addEventListener('resize', this._onResize.bind(this));
         this._engine.addListener(app.LayoutEngine.Events.LayoutRecalculated, this._centerGraph.bind(this));
@@ -93,10 +95,18 @@ app.InteractionController = class {
         this._constrainOffset();
     }
 
+    _onGestureStart(event) {
+        this._gestureStartScale = this._renderer.scale();
+        this._gestureStartPosition = this._toCoordinates(event);
+    }
+
+    _onGestureEnd(event) {
+    }
+
     _onGestureChange(event) {
         var fixedPoint = this._toCoordinates(event);
         var zoomStep = 0.06;
-        var newZoom = this._renderer.scale() * event.scale;
+        var newZoom = this._gestureStartScale * event.scale;
         newZoom = Math.max(newZoom, this._minScale);
         newZoom = Math.min(newZoom, this._maxScale);
         this._handleZoom(newZoom, fixedPoint);
@@ -130,6 +140,8 @@ app.InteractionController = class {
         var newOffset = this._mouseDownOffset.add(moveOffset);
         this._renderer.setOffset(newOffset);
         this._constrainOffset();
+        event.preventDefault(true);
+        event.stopPropagation();
     }
 
     _constrainOffset() {
