@@ -5,7 +5,7 @@ var storage = window.localStorage || {};
 function startApplication() {
     // setting up renderer and layout.
     var layout = new app.SunLayout();
-    var useSVG = window.location.hash.includes('svg');
+    var useSVG = !window.location.hash.includes('canvas');
     var renderer = useSVG ? new app.SVGRenderer(document.body.clientWidth, document.body.clientHeight) : new app.CanvasRenderer(document.body.clientWidth, document.body.clientHeight);
     new app.RenderLoop(renderer, layout);
 
