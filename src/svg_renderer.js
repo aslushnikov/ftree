@@ -129,6 +129,8 @@ app.SVGRenderer = class extends app.Renderer {
             image.setAttributeNS('http://www.w3.org/1999/xlink', 'xlink:href',img.image.src);
             image.setAttribute('x', img.topLeft.x);
             image.setAttribute('y', img.topLeft.y);
+            image.setAttribute('width', img.image.width);
+            image.setAttribute('height', img.image.height);
             this._container.appendChild(image);
         }
 
