@@ -14,16 +14,16 @@ function startApplication() {
     // defaults are different for different renderers.
     if (useSVG) {
         layout.setPersonRadius(16);
-        layout.setSize(2380);
-        layout.setOverlap(g.degToRad(90));
+        layout.setSize(3300);
+        layout.setOverlap(g.degToRad(100));
         layout.setInitialRotation(g.degToRad(0));
-        layout.setLevelSizeOffset(1, 200);
+        layout.setLevelSizeOffset(1, 90);
     } else {
         layout.setPersonRadius(30);
         layout.setSize(5000);
         layout.setOverlap(g.degToRad(112));
         layout.setInitialRotation(g.degToRad(0));
-        layout.setLevelSizeOffset(1, 100);
+        layout.setLevelSizeOffset(1, 200);
     }
 
     document.body.appendChild(renderer.element());
