@@ -13,9 +13,9 @@ function startApplication() {
     // For some reason, Canvas renderer does a 2x scaling. Thus
     // defaults are different for different renderers.
     if (useSVG) {
-        layout.setPersonRadius(15);
-        layout.setSize(2500);
-        layout.setOverlap(g.degToRad(93));
+        layout.setPersonRadius(16);
+        layout.setSize(2380);
+        layout.setOverlap(g.degToRad(90));
         layout.setInitialRotation(g.degToRad(0));
         layout.setLevelSizeOffset(1, 200);
     } else {

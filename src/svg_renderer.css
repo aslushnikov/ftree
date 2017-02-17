@@ -1,7 +1,7 @@
 .scaffolding {
     fill: none;
     stroke: darkgray;
-    stroke-width: 1px;
+    stroke-width: 0.5px;
 }
 
 .person.deceased {
@@ -26,7 +26,7 @@
 
 .person.infant circle {
     stroke: var(--person-color);
-    stroke-width: 4px;
+    stroke-width: 3px;
     fill: none;
 }
 
@@ -39,20 +39,20 @@
 }
 
 .person .name {
-    font-size: 11px;
+    font-size: 13px;
 }
 
 .person .dates {
-    font-size: 9px;
+    font-size: 10px;
 }
 
 .person.root .name {
-    font-size: 20px;
+    font-size: 22px;
     transform: translate(0, 40px);
 }
 
 .person.root .dates {
-    font-size: 16px;
+    font-size: 17px;
     transform: translate(0, 40px);
 }
 

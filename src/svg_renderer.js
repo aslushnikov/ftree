@@ -213,7 +213,7 @@ app.SVGRenderer = class extends app.Renderer {
         var fullName = this._createSVG('text');
         fullName.classList.add('name');
         fullName.textContent = person.fullName();
-        fullName.setAttribute('y', '-0.15em');
+        fullName.setAttribute('y', '-0.35em');
         group.appendChild(fullName);
 
         var dates = this._createSVG('text');
