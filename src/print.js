@@ -11,11 +11,11 @@ function startApplication() {
     new app.RenderLoop(renderer, layout);
 
     // setting defaults
-    layout.setPersonRadius(15);
-    layout.setSize(2500);
-    layout.setOverlap(g.degToRad(93));
-    layout.setInitialRotation(g.degToRad(0));
-    layout.setLevelSizeOffset(1, 200);
+        layout.setPersonRadius(16);
+        layout.setSize(3300);
+        layout.setOverlap(g.degToRad(100));
+        layout.setInitialRotation(g.degToRad(0));
+        layout.setLevelSizeOffset(1, 90);
     layout.addListener(app.LayoutEngine.Events.LayoutRecalculated, onResize);
 
     viewport.appendChild(renderer.element());
