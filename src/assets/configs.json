@@ -3,18 +3,18 @@
         "name": "English",
         "tree": "./assets/kalashyan-tree.en.csv",
         "legend": "./assets/kalashyan-legend.en.json",
-        "background": "./assets/map.png"
+        "background": "./assets/map_2x.png"
     },
     {
         "name": "Հայերեն",
         "tree": "./assets/kalashyan-tree.am.csv",
         "legend": "./assets/kalashyan-legend.am.json",
-        "background": "./assets/map.png"
+        "background": "./assets/map_2x.png"
     },
     {
         "name": "Russian",
         "tree": "./assets/kalashyan-tree.ru.csv",
         "legend": "./assets/kalashyan-legend.ru.json",
-        "background": "./assets/map.png"
+        "background": "./assets/map_2x.png"
     }
 ]

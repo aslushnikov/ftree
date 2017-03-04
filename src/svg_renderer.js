@@ -138,6 +138,8 @@ app.SVGRenderer = class extends app.Renderer {
             image.setAttribute('y', img.topLeft.y);
             image.setAttribute('width', img.image.width);
             image.setAttribute('height', img.image.height);
+            if (img.image.src.indexOf('_2x.') !== -1)
+                image.classList.add('hidpi-image');
             this._container.appendChild(image);
         }
 
