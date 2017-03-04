@@ -140,6 +140,13 @@ app.CanvasRenderer = class extends app.Renderer {
         return this._scale;
     }
 
+    setDatesFormatter(formatter) {
+        if (this._datesFormatter === formatter)
+            return;
+        this._datesFormatter = formatter;
+        this._isDirtyLayout = true;
+    }
+
     /**
      * @override
      * @param {!g.Vec} offset
@@ -335,13 +342,13 @@ app.CanvasRenderer = class extends app.Renderer {
         var textPadding = 6;
         if (person === layout.root) {
             var fullName = this._prerenderText(person.fullName(), color, this._fontName, this._nameFontSize * this._rootFontScale);
-            var dates = this._prerenderText(person.dates(), color, this._fontName, this._datesFontSize * this._rootFontScale);
+            var dates = this._prerenderText(this._datesFormatter(person), color, this._fontName, this._datesFontSize * this._rootFontScale);
             this._drawImage(ctx, fullName, -fullName.width / 2, personRadius);
             this._drawImage(ctx, dates, -dates.width / 2, personRadius + fullName.height);
         } else {
             ctx.rotate(rotation);
             var fullName = this._prerenderText(person.fullName(), color, this._fontName, this._nameFontSize);
-            var dates = this._prerenderText(person.dates(), color, this._fontName, this._datesFontSize);
+            var dates = this._prerenderText(this._datesFormatter(person), color, this._fontName, this._datesFontSize);
             if (textOnLeft) {
                 var textWidth = fullName.width;
                 this._drawImage(ctx, fullName, -personRadius - textPadding - textWidth, -fullName.height);

@@ -64,6 +64,7 @@ function startApplication() {
     }
 
     function renderLegend(legendJSON) {
+        renderer.setDatesFormatter(datesFormatter.bind(null, legendJSON.birth_abbreviation, legendJSON.death_abbreviation));
         var overlay = document.body;
         overlay.querySelector("header .title").textContent = legendJSON.title;
         overlay.querySelector("header .subtitle").textContent = legendJSON.subtitle;
@@ -114,3 +115,12 @@ function startApplication() {
     }
 }
 
+function datesFormatter(birthAbbreviation, deathAbbreviation, person) {
+    if (person.birthYear && person.deathYear)
+        return person.birthYear + ' - ' + person.deathYear;
+    if (person.birthYear)
+        return birthAbbreviation + ' ' + person.birthYear;
+    if (person.deathYear)
+        return deathAbbreviation + ' ' + person.deathYear;
+    return '';
+}

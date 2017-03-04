@@ -68,3 +68,4 @@ app.RenderLoop = class {
         requestAnimationFrame(this._renderLoopBound);
     }
 }
+

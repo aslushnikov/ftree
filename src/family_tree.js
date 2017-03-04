@@ -57,19 +57,6 @@ app.Person = class {
     /**
      * @return {string}
      */
-    dates() {
-        if (this.birthYear && this.deathYear)
-            return this.birthYear + ' - ' + this.deathYear;
-        if (this.birthYear)
-            return 'b. ' + this.birthYear;
-        if (this.deathYear)
-            return 'd.' + this.deathYear;
-        return '';
-    }
-
-    /**
-     * @return {string}
-     */
     toString() {
         return [this.firstName, this.lastName, this.birthYear].filter(x => !!x).join(' ');
     }

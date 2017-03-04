@@ -82,6 +82,13 @@ app.SVGRenderer = class extends app.Renderer {
         return this._offset;
     }
 
+    setDatesFormatter(formatter) {
+        if (this._datesFormatter === formatter)
+            return;
+        this._datesFormatter = formatter;
+        this._isDirtyLayout = true;
+    }
+
     _setTransformAttribute() {
         if (!this._container)
             return;
@@ -219,7 +226,7 @@ app.SVGRenderer = class extends app.Renderer {
         var dates = this._createSVG('text');
         dates.setAttribute('dominant-baseline', 'text-before-edge');
         dates.classList.add('dates');
-        dates.textContent = person.dates();
+        dates.textContent = this._datesFormatter(person);
         dates.setAttribute('y', 0);
         group.appendChild(dates);
 
