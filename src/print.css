@@ -93,3 +93,11 @@ footer {
     margin: 5px 5px 5px 7px;
 }
 
+/* Bigger fonts for print version */
+.person .name {
+    font-size: 18px;
+}
+
+.person .dates {
+    font-size: 14px;
+}
