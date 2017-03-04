@@ -69,7 +69,8 @@ app.InteractionController = class {
         var eventY = 0;
         // Support touch events
         if (event.touches) {
-            for (var touch of event.touches) {
+            for (var i = 0; i <  event.touches.length; ++i) {
+                var touch = event.touches[i];
                 eventX += touch.clientX;
                 eventY += touch.clientY;
             }
