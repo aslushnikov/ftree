@@ -71,7 +71,7 @@ function startApplication() {
         var footer = overlay.querySelector('footer section');
         footer.textContent = '';
         var stories = footer.createChild('div', 'stories');
-        var columns = legendJSON['text_columns'];
+        var columns = legendJSON['print_columns'];
         for (var column of columns) {
             var story = stories.createChild('div', 'story');
             story.innerHTML = column;
