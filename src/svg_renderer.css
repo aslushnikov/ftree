@@ -5,7 +5,7 @@
 }
 
 .person.deceased circle {
-    opacity: 0.3;
+    opacity: 0.4;
 }
 
 .sex-male {
@@ -44,6 +44,7 @@
 
 .person .dates {
     font-size: 12px;
+    transform: translate(0, 3px);
 }
 
 .person.root .name {
