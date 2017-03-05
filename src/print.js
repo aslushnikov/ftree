@@ -76,6 +76,9 @@ function startApplication() {
             var story = stories.createChild('div', 'story');
             story.innerHTML = column;
         }
+        var previous = document.querySelector('.map-legend');
+        if (previous)
+            previous.remove();
         document.body.appendChild(mapLegend(legendJSON));
     }
 
