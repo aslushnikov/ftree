@@ -102,7 +102,6 @@ app.InteractionController = class {
 
     _onGestureStart(event) {
         this._gestureStartScale = this._renderer.scale();
-        this._gestureStartPosition = this._renderer.toLayoutCoordinates(this._toCoordinates(event));
         event.preventDefault(true);
         event.stopPropagation();
     }
@@ -117,7 +116,7 @@ app.InteractionController = class {
         var newZoom = this._gestureStartScale * event.scale;
         newZoom = Math.max(newZoom, this._minScale);
         newZoom = Math.min(newZoom, this._maxScale);
-        var fixedPoint = this._renderer.toRenderCoordinates(this._gestureStartPosition);
+        var fixedPoint = this._toCoordinates(event);
         this._handleZoom(newZoom, fixedPoint);
         event.preventDefault(true);
         event.stopPropagation();
