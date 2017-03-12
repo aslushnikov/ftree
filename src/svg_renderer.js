@@ -74,12 +74,35 @@ app.SVGRenderer = class extends app.Renderer {
         this._isDirtyTransform = true;
     }
 
+    setDebugCircle(enabled, x, y, r) {
+        if (!enabled) {
+            this._debugCircle = null;
+            return;
+        }
+        this._debugCircle = {
+            x: x,
+            y: y,
+            r: r
+        };
+        this._isDirtyLayout = true;
+    }
+
     /**
      * @override
      * @return {!g.Vec}
      */
     offset() {
         return this._offset;
+    }
+
+    toLayoutCoordinates(rendererPoint) {
+        return rendererPoint.subtract(this._offset).scale(1/this._scale);
+    }
+
+    toRenderCoordinates(layoutPoint) {
+        // Convert from layout coordinates to the coordinates relative to the
+        // center of SVG element.
+        return layoutPoint.scale(this._scale).add(this._offset);
     }
 
     setDatesFormatter(formatter) {
@@ -151,6 +174,14 @@ app.SVGRenderer = class extends app.Renderer {
             var rotation = this._layout.rotations.get(person);
             var isRoot = person === this._layout.root;
             this._container.appendChild(this._renderPerson(person, position, rotation, radius, isRoot));
+        }
+
+        if (this._debugCircle) {
+            var circle = this._createSVG('circle');
+            circle.setAttribute('r', this._debugCircle.r);
+            circle.setAttribute('cx', this._debugCircle.x);
+            circle.setAttribute('cy', this._debugCircle.y);
+            this._container.appendChild(circle);
         }
     }
 
