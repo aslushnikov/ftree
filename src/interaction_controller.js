@@ -101,12 +101,15 @@ app.InteractionController = class {
     }
 
     _onGestureStart(event) {
+        this._isHandlingGesture = true;
         this._gestureStartScale = this._renderer.scale();
         event.preventDefault(true);
         event.stopPropagation();
     }
 
     _onGestureEnd(event) {
+        this._isHandlingGesture = false;
+        this._gestureStartScale = null;
         event.preventDefault(true);
         event.stopPropagation();
     }
@@ -145,7 +148,7 @@ app.InteractionController = class {
         if (!this._mouseDownCoordinate)
             return;
         // Do not handle gesture events.
-        if (event.changedTouches && event.changedTouches.length > 1)
+        if (this._isHandlingGesture)
             return;
         var moveOffset = this._toCoordinates(event).subtract(this._mouseDownCoordinate);
         var newOffset = this._mouseDownOffset.add(moveOffset);
