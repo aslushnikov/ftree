@@ -102,3 +102,16 @@ class EventEmitter {
             handler.call(null, data);
     }
 }
+
+function getLocalStorage() {
+  var testKey = 'test', storage = window.localStorage;
+  if (!storage)
+    return null;
+  try {
+    storage.setItem(testKey, '1');
+    storage.removeItem(testKey);
+    return window.localStorage;
+  } catch (error) {
+    return null
+  }
+}

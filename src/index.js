@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', startApplication);
 
-var storage = window.localStorage || {};
+var storage = getLocalStorage() || {};
 
 function startApplication() {
     // setting up renderer and layout.
