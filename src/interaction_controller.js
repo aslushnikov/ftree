@@ -12,7 +12,7 @@ app.InteractionController = class {
         this._element.addEventListener('mousedown', this._onMouseDown.bind(this));
         this._element.addEventListener('mouseup', this._onMouseUp.bind(this));
         this._element.addEventListener('mousemove', this._onMouseMove.bind(this));
-        this._element.addEventListener('mouseout', this._onMouseUp.bind(this));
+        this._element.addEventListener('mouseleave', this._onMouseUp.bind(this));
         this._element.addEventListener('touchstart', this._onMouseDown.bind(this));
         this._element.addEventListener('touchend', this._onMouseUp.bind(this));
         this._element.addEventListener('touchmove', this._onMouseMove.bind(this));
