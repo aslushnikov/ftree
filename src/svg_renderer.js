@@ -219,18 +219,28 @@ app.SVGRenderer = class extends app.Renderer {
         circle.setAttribute('r', personRadius);
         group.appendChild(circle);
 
+        var datesText = this._datesFormatter(person);
+
         var fullName = this._createSVG('text');
         fullName.classList.add('name');
         fullName.textContent = person.fullName();
-        fullName.setAttribute('y', '-0.35em');
+        if (!datesText && !person.children.size) {
+            fullName.setAttribute('y', '0em');
+            fullName.setAttribute('dominant-baseline', 'central');
+        } else {
+            fullName.setAttribute('y', '-0.35em');
+        }
         group.appendChild(fullName);
 
         var dates = this._createSVG('text');
-        dates.setAttribute('dominant-baseline', 'text-before-edge');
-        dates.classList.add('dates');
-        dates.textContent = this._datesFormatter(person);
-        dates.setAttribute('y', 0);
-        group.appendChild(dates);
+
+        if (datesText) {
+            dates.setAttribute('dominant-baseline', 'text-before-edge');
+            dates.classList.add('dates');
+            dates.textContent = datesText;
+            dates.setAttribute('y', 0);
+            group.appendChild(dates);
+        }
 
         var textPadding = 6;
         if (isRoot) {
