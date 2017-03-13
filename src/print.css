@@ -22,12 +22,13 @@ header {
 
 header .title {
     font-weight: 800;
-    font-size: 3em;
+    font-size: 5.5em;
 }
 
 header .subtitle {
-    font-size: 1.1em;
-    margin-top: 14px;
+    font-size: 2em;
+    margin-top: 25px;
+    margin-bottom: 50px;
 }
 
 header .tutorial {
@@ -56,16 +57,16 @@ footer {
     position: absolute;
     left: 0;
     bottom: 0;
-    margin: 1em;
-    margin-bottom: -40px;
+    margin: 3em;
+    margin-bottom: -100px;
 }
 
 .stories {
     display: flex;
     pointer-events: auto;
-    font-size: 18px;
+    font-size: 20px;
     flex-direction: column;
-    width: 500px;
+    width: 550px;
 }
 
 .stories .story {
@@ -76,13 +77,13 @@ footer {
     display: flex;
     flex-direction: column;
     flex-shrink: 0;
-    margin: 1em;
+    margin: 3em;
     pointer-events: auto;
-    font-size: 20px;
+    font-size: 25px;
     position: absolute;
     right: 0;
     bottom: 0;
-    margin-bottom: -42px;
+    margin-bottom: -100px;
 }
 
 .map-legend .legend-line {
@@ -97,11 +98,11 @@ footer {
 
 /* Bigger fonts for print version */
 .person .name {
-    font-size: 20px;
+    font-size: 23px;
     transform: translate(0, 3px);
 }
 
 .person .dates {
-    font-size: 12px;
+    font-size: 14px;
     transform: translate(0, 2px);
 }
