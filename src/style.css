@@ -26,6 +26,8 @@ html, body {
     background-color: rgba(253, 249, 239, 0.75);
     justify-content: space-between;
     padding-top: 1em;
+    margin: 0 1em;
+    font-family: Iowan Old Style;
 }
 
 .hidden-overlay header {
@@ -33,8 +35,9 @@ html, body {
 }
 
 .overlay header .title {
-    font-weight: 800;
-    font-size: 1.2em;
+    font-weight: 600;
+    font-size: 1.5em;
+    color: #183EA0;
 }
 
 .overlay header .subtitle {
@@ -47,6 +50,7 @@ html, body {
 
 .overlay header .top-right {
     text-align: right;
+    margin-top: 18px;
 }
 
 .overlay .viewport {

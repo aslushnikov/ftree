@@ -18,11 +18,13 @@ header {
     background-color: rgba(253, 249, 239, 0.75);
     padding-top: 1em;
     text-align: center;
+    font-family: Iowan Old Style;
 }
 
 header .title {
-    font-weight: 800;
+    font-weight: 600;
     font-size: 5.5em;
+    color: #183EA0;
 }
 
 header .subtitle {
