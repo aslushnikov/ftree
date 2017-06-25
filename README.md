@@ -22,11 +22,11 @@ The tree output is a SVG file which works fine on the most high-end devices. The
 
 As you might already read, the tree is in the shape of the sun.
 
-- It starts from the first known ancestor from the center.
-- On the background of the ancestor is a map which represents the region from where was the ancestor.
-- Male, female, child, deceased are in different colors.
-- In addition to a name, the birth date and death date is displayed.
-- The tree supports several wives.
+- It starts from the first known ancestor from the center
+- On the background of the ancestor is a map which represents the region from where was the ancestor
+- Male, female, child, deceased are in different colors
+- In addition to a name, the birth date and death date is displayed
+- The tree supports several wives
 
 The user interaction inspiration of the tree was from Google Maps. A user should use a scroll to zoom in/out and drag & drop to move around. 
 
@@ -85,7 +85,7 @@ Simillary to `index.js`, the [print.js](https://github.com/aslushnikov/ftree/blo
 
 Use [svg_renderer.css](https://github.com/aslushnikov/ftree/blob/master/src/svg_renderer.css) to update the following styles of the tree:
 - Colors of the circles
-- Font and font sizes for names, dates and for root ancestor.
+- Font and font sizes for names, dates and for root ancestor
 
 Use [style.css](https://github.com/aslushnikov/ftree/blob/master/src/style.css) to update overall styles of the web app.
 
@@ -107,7 +107,7 @@ There are several files required to render the tree and the web pages. All files
 
 An example of a legend & meta information data consists of:
 - Names in the legend
-- `Title`, `Subtitle`, `tutorial`, `birth_abbreviation`, `death_abbreviation`, `text_columns` for web-based version and `print_columns` for print version.
+- `Title`, `Subtitle`, `tutorial`, `birth_abbreviation`, `death_abbreviation`, `text_columns` for web-based version and `print_columns` for print version
 
 ### Tree Data
 
