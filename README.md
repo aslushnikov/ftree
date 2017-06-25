@@ -1,2 +1,3 @@
-# ftree
-Family tree renderer
+# SunTree
+
+Custom designed Family Tree in the form of the Sun!
