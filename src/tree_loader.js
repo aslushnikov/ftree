@@ -38,7 +38,7 @@ app.TreeLoader = class {
                 var id = descriptor[0];
                 console.assert(!idToPerson.has(id), "ERROR: CSV has duplicate person ID: " + id);
                 var firstName = descriptor[2];
-                var lastName = descriptor[3];
+                var lastName = descriptor[3] || descriptor[4];
                 var gender = app.Gender.Other;
                 var genderDescriptor = descriptor[5];
                 if (genderDescriptor === "M")
@@ -69,8 +69,9 @@ app.TreeLoader = class {
                     person.partners.add(partner);
                     partner.partners.add(person);
                 }
-                // FIXME: column name says this could be an array, but the format is unclear. Consider only one entry for now.
-                var exPartner = personForId(idToPerson, descriptor[13]);
+                // Our rendering engine is very conservative: it allows only one
+                // ex-partner. Take the last.
+                var exPartner = personForId(idToPerson, descriptor[13].split(' ').pop());
                 if (exPartner) {
                     person.partners.add(exPartner);
                     exPartner.partners.add(person);
