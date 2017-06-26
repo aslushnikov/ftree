@@ -1,0 +1,25 @@
+{
+    "map_legend": {
+        "father": "Мужчина",
+        "mother": "Женщина",
+        "infant_male": "Мальчик",
+        "infant_female": "Девочка",
+        "deceased": "Умерший"
+    },
+    "title": "Заголовок Семейного Древа",
+    "subtitle": "Пример подзаголовка: \"От предков к потомкам, от корней к вершинам\"",
+    "tutorial": "Используйте скролл, чтобы увеличить. Нажмите и двигайте в стороны.",
+    "birth_abbreviation": "р.",
+    "death_abbreviation": "у.",
+    "text_columns": [
+        "Это пример Семейного Древа. <br><br>Для создания своего дерева, посетите <a href='//family--tree.org' title='Family tree in the shape of the sun' target='_blank'>SunTree Family Tree</a> веб-сайте.",
+        "Здесь можно добавить любую информацию. <br><br>Например, что-либо про первого известного предка или ссылку на архивы.",
+        "Если у вас есть какие-либо вопросы, смело пишите нам в <a href='https://github.com/aslushnikov/ftree' rel='nofollow'>GitHub</a> репозитории."
+    ],
+    "print_columns": [
+        "Это пример печатной версии Семейного Древа. <br><br>Для создания своего дерева, посетите <a href='//family--tree.org' title='Family tree in the shape of the sun' target='_blank'>SunTree Family Tree</a>.",
+        "Здесь можно добавить любую информацию. <br><br>Например, что-либо про первого известного предка или ссылку на архивы.",
+        "Если у вас есть какие-либо вопросы, смело пишите нам в <a href='https://github.com/aslushnikov/ftree' rel='nofollow'>GitHub</a> репозитории.",
+        "Тут также можно добавить ссылку на онлайн версию<a href='/'>example.family--tree.org</a>"
+    ]
+}

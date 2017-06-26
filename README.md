@@ -17,6 +17,7 @@ The tree output is a SVG file which works fine on the most high-end devices. The
 - Layout customizations for both web-based and print version
 - "Debug" controls for live customizations
 - Easy-to-create input files
+- Fork to make your own tree
 
 ## Sun Layout Tree
 
@@ -42,8 +43,6 @@ The design consists of:
 - Meta information and the legend
 
 Everything can be changed for each language. See below in "Input files" for more information.
-
-If you forked the repository, the app works perfectly fine with [GitHub Pages](https://pages.github.com/). Once you opened the URL of a GitHub Page, it will retrieve `/index.html` and display the app.
 
 ## Print Version
 
@@ -103,7 +102,7 @@ There are several files required to render the tree and the web pages. All files
 
 ### Meta Information
 
-[configs.json](https://github.com/aslushnikov/ftree/blob/master/src/assets/configs.json) stores the settings for each language: displayed name, the link to tree data, to the legend and meta information data, to the background image.
+[example_configs.json](https://github.com/aslushnikov/ftree/blob/master/src/assets/example_configs.json) stores the settings for each language: displayed name, the link to tree data, to the legend and meta information data, to the background image.
 
 An example of a legend & meta information data consists of:
 - Names in the legend
@@ -126,6 +125,16 @@ To translate to other languages, simply open the CSV file in Excel / Google Shee
 The other option is to manually create the CSV file. The following columns must be presented: ID, firstName, lastName, genderDescriptor, birthYear, deathYear, MotherID, FatherID, PartnerID. 
 
 By default, the renderer expects the columns' order in the same order as in `FamilyEcho` export. To change it, edit in [tree_loader.js](https://github.com/aslushnikov/ftree/blob/master/src/tree_loader.js) starting from the line 38 and 104.
+
+## Fork to Make Your Own Tree
+
+If you forked the repository, there are several things to know:
+
+- The app works perfectly fine with [GitHub Pages](https://pages.github.com/). Once you opened the URL of a GitHub Page, it will retrieve `/index.html` and display the app.
+- To test the app locally, open the fork in terminal app, run `python -m SimpleHTTPServer 8090` and open `localhost:8090` in any browser.
+- Add your `configs.json` file (plus all input date as separate files) and the app will use it instead of `example_configs.json`. That way you'll be able to pull updates of the code from our repository.
+- You will also need to add your meta information and Google Analytics (if needed) in `index.html` and `print.html`.
+
 
 # Contact us
 
