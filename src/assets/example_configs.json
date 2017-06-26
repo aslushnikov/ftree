@@ -16,53 +16,5 @@
         "tree": "./assets/kalashyan-tree.ru.csv",
         "legend": "./assets/kalashyan-legend.ru.json",
         "background": "./assets/map_2x.png"
-    },
-    {
-        "name": "George Washington Family",
-        "tree": "./assets/GeorgeWashingtonFamilyBig.csv",
-        "legend": "./assets/kalashyan-legend.ru.json",
-        "background": "./assets/map_2x.png"
-    },
-    {
-        "name": "English Tudor House",
-        "tree": "./assets/EnglishTudorHouse.csv",
-        "legend": "./assets/kalashyan-legend.ru.json",
-        "background": "./assets/map_2x.png"
-    },
-    {
-        "name": "Kennedy Family",
-        "tree": "./assets/KennedyFamily.csv",
-        "legend": "./assets/kalashyan-legend.ru.json",
-        "background": "./assets/map_2x.png"
-    },
-    {
-        "name": "Tang Dynasty",
-        "tree": "./assets/TangDynasty.csv",
-        "legend": "./assets/kalashyan-legend.ru.json",
-        "background": "./assets/map_2x.png"
-    },
-    {
-        "name": "Shakespeare",
-        "tree": "./assets/Shakespeare.csv",
-        "legend": "./assets/kalashyan-legend.ru.json",
-        "background": "./assets/map_2x.png"
-    },
-    {
-        "name": "Byzantine House of Antioch",
-        "tree": "./assets/ByzantineHouseofAntioch.csv",
-        "legend": "./assets/kalashyan-legend.ru.json",
-        "background": "./assets/map_2x.png"
-    },
-    {
-        "name": "Japanese Imperial Family",
-        "tree": "./assets/JapaneseImperialFamily.csv",
-        "legend": "./assets/kalashyan-legend.ru.json",
-        "background": "./assets/map_2x.png"
-    },
-    {
-        "name": "Nehru Ghandi Family",
-        "tree": "./assets/NehruGhandiFamily.csv",
-        "legend": "./assets/kalashyan-legend.ru.json",
-        "background": "./assets/map_2x.png"
     }
 ]
