@@ -37,7 +37,11 @@ function startApplication() {
     }
 
     fetch('./assets/configs.json')
-        .then(response => response.json())
+        .then(response => {
+            if (response.status !== 200)
+                return fetch('./assets/example_configs.json').then(response => response.json());
+            return response.json();
+        })
         .then(onConfigs);
 
     function onConfigs(configs) {
