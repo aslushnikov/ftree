@@ -22,7 +22,7 @@ The tree output is a SVG file which works fine on the most high-end devices. The
 
 As you might already read, the tree is in the shape of the sun.
 
-- It starts from the first known ancestor from the center
+- It starts from the first known ancestor in the center
 - On the background of the ancestor is a map which represents the region from where was the ancestor
 - Male, female, child, deceased are in different colors
 - In addition to a name, the birth date and death date is displayed
@@ -37,17 +37,17 @@ The main idea of the renderer was to host it on your web-site so that everyone c
 The design consists of:
 
 - Title & Subtitle
-- Language selector and instructions
+- Language selector and tutorial
 - The tree itself
 - Meta information and the legend
 
 Everything can be changed for each language. See below in "Input files" for more information.
 
-If you forked the repository, the app works perfectly fine with [GitHub Pages](https://pages.github.com/). Once you opened the URL of a GitHub Page, it will retrieve /index.html and display the app.
+If you forked the repository, the app works perfectly fine with [GitHub Pages](https://pages.github.com/). Once you opened the URL of a GitHub Page, it will retrieve `/index.html` and display the app.
 
 ## Print Version
 
-The print version was designed for the cases when one wants to print a fancy family tree for the dining hall. To retreive it, simply add /print to your URL.
+The print version was designed for the cases when one wants to print a fancy family tree for the dining hall. To retreive it, simply add `/print` to your URL.
 
 - It has a huge Title and Subtitle
 - The meta information on the left
@@ -91,11 +91,11 @@ Use [style.css](https://github.com/aslushnikov/ftree/blob/master/src/style.css) 
 
 Use [print.css](https://github.com/aslushnikov/ftree/blob/master/src/print.css) to update overall styles of the print version. 
 
-Both style.css and print.css overwrites svg_renderer.css. So for example if you want to make a bigger font size for names in print version, you just add `.person .name` class to print.css. That way the web-based app will remain the same.
+Both `style.css` and `print.css` overwrite `svg_renderer.css`. So for example if you want to make a bigger font size for names in print version, you just add `.person .name` class to `print.css`. That way the web-based app will remain the same.
 
 ## Debug Controls
 
-To make easier the tree layout customization, the `Debug controls` were introduced. It allows updating the default settings of either `index.js` or `print.js` right on the web page. Simply add `/#debug` to both web-based app or print version.
+To make easier the tree layout customization, the "Debug controls" were introduced. It allows updating the default settings of either `index.js` or `print.js` right on the web page. Simply add `/#debug` to both web-based app or print version.
 
 ## Input Files
 
@@ -119,13 +119,13 @@ The best way to create the tree data is to use [FamilyEcho](https://familyecho.c
 
 Once the tree is ready, tap "Download / export this family.." and select CSV format. Add it to `/assets` and update the link in `configs.json`. Done!
 
-To translate to other languages, simply open the CSV file in Excel / Google Sheets and use "Find and Replace" for fast translation.
+To translate to other languages, simply open the CSV file in Excel / Google Sheets and use "Find and Replace".
 
 #### Manually
 
 The other option is to manually create the CSV file. The following columns must be presented: ID, firstName, lastName, genderDescriptor, birthYear, deathYear, MotherID, FatherID, PartnerID. 
 
-By default, the renderer expects the columns' order in the same order as in `FamilyEcho` export. To change it, edit in [tree_loader.js](https://github.com/sedrakk/kalashyan-family-tree/blob/master/src/tree_loader.js) starting from the line 38.
+By default, the renderer expects the columns' order in the same order as in `FamilyEcho` export. To change it, edit in [tree_loader.js](https://github.com/aslushnikov/ftree/blob/master/src/tree_loader.js) starting from the line 38 and 104.
 
 # Contact us
 
