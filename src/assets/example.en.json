@@ -12,7 +12,7 @@
     "birth_abbreviation": "b.",
     "death_abbreviation": "d.",
     "text_columns": [
-        "This is an example of a Family Tree. <br><br>See how to create your own on <a href='//family--tree.org' title='Family tree in the shape of the sun' target='_blank'>SunTree Family Tree</a> web-site.",
+        "This is an example of a Family Tree. <br><br>See how to create your own on <a href='//family--tree.org' title='Family tree in the shape of the sun'>SunTree Family Tree</a> web-site.",
         "You can add any content here. <br><br>For example, some information about the first known ancestor or a link for more information.",
         "If you have any questions, feel free to reach out us on <a href='https://github.com/aslushnikov/ftree' rel='nofollow'>GitHub</a>."
     ],
