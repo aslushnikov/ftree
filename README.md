@@ -135,6 +135,15 @@ If you forked the repository, there are several things to know:
 - Add your `configs.json` file (plus all input date as separate files) and the app will use it instead of `example_configs.json`. That way you'll be able to pull updates of the code from our repository.
 - You will also need to add your meta information and Google Analytics (if needed) in `index.html` and `print.html`.
 
+# Limitations
+
+The software is provided on an "AS IS" basis and it has some limitations we'd like to make sure you understand.
+
+- The current version supports only 1 main ancestor (either male or female).
+- Parents' of wives wouldn't be displayed on the tree.
+- 3 and more wives aren't supported. 
+- There are some challenges with zooming on the map on Android and Windows devices (see issues).
+
 
 # Contact us
 
