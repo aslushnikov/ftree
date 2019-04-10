@@ -3,12 +3,14 @@
         "name": "English",
         "tree": "./assets/example.csv",
         "legend": "./assets/example.en.json",
-        "background": "./assets/map_2x.png"
+        "background": "./assets/map_2x.png",
+        "code":"en"
     },
     {
         "name": "Russian",
         "tree": "./assets/example.csv",
         "legend": "./assets/example.ru.json",
-        "background": "./assets/map_2x.png"
+        "background": "./assets/map_2x.png",
+        "code":"ru"
     }
 ]
