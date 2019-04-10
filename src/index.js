@@ -63,12 +63,13 @@ function startApplication() {
         if (preselectConfig)
             selectConfig(preselectConfig);
 
-        if (preselectConfigName == null) {
+        if (preselectConfigName === null) {
             for (var i = 0; i < configs.length; ++i) {
                 var userlanguage = navigator.language;
-                if (userlanguage.substring(0,2) == configs[i].code) {
+                if (userlanguage.substring(0,2) === configs[i].code) {
                     selector.value = i;
                     selectConfig(configs[i]);
+                    break;
                 }
             }
         }
